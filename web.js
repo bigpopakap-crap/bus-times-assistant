@@ -11,15 +11,17 @@ const app = express();
 app.set('port', (process.env.PORT || 8080));
 app.use(bodyParser.json({type: 'application/json'}));
 
-const GENERATE_ANSWER_ACTION = 'generate_answer';
-const CHECK_GUESS_ACTION = 'check_guess';
+const GET_12_CESAR_CHAVEZ_TIMES = 'get_12_cesar_chaves_times';
+
+const actionMap = new Map();
+actionMap.set(GET_12_CESAR_CHAVEZ_TIMES, function(assistant) {
+  assistant.tell('Hey, I am in development. What do you expect of me?');
+});
 
 app.post('/', function (request, response) {
-  console.log('headers: ' + JSON.stringify(request.headers));
-  console.log('body: ' + JSON.stringify(request.body));
-
   const assistant = new Assistant({request: request, response: response});
-  response.sendStatus(200); // OK
+  assistant.handleRequest(actionMap);
+  response.sendStatus(200);
 });
 
 // Start the server
