@@ -18,6 +18,10 @@ actionMap.set(GET_12_CESAR_CHAVEZ_TIMES, function(assistant) {
   assistant.tell('Hey, I am in development. What do you expect of me?');
 });
 
+app.get('/', function(request, response) {
+  response.sendStatus(200);
+});
+
 app.post('/', function (request, response) {
   const assistant = new Assistant({request: request, response: response});
   assistant.handleRequest(actionMap);
