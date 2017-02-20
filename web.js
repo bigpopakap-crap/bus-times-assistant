@@ -11,7 +11,7 @@ const app = express();
 app.set('port', (process.env.PORT || 8080));
 app.use(bodyParser.json({type: 'application/json'}));
 
-const GET_12_CESAR_CHAVEZ_TIMES = 'get_12_cesar_chaves_times';
+const GET_12_CESAR_CHAVEZ_TIMES = 'get_12_cesar_chavez_times';
 
 app.get('/', function(request, response) {
   response.sendStatus(200);
