@@ -18,9 +18,13 @@ app.get('/', function(request, response) {
 });
 
 app.post('/', function (request, response) {
-  console.log('KAPIL 1');
+  console.log(`
+    Handling request\n
+    headers: ${JSON.stringify(request.headers)}\n
+    body: ${JSON.stringify(request.body)}
+  `);
+
   const assistant = new ApiAiAssistant({request: request, response: response});
-  console.log('KAPIL 2');
 
   const actionMap = new Map();
   actionMap.set(GET_12_CESAR_CHAVEZ_TIMES, function(assistant) {
@@ -28,8 +32,6 @@ app.post('/', function (request, response) {
   });
 
   assistant.handleRequest(actionMap);
-
-  response.sendStatus(200);
 });
 
 // Start the server
