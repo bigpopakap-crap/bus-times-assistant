@@ -57,7 +57,7 @@ function getNearestStopResult(assistant, deviceLocation, busRoute, busDirection,
     const busResults = allResults.filter(r => r.agency.id === AGENCY)
                                  .filter(r => r.route.id === `${busRoute}`);
     if (busResults.length <= 0) {
-      assistant.tell(`No nearby stops found for ${busDirection} route ${busRoute} in zip code ${deviceLocation.zip_code}.`);
+      assistant.tell(`No nearby stops found for ${busDirection} route ${busRoute}.`);
       callBackFn(true);
     } else {
       const sortedResults = busResults.sort((a, b) => parseFloat(a.stop.distance) - parseFloat(b.stop.distance));
