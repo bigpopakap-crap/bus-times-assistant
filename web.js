@@ -11,10 +11,20 @@ const app = express();
 app.set('port', (process.env.PORT || 8080));
 app.use(bodyParser.json({type: 'application/json'}));
 
+// TODO(kapil) use a more reliable backend
 const nbClient = request.createClient('http://restbus.info/');
 
 const ApiAiAssistant = require('actions-on-google').ApiAiAssistant;
 const GET_NEAREST_BUS_TIMES_BY_ROUTE = 'get_nearest_bus_times_by_route';
+
+function contains(bigStr, smallStr, caseSensitive = false) {
+  if (!caseSensitive) {
+    bigStr = bigStr.toLowerCase();
+    smallStr = smallStr.toLowerCase();
+  }
+
+  return bigStr.indexOf(smallStr) >= 0;
+}
 
 function generatePredictionResponse(p) {
   const pTypeLabel = p.isScheduleBased ? 'is scheduled to arrive' : 'will arrive';
@@ -23,7 +33,44 @@ function generatePredictionResponse(p) {
 }
 
 function handleNearestBusTimesByRoute(assistant) {
-  assistant.tell('It worked!');
+  // TODO(kapil) validate that direction is a valid enum, and route is valid
+  const busRoute = assistant.getArgument('busRoute');
+  const busDirection = assistant.getArgument('busDirection') || 'inbound';
+
+  // TODO(kapil) actually use their location
+  // https://developers.google.com/actions/develop/identity/user-info
+  const stopId = 5565;
+
+  const queryUrl = `/api/agencies/sf-muni/routes/${busRoute}/stops/${stopId}/predictions`;
+  nbClient.get(queryUrl, function(err, res, body) {
+    if (err) {
+      // TODO(kapil) handle error cases more gracefully
+      assistant.tell('Sorry, there was an error. Please try again.');
+    } else {
+      const allPredictions = (body && body[0] && body[0].values) || [];
+      const relevantPredictions = allPredictions
+        .filter(p => contains(p.direction.title, busDirection))
+        .sort((a, b) => a.epochTime - b.epochTime);
+
+      let response = `No predictions found for ${busDirection} route ${busRoute}`;
+
+      if (relevantPredictions.length > 0) {
+        const p1 = relevantPredictions[0];
+        const p1Response = generatePredictionResponse(p1);
+
+        response = `Next ${busDirection} ${busRoute} ${p1Response}.`;
+
+        if (relevantPredictions.length > 1) {
+          const p2 = relevantPredictions[1];
+          const p2Response = generatePredictionResponse(p2);
+          response = `${response} After that, the next ${busDirection} ${busRoute} ${p2Response}.`;
+        }
+      }
+
+      // TODO(kapil) echo back the stop name
+      assistant.tell(response);
+    }
+  });
 }
 
 app.get('/', function(request, response) {
