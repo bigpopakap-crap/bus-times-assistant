@@ -53,10 +53,9 @@ function handleNearestBusTimesByRoute(assistant) {
     return;
   }
 
-  // TODO(kapil) validate that direction is a valid enum, and route is valid
-  // TODO(kapil) don't do just numbers, also look for 14R versions
-  const busRoute = assistant.getArgument('#request_bus_by_number.busRoute');
-  const busDirection = assistant.getArgument('#request_bus_by_number.busDirection');
+  // TODO(kapil) is there a cleaner way to get these params?
+  const busRoute = assistant.data.busRoute;
+  const busDirection = assistant.data.busDirection;
 
   getNearestStopId(busRoute, busDirection, function(err, stopId) {
     if (err) {
@@ -98,6 +97,13 @@ function handleNearestBusTimesByRoute(assistant) {
 }
 
 function handleAskForPermission(assistant) {
+  // TODO(kapil) validate that direction is a valid enum, and route is valid
+  // TODO(kapil) don't do just numbers, also look for 14R versions
+  const busRoute = assistant.getArgument('busRoute');
+  const busDirection = assistant.getArgument('busDirection');
+  assistant.data.busRoute = busRoute;
+  assistant.data.busDirection = busDirection;
+
   const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
   assistant.askForPermission('To look up routes near you', permission);
 }
