@@ -97,16 +97,15 @@ function handleNearestBusTimesByRoute(assistant) {
       const p1 = relevantPredictions[0];
       const p1Response = generatePredictionResponse(p1);
 
-      response = `Next ${busDirection} ${busRoute} ${p1Response}.`;
+      response = `Next ${busDirection} ${busRoute} ${p1Response} at ${result.stop.title}.`;
 
       if (relevantPredictions.length > 1) {
         const p2 = relevantPredictions[1];
         const p2Response = generatePredictionResponse(p2);
-        response = `${response} After that, the next ${busDirection} ${busRoute} ${p2Response}.`;
+        response = `${response} The next ${busDirection} ${busRoute} ${p2Response}.`;
       }
     }
 
-    // TODO(kapil) echo back the stop name
     assistant.tell(response);
   });
 }
