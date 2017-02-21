@@ -41,9 +41,11 @@ function getNearestStopId(busRoute, busDirection, callBackFn) {
 }
 
 function askForPermission(assistant) {
-  if (!assistant.isPermissionGranted()) {
-    const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
-    assistant.askForPermission('To look up routes near you', permission);
+  if (assistant.getContexts().indexOf('_actions_on_google_') > 0) {
+    if (!assistant.isPermissionGranted()) {
+      const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
+      assistant.askForPermission('To look up routes near you', permission);
+    }
     return true;
   } else {
     return false;
