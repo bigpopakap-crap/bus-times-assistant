@@ -44,11 +44,16 @@ function askForPermission(assistant) {
   if (!assistant.isPermissionGranted()) {
     const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
     assistant.askForPermission('To look up routes near you', permission);
+    return true;
+  } else {
+    return false;
   }
 }
 
 function handleNearestBusTimesByRoute(assistant) {
-  askForPermission(assistant);
+  if (askForPermission(assistant)) {
+    return; // don't do anything until they've granted permission
+  }
 
   // TODO(kapil) validate that direction is a valid enum, and route is valid
   // TODO(kapil) don't do just numbers, also look for 14R versions
