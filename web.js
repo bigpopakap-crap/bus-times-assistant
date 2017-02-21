@@ -56,7 +56,7 @@ function handleNearestBusTimesByRoute(assistant) {
   // TODO(kapil) validate that direction is a valid enum, and route is valid
   // TODO(kapil) don't do just numbers, also look for 14R versions
   const busRoute = assistant.getArgument('busRoute');
-  const busDirection = assistant.getArgument('busDirection') || 'inbound';
+  const busDirection = assistant.getArgument('busDirection');
 
   getNearestStopId(busRoute, busDirection, function(err, stopId) {
     if (err) {
