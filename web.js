@@ -1,6 +1,5 @@
 'use strict';
 
-// Enable actions client library debugging
 process.env.DEBUG = 'actions-on-google:*';
 
 const express = require('express');
@@ -9,9 +8,8 @@ const request = require('request-json');
 
 const app = express();
 app.set('port', (process.env.PORT || 8080));
-app.use(bodyParser.json({type: 'application/json'}));
+app.use(bodyParser.json({ type: 'application/json' }));
 
-// TODO(kapil) use a more reliable backend
 const nbClient = request.createClient('http://restbus.info/');
 const AGENCY = 'sf-muni';
 
@@ -56,6 +54,7 @@ function getNearestStopResult(assistant, deviceLocation, busRoute, busDirection,
     const allResults = body || [];
     const busResults = allResults.filter(r => r.agency.id === AGENCY)
                                  .filter(r => r.route.id === `${busRoute}`);
+                                 // TODO(kapil) filter by direction!
     if (busResults.length <= 0) {
       assistant.tell(`No nearby stops found for ${busDirection} route ${busRoute}.`);
       callBackFn(true);
@@ -68,11 +67,9 @@ function getNearestStopResult(assistant, deviceLocation, busRoute, busDirection,
 
 function handleNearestBusTimesByRoute(assistant) {
   if (!assistant.isPermissionGranted()) {
-    // TODO(kapil) provide some basic funtionality?
     assistant.tell('Sorry, you must grant permission to proceed');
     return;
   }
-  // TODO(kapil) persist the location so we don't need to keep asking
 
   // TODO(kapil) is there a cleaner way to get these params?
   const busRoute = assistant.data.busRoute;
@@ -113,7 +110,6 @@ function handleNearestBusTimesByRoute(assistant) {
 
 function handleAskForPermission(assistant) {
   // TODO(kapil) validate that direction is a valid enum, and route is valid
-  // TODO(kapil) don't do just numbers, also look for 14R versions
   const busRoute = assistant.getArgument('busRoute');
   const busDirection = assistant.getArgument('busDirection');
   assistant.data.busRoute = busRoute;
