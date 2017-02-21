@@ -43,19 +43,11 @@ function getNearestStopId(busRoute, busDirection, callBackFn) {
 function askForPermission(assistant) {
   const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
   assistant.askForPermission('To look up routes near you', permission);
-  if (assistant.isPermissionGranted()) {
-    return true;
-  } else {
-    // TODO(kapil) handle this more gracefully? End the conversation?
-    assistant.tell('Goodbye');
-    return false;
-  }
+  return assistant.isPermissionGranted();
 }
 
 function handleNearestBusTimesByRoute(assistant) {
-  if (!askForPermission(assistant)) {
-    return;
-  }
+  askForPermission(assistant);
 
   // TODO(kapil) validate that direction is a valid enum, and route is valid
   // TODO(kapil) don't do just numbers, also look for 14R versions
