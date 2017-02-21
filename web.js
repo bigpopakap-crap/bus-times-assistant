@@ -16,6 +16,7 @@ const nbClient = request.createClient('http://restbus.info/');
 
 const ApiAiAssistant = require('actions-on-google').ApiAiAssistant;
 const GET_NEAREST_BUS_TIMES_BY_ROUTE = 'get_nearest_bus_times_by_route';
+const GET_NEAREST_BUS_TIMES_BY_ROUTE_FALLBACK = 'get_nearest_bus_times_by_route_fallback';
 
 function contains(bigStr, smallStr, caseSensitive = false) {
   if (!caseSensitive) {
@@ -31,6 +32,11 @@ function genericError(assistant) {
 }
 
 function generatePredictionResponse(p) {
+  // special case for arriving
+  if (!p.isScheduleBased && p.minutes === 0) {
+    return `is arriving now`;
+  }
+
   const pTypeLabel = p.isScheduleBased ? 'is scheduled to arrive' : 'will arrive';
   const minuteLabel = p.minutes == 1 ? 'minute' : 'minutes';
   return `${pTypeLabel} in ${p.minutes} ${minuteLabel}`;
@@ -40,21 +46,11 @@ function getNearestStopId(busRoute, busDirection, callBackFn) {
   callBackFn(null, 5565);
 }
 
-function askForPermission(assistant) {
-  if (assistant.getContexts().indexOf('_actions_on_google_') > 0) {
-    if (!assistant.isPermissionGranted()) {
-      const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
-      assistant.askForPermission('To look up routes near you', permission);
-    }
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function handleNearestBusTimesByRoute(assistant) {
-  if (askForPermission(assistant)) {
-    return; // don't do anything until they've granted permission
+  if (!assistant.isPermissionGranted()) {
+    // TODO(kapil) provide some basic funtionality?
+    assistant.tell('Sorry, you must grant permission to proceed');
+    return;
   }
 
   // TODO(kapil) validate that direction is a valid enum, and route is valid
@@ -101,6 +97,11 @@ function handleNearestBusTimesByRoute(assistant) {
   });
 }
 
+function handleAskForPermission(assistant) {
+  const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
+  assistant.askForPermission('To look up routes near you', permission);
+}
+
 app.get('/', function(request, response) {
   response.sendStatus(200);
 });
@@ -109,7 +110,8 @@ app.post('/', function (request, response) {
   const assistant = new ApiAiAssistant({request: request, response: response});
 
   const actionMap = new Map();
-  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE, handleNearestBusTimesByRoute);
+  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE, handleAskForPermission);
+  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE_FALLBACK, handleNearestBusTimesByRoute);
 
   assistant.handleRequest(actionMap);
 });
