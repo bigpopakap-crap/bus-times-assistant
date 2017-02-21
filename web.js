@@ -26,27 +26,55 @@ function contains(bigStr, smallStr, caseSensitive = false) {
   return bigStr.indexOf(smallStr) >= 0;
 }
 
+function genericError(assistant) {
+  assistant.tell('Sorry, there was an error. Please try again.');
+}
+
 function generatePredictionResponse(p) {
   const pTypeLabel = p.isScheduleBased ? 'is scheduled to arrive' : 'will arrive';
   const minuteLabel = p.minutes == 1 ? 'minute' : 'minutes';
   return `${pTypeLabel} in ${p.minutes} ${minuteLabel}`;
 }
 
+function getNearestStopId(busRoute, busDirection, callBackFn) {
+  callBackFn(null, 5565);
+}
+
+function askForPermission(assistant) {
+  const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
+  assistant.askForPermission('To look up routes near you', permission);
+  if (assistant.isPermissionGranted()) {
+    return true;
+  } else {
+    // TODO(kapil) handle this more gracefully? End the conversation?
+    assistant.tell('Goodbye');
+    return false;
+  }
+}
+
 function handleNearestBusTimesByRoute(assistant) {
+  if (!askForPermission(assistant)) {
+    return;
+  }
+
   // TODO(kapil) validate that direction is a valid enum, and route is valid
+  // TODO(kapil) don't do just numbers, also look for 14R versions
   const busRoute = assistant.getArgument('busRoute');
   const busDirection = assistant.getArgument('busDirection') || 'inbound';
 
-  // TODO(kapil) actually use their location
-  // https://developers.google.com/actions/develop/identity/user-info
-  const stopId = 5565;
-
-  const queryUrl = `/api/agencies/sf-muni/routes/${busRoute}/stops/${stopId}/predictions`;
-  nbClient.get(queryUrl, function(err, res, body) {
+  getNearestStopId(busRoute, busDirection, function(err, stopId) {
     if (err) {
-      // TODO(kapil) handle error cases more gracefully
-      assistant.tell('Sorry, there was an error. Please try again.');
-    } else {
+      genericError(assistant);
+      return;
+    }
+
+    const queryUrl = `/api/agencies/sf-muni/routes/${busRoute}/stops/${stopId}/predictions`;
+    nbClient.get(queryUrl, function(err, res, body) {
+      if (err) {
+        genericError(assistant);
+        return;
+      }
+
       const allPredictions = (body && body[0] && body[0].values) || [];
       const relevantPredictions = allPredictions
         .filter(p => contains(p.direction.title, busDirection))
@@ -69,7 +97,7 @@ function handleNearestBusTimesByRoute(assistant) {
 
       // TODO(kapil) echo back the stop name
       assistant.tell(response);
-    }
+    });
   });
 }
 
