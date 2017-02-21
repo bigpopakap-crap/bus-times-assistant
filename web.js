@@ -13,6 +13,7 @@ app.use(bodyParser.json({type: 'application/json'}));
 
 // TODO(kapil) use a more reliable backend
 const nbClient = request.createClient('http://restbus.info/');
+const AGENCY = 'sf-muni';
 
 const ApiAiAssistant = require('actions-on-google').ApiAiAssistant;
 const GET_NEAREST_BUS_TIMES_BY_ROUTE = 'get_nearest_bus_times_by_route';
@@ -42,8 +43,26 @@ function generatePredictionResponse(p) {
   return `${pTypeLabel} in ${p.minutes} ${minuteLabel}`;
 }
 
-function getNearestStopId(busRoute, busDirection, callBackFn) {
-  callBackFn(null, 5565);
+function getNearestStopResult(assistant, coordinates, busRoute, busDirection, callBackFn) {
+  const queryUrl = `/api/locations/${coordinates.latitude},${coordinates.longitude}/predictions`;
+  nbClient.get(queryUrl, function(err, res, body) {
+    if (err) {
+      callBackFn(true);
+      genericError(assistant);
+      return;
+    }
+
+    const allResults = body || [];
+    const busResults = allResults.filter(r => r.agency.id === AGENCY)
+                                 .filter(r => r.route.id === `${busRoute}`);
+    if (busResults.length <= 0) {
+      assistant.tell(`No nearby stops found for ${busDirection} route ${busRoute}.`);
+      callBackFn(true);
+    } else {
+      const sortedResults = busResults.sort((a, b) => parseFloat(a.stop.distance) - parseFloat(b.stop.distance));
+      callBackFn(false, sortedResults[0]);
+    }
+  });
 }
 
 function handleNearestBusTimesByRoute(assistant) {
@@ -57,42 +76,37 @@ function handleNearestBusTimesByRoute(assistant) {
   const busRoute = assistant.data.busRoute;
   const busDirection = assistant.data.busDirection;
 
-  getNearestStopId(busRoute, busDirection, function(err, stopId) {
+  const coordinates = assistant.getDeviceLocation().coordinates;
+
+  getNearestStopResult(assistant, coordinates, busRoute, busDirection, function(err, result) {
     if (err) {
-      genericError(assistant);
+      // don't do anything else... the function should have already returned
+      // an error to the user
       return;
     }
 
-    const queryUrl = `/api/agencies/sf-muni/routes/${busRoute}/stops/${stopId}/predictions`;
-    nbClient.get(queryUrl, function(err, res, body) {
-      if (err) {
-        genericError(assistant);
-        return;
+    const allPredictions = (result && result.values) || [];
+    const relevantPredictions = allPredictions
+      .filter(p => contains(p.direction.title, busDirection))
+      .sort((a, b) => a.epochTime - b.epochTime);
+
+    let response = `No predictions found for ${busDirection} route ${busRoute}`;
+
+    if (relevantPredictions.length > 0) {
+      const p1 = relevantPredictions[0];
+      const p1Response = generatePredictionResponse(p1);
+
+      response = `Next ${busDirection} ${busRoute} ${p1Response}.`;
+
+      if (relevantPredictions.length > 1) {
+        const p2 = relevantPredictions[1];
+        const p2Response = generatePredictionResponse(p2);
+        response = `${response} After that, the next ${busDirection} ${busRoute} ${p2Response}.`;
       }
+    }
 
-      const allPredictions = (body && body[0] && body[0].values) || [];
-      const relevantPredictions = allPredictions
-        .filter(p => contains(p.direction.title, busDirection))
-        .sort((a, b) => a.epochTime - b.epochTime);
-
-      let response = `No predictions found for ${busDirection} route ${busRoute}`;
-
-      if (relevantPredictions.length > 0) {
-        const p1 = relevantPredictions[0];
-        const p1Response = generatePredictionResponse(p1);
-
-        response = `Next ${busDirection} ${busRoute} ${p1Response}.`;
-
-        if (relevantPredictions.length > 1) {
-          const p2 = relevantPredictions[1];
-          const p2Response = generatePredictionResponse(p2);
-          response = `${response} After that, the next ${busDirection} ${busRoute} ${p2Response}.`;
-        }
-      }
-
-      // TODO(kapil) echo back the stop name
-      assistant.tell(response);
-    });
+    // TODO(kapil) echo back the stop name
+    assistant.tell(response);
   });
 }
 
