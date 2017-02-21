@@ -43,8 +43,9 @@ function generatePredictionResponse(p) {
   return `${pTypeLabel} in ${p.minutes} ${minuteLabel}`;
 }
 
-function getNearestStopResult(assistant, coordinates, busRoute, busDirection, callBackFn) {
-  const queryUrl = `/api/locations/${coordinates.latitude},${coordinates.longitude}/predictions`;
+function getNearestStopResult(assistant, deviceLocation, busRoute, busDirection, callBackFn) {
+  const { latitude, longitude } = deviceLocation.coordinates;
+  const queryUrl = `/api/locations/${latitude},${longitude}/predictions`;
   nbClient.get(queryUrl, function(err, res, body) {
     if (err) {
       callBackFn(true);
@@ -56,7 +57,7 @@ function getNearestStopResult(assistant, coordinates, busRoute, busDirection, ca
     const busResults = allResults.filter(r => r.agency.id === AGENCY)
                                  .filter(r => r.route.id === `${busRoute}`);
     if (busResults.length <= 0) {
-      assistant.tell(`No nearby stops found for ${busDirection} route ${busRoute}.`);
+      assistant.tell(`No nearby stops found for ${busDirection} route ${busRoute} in zip code ${deviceLocation.zip_code}.`);
       callBackFn(true);
     } else {
       const sortedResults = busResults.sort((a, b) => parseFloat(a.stop.distance) - parseFloat(b.stop.distance));
@@ -76,9 +77,9 @@ function handleNearestBusTimesByRoute(assistant) {
   const busRoute = assistant.data.busRoute;
   const busDirection = assistant.data.busDirection;
 
-  const coordinates = assistant.getDeviceLocation().coordinates;
+  const deviceLocation = assistant.getDeviceLocation();
 
-  getNearestStopResult(assistant, coordinates, busRoute, busDirection, function(err, result) {
+  getNearestStopResult(assistant, deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {
       // don't do anything else... the function should have already returned
       // an error to the user
