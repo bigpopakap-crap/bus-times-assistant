@@ -72,6 +72,7 @@ function handleNearestBusTimesByRoute(assistant) {
     assistant.tell('Sorry, you must grant permission to proceed');
     return;
   }
+  // TODO(kapil) persist the location so we don't need to keep asking
 
   // TODO(kapil) is there a cleaner way to get these params?
   const busRoute = assistant.data.busRoute;
