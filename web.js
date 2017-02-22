@@ -43,6 +43,16 @@ function generatePredictionResponse(p) {
   }
 }
 
+function cleanStopTitle(stopTitle) {
+  const prefixLower = 'stop:';
+
+  if (stopTitle.toLowerCase().startsWith(prefixLower)) {
+    stopTitle = stopTitle.substring(prefixLower.length).trim();
+  }
+  
+  return stopTitle;
+}
+
 function getNearestStopResult(assistant, deviceLocation, busRoute, busDirection, callBackFn) {
   const { latitude, longitude } = deviceLocation.coordinates;
   const queryUrl = `/api/locations/${latitude},${longitude}/predictions`;
@@ -85,28 +95,31 @@ function handleNearestBusTimesByRoute(assistant) {
       // an error to the user
       return;
     }
+    
+    const busStop = cleanStopTitle(result.stop.title);
 
     const allPredictions = (result && result.values) || [];
     const relevantPredictions = allPredictions
       .filter(p => contains(p.direction.title, busDirection))
       .sort((a, b) => a.epochTime - b.epochTime);
 
-    let response = `No predictions found for ${busDirection} route ${busRoute}`;
-
     if (relevantPredictions.length > 0) {
       const p1 = relevantPredictions[0];
       const p1Response = generatePredictionResponse(p1);
 
-      response = `Next ${busDirection} ${busRoute} ${p1Response} at ${result.stop.title}.`;
+      const resp1 = `The next ${busDirection} ${busRoute} ${p1Response} at ${busStop}.`;
+      let resp2 = '';
 
       if (relevantPredictions.length > 1) {
         const p2 = relevantPredictions[1];
         const p2Response = generatePredictionResponse(p2);
-        response = `${response} The next ${busDirection} ${busRoute} ${p2Response}.`;
+        resp2 = `After that, the next ${busDirection} ${busRoute} ${p2Response}.`;
       }
+      
+      assistant.tell(`${resp1} ${resp2}`);
+    } else {
+      assistant.tell(`No predictions found for ${busDirection} route ${busRoute}`);
     }
-
-    assistant.tell(response);
   });
 }
 
