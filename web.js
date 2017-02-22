@@ -32,13 +32,13 @@ function genericError(assistant) {
 
 function generatePredictionResponse(p) {
   // special case for arriving
-  if (!p.isScheduleBased && p.minutes === 0) {
-    return `is arriving now`;
+  if (p.minutes === 0) {
+    return p.isScheduleBased ? 'is scheduled to arrive now' : 'is arriving now';
+  } else {
+    const pTypeLabel = p.isScheduleBased ? 'is scheduled to arrive' : 'will arrive';
+    const minuteLabel = p.minutes == 1 ? 'minute' : 'minutes';
+    return `${pTypeLabel} in ${p.minutes} ${minuteLabel}`;
   }
-
-  const pTypeLabel = p.isScheduleBased ? 'is scheduled to arrive' : 'will arrive';
-  const minuteLabel = p.minutes == 1 ? 'minute' : 'minutes';
-  return `${pTypeLabel} in ${p.minutes} ${minuteLabel}`;
 }
 
 function getNearestStopResult(assistant, deviceLocation, busRoute, busDirection, callBackFn) {
