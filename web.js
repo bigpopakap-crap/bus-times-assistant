@@ -32,14 +32,18 @@ function genericError(assistant) {
   assistant.tell('Sorry, there was an error. Please try again.');
 }
 
+function pluralPhrase(count, singularLabel, pluralLabel) {
+  return count == 1 ? `${count} ${singularLabel}` : `${count} ${pluralLabel}`;
+}
+
 function generatePredictionResponse(p) {
   // special case for arriving
   if (p.minutes === 0) {
     return p.isScheduleBased ? 'is scheduled to arrive now' : 'is arriving now';
   } else {
     const pTypeLabel = p.isScheduleBased ? 'is scheduled to arrive' : 'will arrive';
-    const minuteLabel = p.minutes == 1 ? 'minute' : 'minutes';
-    return `${pTypeLabel} in ${p.minutes} ${minuteLabel}`;
+    const minutePhrase = pluralPhrase(p.minutes, 'minute', 'minutes');
+    return `${pTypeLabel} in ${minutePhrase}`;
   }
 }
 
@@ -107,16 +111,21 @@ function handleNearestBusTimesByRoute(assistant) {
       const p1 = relevantPredictions[0];
       const p1Response = generatePredictionResponse(p1);
 
-      const resp1 = `The next ${busDirection} ${busRoute} ${p1Response} at ${busStop}.`;
-      let resp2 = '';
+      let response = `The next ${busDirection} ${busRoute} from ${busStop} ${p1Response}`;
 
       if (relevantPredictions.length > 1) {
         const p2 = relevantPredictions[1];
-        const p2Response = generatePredictionResponse(p2);
-        resp2 = `After that, the next ${busDirection} ${busRoute} ${p2Response}.`;
+        
+        if (p2.isScheduleBased) {
+          const p2Response = generatePredictionResponse(p2);
+          response = `${response}. After that, the next one ${p2Response}`;
+        } else {
+          const minutePhrase = pluralPhrase(p2.minutes, 'minute', 'minutes');
+          response = `${response}, then again in ${minutePhrase}`;
+        }
       }
       
-      assistant.tell(`${resp1} ${resp2}`);
+      assistant.tell(`${response}.`);
     } else {
       assistant.tell(`No predictions found for ${busDirection} route ${busRoute}`);
     }
