@@ -1,7 +1,7 @@
 'use strict';
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const { contains, pluralPhrase } = require('./utils.js');
+const { pluralPhrase } = require('./utils.js');
 const { NEXTBUS_ERRORS, getNearestStopResult } = require('./nextbus-adapter.js');
 
 function genericError(assistant) {
@@ -59,33 +59,30 @@ function handleNearestBusTimesByRoute(assistant) {
       return;
     }
 
-    const allPredictions = (result && result.values) || [];
-    const relevantPredictions = allPredictions
-      .filter(p => contains(p.direction.title, busDirection))
-      .sort((a, b) => a.epochTime - b.epochTime);
-
-    if (relevantPredictions.length > 0) {
-      const p1 = relevantPredictions[0];
-      const p1Response = generatePredictionResponse(p1);
-
-      let response = `The next ${busDirection} ${busRoute} from ${result.busStop} ${p1Response}`;
-
-      if (relevantPredictions.length > 1) {
-        const p2 = relevantPredictions[1];
-
-        if (p2.isScheduleBased) {
-          const p2Response = generatePredictionResponse(p2);
-          response = `${response}. After that, the next one ${p2Response}`;
-        } else {
-          const minutePhrase = pluralPhrase(p2.minutes, 'minute', 'minutes');
-          response = `${response}, then again in ${minutePhrase}`;
-        }
-      }
-
-      assistant.tell(`${response}.`);
-    } else {
+    const predictions = (result && result.values) || [];
+    if (predictions.length <= 0) {
       assistant.tell(`No predictions found for ${busDirection} route ${busRoute}`);
+      return;
     }
+
+    const p1 = predictions[0];
+    const p1Response = generatePredictionResponse(p1);
+
+    let response = `The next ${busDirection} ${busRoute} from ${result.busStop} ${p1Response}`;
+
+    if (predictions.length > 1) {
+      const p2 = predictions[1];
+
+      if (p2.isScheduleBased) {
+        const p2Response = generatePredictionResponse(p2);
+        response = `${response}. After that, the next one ${p2Response}`;
+      } else {
+        const minutePhrase = pluralPhrase(p2.minutes, 'minute', 'minutes');
+        response = `${response}, then again in ${minutePhrase}`;
+      }
+    }
+
+    assistant.tell(`${response}.`);
   });
 }
 
