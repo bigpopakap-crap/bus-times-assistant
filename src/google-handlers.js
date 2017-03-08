@@ -1,5 +1,6 @@
 'use strict';
 
+const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const { contains, pluralPhrase } = require('./utils.js');
 const { NEXTBUS_ERRORS, getNearestStopResult } = require('./nextbus-adapter.js');
 
@@ -21,7 +22,10 @@ function generatePredictionResponse(p) {
 function handleAskForPermission(assistant) {
   // TODO(kapil) validate that direction is a valid enum, and route is valid
   const busRoute = assistant.getArgument('busRoute');
-  const busDirection = assistant.getArgument('busDirection');
+  const busDirection = busDirectionFromInput(
+    assistant.getArgument('busDirection')
+  );
+
   assistant.data.busRoute = busRoute;
   assistant.data.busDirection = busDirection;
 
