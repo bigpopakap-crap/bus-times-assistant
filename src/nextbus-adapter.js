@@ -32,7 +32,9 @@ function cleanResult(result) {
 
 function getNearestStopResult(deviceLocation, busRoute, busDirection, callBackFn) {
   const { latitude, longitude } = deviceLocation.coordinates;
-  const queryUrl = `/api/locations/${latitude},${longitude}/predictions`;
+  const locationString = process.env.NEXTBUS_MOCK_LOCATION || `${latitude},${longitude}`;
+
+  const queryUrl = `/api/locations/${locationString}/predictions`;
   nbClient.get(queryUrl, function(err, res, body) {
     if (err) {
       callBackFn(NEXTBUS_ERRORS.GENERIC);
