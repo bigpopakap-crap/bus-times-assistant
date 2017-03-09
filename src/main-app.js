@@ -7,6 +7,7 @@ process.env.PORT = process.env.PORT || 8080;
 const express = require('express');
 const bodyParser = require('body-parser');
 const googleApp = require('./google-app.js');
+const alexaApp = require('./alexa-app.js');
 
 const app = express();
 app.set('port', process.env.PORT);
@@ -17,6 +18,7 @@ app.get('/status', function(request, response) {
 });
 
 app.use('/google', googleApp);
+app.use('/alexa', alexaApp);
 
 // Start the server
 var server = app.listen(app.get('port'), function () {

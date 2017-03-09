@@ -1,18 +1,16 @@
 {
   "name": "google-assistant-bus-times",
-  "description": "Google Actions Bus Times for Node.js",
+  "description": "Bus Times AI for Google Assistant and Alexa in Node.js",
   "version": "0.0.1",
   "private": true,
   "author": "Kapil Easwar",
-  "scripts": {
-    "start": "node app.js",
-    "monitor": "nodemon app.js"
-  },
   "dependencies": {
     "actions-on-google": "1.0.7",
+    "alexa-app": "3.2.0",
     "body-parser": "1.15.2",
     "express": "4.13.4",
-    "request-json": "^0.6.1",
+    "promise": "7.1.1",
+    "request-json": "0.6.1",
     "sprintf-js": "1.0.3"
   }
 }
