@@ -16,7 +16,6 @@ app.get('/status', function(request, response) {
   response.sendStatus(200);
 });
 
-app.use('/', googleApp); // TODO can remove once no traffic comes here
 app.use('/google', googleApp);
 
 // Start the server
