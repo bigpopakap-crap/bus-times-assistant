@@ -5,6 +5,14 @@ const { reportNearestStopResult } = require('./nextbus-assistant.js');
 
 const { googleDb } = require('./db.js');
 
+function cleanDeviceLocation(deviceLocation) {
+  return {
+    latitude: deviceLocation.coordinates.latitude,
+    longitude: deviceLocation.coordinates.longitude,
+    originalAddressInput: deviceLocation.address
+  };
+}
+
 /**
  * Handles the initial request for bus times. Here, we check if we already
  * have the user's location, and either ask for permission or
@@ -51,7 +59,7 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
 
   const deviceLocation = process.env.MOCK_DEVICE_LOCATION
               ? JSON.parse(process.env.MOCK_DEVICE_LOCATION)
-              : assistant.getDeviceLocation().coordinates;
+              : cleanDeviceLocation(assistant.getDeviceLocation());
   const busRoute = assistant.data.busRoute;
   const busDirection = assistant.data.busDirection;
 
