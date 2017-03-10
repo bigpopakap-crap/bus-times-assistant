@@ -15,6 +15,8 @@ function generatePredictionResponse(p) {
 }
 
 function reportNearestStopResult(deviceLocation, busRoute, busDirection, respondCallback) {
+  // TODO handle invalid input
+
   getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {
       switch (err) {
