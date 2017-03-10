@@ -21,7 +21,13 @@ function db(appSource) {
   }
 
   /**
-   * location - { latitude, longitude, originalAddressInput }
+   * location is {
+   *   latitude,
+   *   longitude,
+   *   address,
+   *   originalAddressInput,
+   *   originalAddressSource
+   * }
    */
   this.saveLocation = function(userId, location) {
     firebase.saveLocation(appSource, userId, location);
