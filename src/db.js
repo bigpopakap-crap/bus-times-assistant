@@ -1,6 +1,8 @@
 const Promise = require('promise');
 const logger = require('./logger.js');
+const firebase = require('./db-firebase.js');
 
+// TODO do we care? Should this be removed completely?
 const APP_SOURCE = {
   GOOGLE: 'google',
   ALEXA: 'alexa'
@@ -10,10 +12,11 @@ function db(appSource) {
   var data = {};
 
   this.getLocation = function(userId) {
-    return new Promise(resolve => {
-      const location = data[userId];
-      logger.log(`Got location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
-      resolve(location);
+    return firebase.getLocation(appSource, userId).then(location => {
+      return new Promise(resolve => {
+        logger.log(`Got location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
+        resolve(location);
+      });
     });
   }
 
@@ -21,11 +24,8 @@ function db(appSource) {
    * location - { latitude, longitude, originalAddressInput }
    */
   this.saveLocation = function(userId, location) {
-    return new Promise(resolve => {
-      data[userId] = location;
-      logger.log(`Saved location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
-      resolve();
-    });
+    firebase.saveLocation(appSource, userId, location);
+    logger.log(`Saved location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
   }
 };
 
