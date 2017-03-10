@@ -6,7 +6,6 @@ const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
 
 function reportMyLocation(db, userId, responseCallback) {
   db.getLocation(userId).then(location => {
-    console.log(`REPORT MY LOCATION: ${JSON.stringify(location)}`);
     if (location) {
       responseCallback(`Your location is set to ${location.address}`);
     } else {
@@ -69,7 +68,7 @@ function reportNearestStopResult(deviceLocation, busRoute, busDirection, respond
     if (predictions.length > 1) {
       const p2 = predictions[1];
 
-      if (p2.isScheduleBased) {
+      if (p1.isScheduleBased === p2.isScheduleBased) {
         const p2Response = generatePredictionResponse(p2);
         response = `${response}. After that, the next one ${p2Response}`;
       } else {
