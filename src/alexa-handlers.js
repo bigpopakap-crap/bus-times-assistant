@@ -4,7 +4,7 @@ const Promise = require('promise');
 const { alexaDb } = require('./db.js');
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const { reportNearestStopResult } = require('./nextbus-assistant.js');
+const { reportNearestStopResult } = require('./common-assistant.js');
 
 // Alexa doesn't like ampersands in SSML
 function cleanResponse(response) {

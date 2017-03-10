@@ -1,7 +1,11 @@
 'use strict';
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const { reportNearestStopResult } = require('./nextbus-assistant.js');
+const {
+  reportMyLocation,
+  reportMyLocationUpdate,
+  reportNearestStopResult
+} = require('./common-assistant.js');
 
 const { googleDb } = require('./db.js');
 
@@ -9,8 +13,27 @@ function cleanDeviceLocation(deviceLocation) {
   return {
     latitude: deviceLocation.coordinates.latitude,
     longitude: deviceLocation.coordinates.longitude,
-    originalAddressInput: deviceLocation.address
+    address: deviceLocation.address,
+    originalAddressInput: deviceLocation.address,
+    originalAddressSource: 'google device'
   };
+}
+
+function handleGetMyLocation(assistant) {
+  const userId = assistant.getUser().user_id;
+
+  reportMyLocation(googleDb, userId, response => {
+    assistant.tell(response);
+  });
+}
+
+function handleUpdateMyLocation(assistant) {
+  const userId = assistant.getUser().user_id;
+  const address = assistant.getArgument('address');
+
+  reportMyLocationUpdate(googleDb, userId, address, response => {
+    assistant.tell(response);
+  });
 }
 
 /**
@@ -30,7 +53,7 @@ function handleNearestBusTimesByRoute(assistant) {
   googleDb.getLocation(userId).then(location => {
     if (location) {
       // just answer the query because we have a saved location
-      reportNearestStopResult(location, busRoute, busDirection, function(response) {
+      reportNearestStopResult(location, busRoute, busDirection, response => {
         assistant.tell(response);
       });
     } else {
@@ -57,21 +80,21 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
     return;
   }
 
-  const deviceLocation = process.env.MOCK_DEVICE_LOCATION
-              ? JSON.parse(process.env.MOCK_DEVICE_LOCATION)
-              : cleanDeviceLocation(assistant.getDeviceLocation());
+  const deviceLocation = cleanDeviceLocation(assistant.getDeviceLocation());
   const busRoute = assistant.data.busRoute;
   const busDirection = assistant.data.busDirection;
 
   // save the user's location, but we don't need to wait for that call to succeed
   googleDb.saveLocation(userId, deviceLocation);
 
-  reportNearestStopResult(deviceLocation, busRoute, busDirection, function(response) {
+  reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
     assistant.tell(response);
   });
 }
 
 module.exports = {
+  handleGetMyLocation,
+  handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
   handleNearestBusTimesByRoute_fallback
 };

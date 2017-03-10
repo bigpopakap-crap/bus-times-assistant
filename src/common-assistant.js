@@ -1,7 +1,31 @@
+const geocoder = require('./geocoder.js');
 const { NEXTBUS_ERRORS, getNearestStopResult } = require('./nextbus-adapter.js');
 const { pluralPhrase } = require('./utils.js');
 
 const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
+
+function reportMyLocation(db, userId, responseCallback) {
+  db.getLocation(userId).then(location => {
+    console.log(`REPORT MY LOCATION: ${JSON.stringify(location)}`);
+    if (location) {
+      responseCallback(`Your location is set to ${location.address}`);
+    } else {
+      responseCallback('You haven\'t set a location yet. Simply ask for bus times to use your device\'s location, or say "Update my location"');
+    }
+  });
+}
+
+function reportMyLocationUpdate(db, userId, address, responseCallback) {
+  geocoder.geocode(address).then(
+    location => {
+      db.saveLocation(userId, location);
+      responseCallback(`There. Your location has been updated to ${location.address}`);
+    },
+    err => {
+      responseCallback(`Hmm. I could not find that address. Try saying the full address again`);
+    }
+  );
+}
 
 function generatePredictionResponse(p) {
   // special case for arriving
@@ -59,5 +83,7 @@ function reportNearestStopResult(deviceLocation, busRoute, busDirection, respond
 }
 
 module.exports = {
+  reportMyLocation,
+  reportMyLocationUpdate,
   reportNearestStopResult
 };
