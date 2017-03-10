@@ -11,8 +11,8 @@ const GET_NEAREST_BUS_TIMES_BY_ROUTE = 'get_nearest_bus_times_by_route';
 const GET_NEAREST_BUS_TIMES_BY_ROUTE_FALLBACK = 'get_nearest_bus_times_by_route_fallback';
 
 const {
-  handleAskForPermission,
-  handleNearestBusTimesByRoute
+  handleNearestBusTimesByRoute,
+  handleNearestBusTimesByRoute_fallback
 } = require('./google-handlers.js');
 
 // base URL for checking status
@@ -24,12 +24,12 @@ app.post('/', function (request, response) {
   const assistant = new ApiAiAssistant({request: request, response: response});
 
   const actionMap = new Map();
-  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE, handleAskForPermission);
-  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE_FALLBACK, handleNearestBusTimesByRoute);
+  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE, handleNearestBusTimesByRoute);
+  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE_FALLBACK, handleNearestBusTimesByRoute_fallback);
 
   assistant.handleRequest(actionMap);
 });
 
-// TODO add a console.log when the app starts
+// TODO add a log when the app starts
 
 module.exports = app;

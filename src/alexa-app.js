@@ -24,6 +24,6 @@ alexaApp.intent(
 
 alexaApp.express({ expressApp });
 
-// TODO add a console.log when the expressApp starts
+// TODO add a log when the expressApp starts
 
 module.exports = expressApp;
