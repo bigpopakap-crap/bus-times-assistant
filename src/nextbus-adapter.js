@@ -4,7 +4,7 @@ const { contains } = require('./utils.js');
 
 const request = require('request-json');
 
-const nbClient = request.createClient('http://restbus.info/');
+const nbClient = request.createClient(process.env.RESTBUS_BASE_URL);
 const AGENCY = 'sf-muni';
 
 const NEXTBUS_ERRORS = {
@@ -33,7 +33,7 @@ function cleanResult(result) {
 function getNearestStopResult(deviceLocation, busRoute, busDirection, callBackFn) {
   const { latitude, longitude } = deviceLocation;
 
-  const queryUrl = `/api/locations/${latitude},${longitude}/predictions`;
+  const queryUrl = `/locations/${latitude},${longitude}/predictions`;
   nbClient.get(queryUrl, function(err, res, body) {
     if (err) {
       callBackFn(NEXTBUS_ERRORS.GENERIC);
