@@ -76,7 +76,7 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
   const userId = assistant.getUser().user_id;
 
   if (!assistant.isPermissionGranted()) {
-    assistant.tell('Sorry, you must grant permission to proceed');
+    assistant.tell('To proceed, I\'ll need your location. If you do not want to grant access, you can update your address by saying "Update my location"');
     return;
   }
 
