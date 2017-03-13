@@ -70,8 +70,8 @@ function handleDefault(request, response) {
   const userId = request.sessionDetails.userId;
 
   return alexaDb.getLocation(userId).then(location => {
-    const baseResponse = 'Hello, there! I can look up bus times for you. For example you can say, "When is the next 12 to downtown?"';
-    const noLocationResponse = `${baseResponse}. But first, you'll need to tell me your location by saying "Update my location".`;
+    const baseResponse = 'Hello there! I can look up bus times for you. For example you can say, "When is the next 12 to downtown?"';
+    const noLocationResponse = `${baseResponse}. But first, you'll need to tell me your location by saying "Set my location".`;
 
     const responseText = location ? baseResponse : noLocationResponse;
     response.say(cleanResponse(responseText));

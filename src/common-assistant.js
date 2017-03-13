@@ -15,6 +15,11 @@ function reportMyLocation(db, userId, responseCallback) {
 }
 
 function reportMyLocationUpdate(db, userId, address, responseCallback) {
+  if (!address) {
+    responseCallback('You must specify the address. For example, "Set my location to 100 Van Ness, San Francisco".');
+    return;
+  }
+
   geocoder.geocode(address).then(
     location => {
       db.saveLocation(userId, location);
@@ -37,17 +42,23 @@ function generatePredictionResponse(p) {
   }
 }
 
-function reportNearestStopResult(deviceLocation, busRoute, busDirection, respondCallback) {
-  // TODO handle invalid input
+function reportNearestStopResult(deviceLocation, busRoute, busDirection, responseCallback) {
+  if (!busRoute) {
+    responseCallback('You must specify a bus number. For example, "When is the next 12 to downtown?"');
+    return;
+  } else if (!busDirection) {
+    responseCallback('You must specify a direction. For example, "When is the next 12 to downtown?" or "When is the next inbound 12?"');
+    return;
+  }
 
   getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {
       switch (err) {
         case NEXTBUS_ERRORS.NOT_FOUND:
-          respondCallback(`No nearby stops found for ${busDirection} route ${busRoute}.`);
+          responseCallback(`No nearby stops found for ${busDirection} route ${busRoute}.`);
           break;
         default:
-          respondCallback(GENERIC_ERROR_RESPONSE);
+          responseCallback(GENERIC_ERROR_RESPONSE);
           break;
       }
 
@@ -56,7 +67,7 @@ function reportNearestStopResult(deviceLocation, busRoute, busDirection, respond
 
     const predictions = (result && result.values) || [];
     if (predictions.length <= 0) {
-      respondCallback(`No predictions found for ${busDirection} route ${busRoute}`);
+      responseCallback(`No predictions found for ${busDirection} route ${busRoute}`);
       return;
     }
 
@@ -77,7 +88,7 @@ function reportNearestStopResult(deviceLocation, busRoute, busDirection, respond
       }
     }
 
-    respondCallback(`${response}.`);
+    responseCallback(`${response}.`);
   });
 }
 
