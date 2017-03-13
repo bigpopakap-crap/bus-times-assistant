@@ -1,0 +1,35 @@
+{
+  "name": "google-assistant-bus-times",
+  "scripts": {
+  },
+  "env": {
+    "DEBUG": {
+      "required": true
+    },
+    "FIREBASE_CLIENT_EMAIL": {
+      "required": true
+    },
+    "FIREBASE_PRIV_KEY": {
+      "required": true
+    },
+    "FIREBASE_PROJECT_ID": {
+      "required": true
+    },
+    "FIREBASE_URL": {
+      "required": true
+    },
+    "RESTBUS_BASE_URL": {
+      "required": true
+    }
+  },
+  "formation": {
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
