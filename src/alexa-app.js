@@ -6,8 +6,17 @@ const alexa = require('alexa-app');
 const expressApp = express();
 const alexaApp = new alexa.app('');
 
-const INTENT_NAME = 'Get_next_bus_by_number';
-const { handleNearestBusTimesByRoute } = require('./alexa-handlers.js');
+const GET_MY_LOCATION = 'Get_my_location';
+const UPDATE_MY_LOCATION = 'Update_my_location';
+const GET_BUS_TIMES = 'Get_next_bus_by_number';
+const DEFAULT_INTENT = 'DefaultWelcomeIntent';
+
+const {
+  handleGetMyLocation,
+  handleUpdateMyLocation,
+  handleNearestBusTimesByRoute,
+  handleDefault
+} = require('./alexa-handlers.js');
 
 // base URL for checking status
 expressApp.get('/status', function(request, response) {
@@ -15,12 +24,33 @@ expressApp.get('/status', function(request, response) {
 });
 
 alexaApp.intent(
-  INTENT_NAME,
+  GET_MY_LOCATION,
+  {},
+  handleGetMyLocation
+);
+
+alexaApp.intent(
+  UPDATE_MY_LOCATION,
   {
-    slots: { busRoute: 'AMAZON.NUMBER', busDirection: 'BUSDIRECTION' }
+    slots: { address: 'AMAZON.PostalAddress' }
+  },
+  handleUpdateMyLocation
+);
+
+alexaApp.intent(
+  GET_BUS_TIMES,
+  {
+    slots: { busRoute: 'AMAZON.NUMBER',
+             busDirection: 'BUSDIRECTION' }
   },
   handleNearestBusTimesByRoute
 );
+
+alexaApp.intent(
+  DEFAULT_INTENT,
+  {},
+  handleDefault
+)
 
 alexaApp.express({ expressApp });
 
