@@ -9,11 +9,13 @@ const alexaApp = new alexa.app('');
 const GET_MY_LOCATION = 'Get_my_location';
 const UPDATE_MY_LOCATION = 'Update_my_location';
 const GET_BUS_TIMES = 'Get_next_bus_by_number';
+const DEFAULT_INTENT = 'DefaultWelcomeIntent';
 
 const {
   handleGetMyLocation,
   handleUpdateMyLocation,
-  handleNearestBusTimesByRoute
+  handleNearestBusTimesByRoute,
+  handleDefault
 } = require('./alexa-handlers.js');
 
 // base URL for checking status
@@ -43,6 +45,12 @@ alexaApp.intent(
   },
   handleNearestBusTimesByRoute
 );
+
+alexaApp.intent(
+  DEFAULT_INTENT,
+  {},
+  handleDefault
+)
 
 alexaApp.express({ expressApp });
 
