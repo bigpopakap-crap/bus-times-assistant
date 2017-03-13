@@ -4,11 +4,42 @@ const Promise = require('promise');
 const { alexaDb } = require('./db.js');
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const { reportNearestStopResult } = require('./common-assistant.js');
+const {
+  reportMyLocation,
+  reportMyLocationUpdate,
+  reportNearestStopResult
+} = require('./common-assistant.js');
 
 // Alexa doesn't like ampersands in SSML
 function cleanResponse(response) {
   return response.replace(/&/g, 'and');
+}
+
+function handleGetMyLocation(request, response) {
+  const userId = request.sessionDetails.userId;
+
+  // TODO handle errors
+  return new Promise(resolve => {
+    reportMyLocation(alexaDb, userId, responseText => {
+      resolve(responseText);
+    });
+  }).then(responseText => {
+    response.say(responseText);
+  });
+}
+
+function handleUpdateMyLocation(request, response) {
+  const userId = request.sessionDetails.userId;
+  const address = request.slot('address');
+
+  // TODO handle errors
+  return new Promise(resolve => {
+    reportMyLocationUpdate(alexaDb, userId, address, responseText => {
+      resolve(responseText);
+    });
+  }).then(responseText => {
+    response.say(responseText);
+  });
 }
 
 function handleNearestBusTimesByRoute(request, response) {
@@ -27,14 +58,7 @@ function handleNearestBusTimesByRoute(request, response) {
           resolve(responseText);
         });
       } else {
-        // TODO remove this whole code path when we actually get the user's location
-        const deviceLocation = {
-          latitude: 37.746457,
-          longitude: -122.413341
-        };
-        alexaDb.saveLocation(userId, deviceLocation);
-
-        resolve('You must provide your location to continue');
+        resolve('You have not set your location yet. You can set one by saying "Update my location".');
       }
     });
   }).then(function(responseText) {
@@ -43,5 +67,7 @@ function handleNearestBusTimesByRoute(request, response) {
 }
 
 module.exports = {
+  handleGetMyLocation,
+  handleUpdateMyLocation,
   handleNearestBusTimesByRoute
 };
