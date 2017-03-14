@@ -2,6 +2,7 @@ const geocoder = require('./geocoder.js');
 const { NEXTBUS_ERRORS, getNearestStopResult } = require('./nextbus-adapter.js');
 const { pluralPhrase } = require('./utils.js');
 
+const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
 const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
 
 function reportMyLocation(features, db, userId, responseCallback) {
@@ -14,14 +15,14 @@ function reportMyLocation(features, db, userId, responseCallback) {
       const deviceLocationPrompt = canUseDeviceLocation
         ? 'ask for bus times to use your device\'s location, or '
         : '';
-      responseCallback(`You haven't set a location yet. Simply ${deviceLocationPrompt}say "Update my location"`);
+      responseCallback(`You haven't set a location yet. Simply ${deviceLocationPrompt}say "Update my location to ${EXAMPLE_ADDRESS}"`);
     }
   });
 }
 
 function reportMyLocationUpdate(db, userId, address, responseCallback) {
   if (!address) {
-    responseCallback('You must specify the address. For example, "Set my location to 100 Van Ness, San Francisco".');
+    responseCallback(`You must specify the address. For example, "Set my location to ${EXAMPLE_ADDRESS}".`);
     return;
   }
 
