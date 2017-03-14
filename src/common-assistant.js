@@ -4,12 +4,17 @@ const { pluralPhrase } = require('./utils.js');
 
 const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
 
-function reportMyLocation(db, userId, responseCallback) {
+function reportMyLocation(features, db, userId, responseCallback) {
+  const { canUseDeviceLocation } = features;
+
   db.getLocation(userId).then(location => {
     if (location) {
       responseCallback(`Your location is set to ${location.address}`);
     } else {
-      responseCallback('You haven\'t set a location yet. Simply ask for bus times to use your device\'s location, or say "Update my location"');
+      const deviceLocationPrompt = canUseDeviceLocation
+        ? 'ask for bus times to use your device\'s location, or '
+        : '';
+      responseCallback(`You haven't set a location yet. Simply ${deviceLocationPrompt}say "Update my location"`);
     }
   });
 }

@@ -1,5 +1,9 @@
 'use strict';
 
+const {
+  APP_SOURCE,
+  getFeatures
+} = require('./ai-config-appSource.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const {
   reportMyLocation,
@@ -21,8 +25,9 @@ function cleanDeviceLocation(deviceLocation) {
 
 function handleGetMyLocation(assistant) {
   const userId = assistant.getUser().user_id;
+  const features = getFeatures(APP_SOURCE.GOOGLE);
 
-  reportMyLocation(googleDb, userId, response => {
+  reportMyLocation(features, googleDb, userId, response => {
     assistant.tell(response);
   });
 }

@@ -1,6 +1,10 @@
 "use strict";
 
 const Promise = require('promise');
+const {
+  APP_SOURCE,
+  getFeatures
+} = require('./ai-config-appSource.js');
 const { alexaDb } = require('./db.js');
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
@@ -17,10 +21,11 @@ function cleanResponse(response) {
 
 function handleGetMyLocation(request, response) {
   const userId = request.sessionDetails.userId;
+  const features = getFeatures(APP_SOURCE.ALEXA);
 
   // TODO handle errors
   return new Promise(resolve => {
-    reportMyLocation(alexaDb, userId, responseText => {
+    reportMyLocation(features, alexaDb, userId, responseText => {
       resolve(responseText);
     });
   }).then(responseText => {
