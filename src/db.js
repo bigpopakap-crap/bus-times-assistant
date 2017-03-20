@@ -2,11 +2,7 @@ const Promise = require('promise');
 const logger = require('./logger.js');
 const firebase = require('./db-firebase.js');
 
-// TODO do we care? Should this be removed completely?
-const APP_SOURCE = {
-  GOOGLE: 'google',
-  ALEXA: 'alexa'
-};
+const { APP_SOURCE } = require('./ai-config-appSource.js');
 
 function db(appSource) {
   var data = {};
