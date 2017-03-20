@@ -10,7 +10,7 @@ function db(appSource) {
   this.getLocation = function(userId) {
     return firebase.getLocation(appSource, userId).then(location => {
       return new Promise(resolve => {
-        logger.log(`Got location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
+        logger.debug(`Got location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
         resolve(location);
       });
     });
@@ -27,7 +27,7 @@ function db(appSource) {
    */
   this.saveLocation = function(userId, location) {
     firebase.saveLocation(appSource, userId, location);
-    logger.log(`Saved location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
+    logger.debug(`Saved location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
   }
 };
 
