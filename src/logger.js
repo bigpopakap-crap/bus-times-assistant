@@ -26,8 +26,14 @@ function createLogData(data) {
 }
 
 function log(level, data) {
-  if (level >= getCurrentLogLevel()) {
-    logfmt.log(createLogData(data));
+  try {
+    if (level >= getCurrentLogLevel()) {
+      logfmt.log(createLogData(data));
+    }
+  } catch (ex) {
+    // just don't blow up the app if anything fails
+    console.log('Error while logging!');
+    console.log(ex);
   }
 }
 
