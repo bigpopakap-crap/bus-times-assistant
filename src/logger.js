@@ -1,15 +1,24 @@
+var logfmt_base = require('logfmt');
+
+// use JSON.stringify so it goes recursively
+var logfmt = new logfmt_base;
+logfmt.stringify = JSON.stringify;
+
 const LEVEL = {
-  DEBUG: 0,
-  INFO: 1,
-  WARN: 2,
-  ERROR: 3
+  // no value 0 because then it's falsy, and that makes edge cases
+  DEBUG: 1,
+  INFO: 2,
+  WARN: 3,
+  ERROR: 4
 };
 
 const LOG_LEVEL = LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
 
 function log(level, data) {
   if (level >= LOG_LEVEL) {
-    console.log(str);
+    logfmt.log({
+      data
+    });
   }
 }
 
