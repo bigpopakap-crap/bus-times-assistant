@@ -12,10 +12,12 @@ const LEVEL = {
   ERROR: 4
 };
 
-const LOG_LEVEL = LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
+function getCurrentLogLevel() {
+  return LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
+}
 
 function log(level, data) {
-  if (level >= LOG_LEVEL) {
+  if (level >= getCurrentLogLevel()) {
     logfmt.log({
       data
     });
