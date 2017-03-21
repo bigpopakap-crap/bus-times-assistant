@@ -1,5 +1,5 @@
 const Promise = require('promise');
-const logger = require('./logger.js');
+const logger = require('./logger.js').forComponent('db');
 const firebase = require('./db-firebase.js');
 
 const { APP_SOURCE } = require('./ai-config-appSource.js');
@@ -10,7 +10,9 @@ function db(appSource) {
   this.getLocation = function(userId) {
     return firebase.getLocation(appSource, userId).then(location => {
       return new Promise(resolve => {
-        logger.log(`Got location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
+        logger.debug('fetch_location', {
+          location: JSON.stringify(location)
+        });
         resolve(location);
       });
     });
@@ -27,7 +29,9 @@ function db(appSource) {
    */
   this.saveLocation = function(userId, location) {
     firebase.saveLocation(appSource, userId, location);
-    logger.log(`Saved location for ${appSource} user ${userId}: ${JSON.stringify(location)}`);
+    logger.debug('save_or_update_location', {
+      location: JSON.stringify(location)
+    });
   }
 };
 

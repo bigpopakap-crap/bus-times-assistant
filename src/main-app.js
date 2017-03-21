@@ -8,7 +8,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const googleApp = require('./google-app.js');
 const alexaApp = require('./alexa-app.js');
-const logger = require('./logger.js');
+const logger = require('./logger.js').forComponent('main-app');
 
 const app = express();
 app.set('port', process.env.PORT);
@@ -23,6 +23,8 @@ app.use('/alexa', alexaApp);
 
 // Start the server
 var server = app.listen(app.get('port'), function () {
-  logger.log('App listening on port %s', server.address().port);
-  logger.log('Press Ctrl+C to quit.');
+  logger.debug('app_start', {
+    port: server.address().port,
+    message: 'Press Ctrl+C to quit.'
+  });
 });
