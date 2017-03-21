@@ -23,8 +23,7 @@ app.use('/alexa', alexaApp);
 
 // Start the server
 var server = app.listen(app.get('port'), function () {
-  logger.debug({
-    event: 'app_listening',
+  logger.debug('app_start', {
     port: server.address().port,
     message: 'Press Ctrl+C to quit.'
   });
