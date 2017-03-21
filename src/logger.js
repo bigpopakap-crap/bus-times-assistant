@@ -12,23 +12,25 @@ function getCurrentLogLevel() {
   return LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
 }
 
-function createLogData(data) {
+function createLogData(event, data) {
   var logData = {};
+
+  logData['event'] = event;
 
   // prefix all the passed in properties with "data"
   for (var prop in data) {
     if (data.hasOwnProperty(prop)) {
-      logData[`data:${prop}`] = data[prop];
+      logData[`event.${prop}`] = data[prop];
     }
   }
 
   return logData;
 }
 
-function log(level, data) {
+function log(level, event, data) {
   try {
     if (level >= getCurrentLogLevel()) {
-      logfmt.log(createLogData(data));
+      logfmt.log(createLogData(event, data));
     }
   } catch (ex) {
     // just don't blow up the app if anything fails
@@ -37,20 +39,20 @@ function log(level, data) {
   }
 }
 
-function debug(data) {
-  log(LEVEL.DEBUG, data);
+function debug(event, data) {
+  log(LEVEL.DEBUG, event, data);
 }
 
-function info(data) {
-  log(LEVEL.INFO, data);
+function info(event, data) {
+  log(LEVEL.INFO, event, data);
 }
 
-function warn(data) {
-  log(LEVEL.WARN, data);
+function warn(event, data) {
+  log(LEVEL.WARN, event, data);
 }
 
-function error(data) {
-  log(LEVEL.ERROR, data);
+function error(event, data) {
+  log(LEVEL.ERROR, event, data);
 }
 
 const logger = {
