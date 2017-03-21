@@ -74,7 +74,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
     queryUrl
   });
 
-  nbClient.get(queryUrl, function(err, res, body) {
+  nbClient.get(queryUrl, (err, res, body) => {
     if (err) {
       this.logger.error('post_nextbus_query', {
         queryUrl,
