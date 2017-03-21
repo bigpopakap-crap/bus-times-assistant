@@ -14,7 +14,7 @@ function getCurrentLogLevel() {
 }
 
 function createLogData(event, context, data) {
-  return extendObject({},
+  return extendObject(
     context,
     prefixObject('event.', { name: event }),
     prefixObject('event.data.', data)
@@ -35,13 +35,19 @@ function Logger(context = {}) {
 
 Logger.prototype.LEVEL = LEVEL;
 
-Logger.prototype.forRequest = function(requestContext) {
+Logger.prototype.withContext = function(extraContext = {}, namespace = '') {
+  namespace = namespace && `.${namespace}`;
+
   const context = extendObject(
     this.context,
-    prefixObject('request.', requestContext)
+    prefixObject(namespace, extraContext)
   );
 
   return new Logger(context);
+}
+
+Logger.prototype.forRequest = function(requestContext) {
+  return this.withContext(requestContext, 'request');
 }
 
 Logger.prototype.log = function(level, event, data) {
