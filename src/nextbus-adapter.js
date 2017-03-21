@@ -31,7 +31,7 @@ function cleanResult(result) {
   };
 }
 
-function processNbResponse(body) {
+function processNbResponse(body, busRoute, busDirection) {
   let results = body || [];
 
   // filter for the right agency and bus route
@@ -93,7 +93,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
       body: JSON.stringify(body)
     });
 
-    const result = processNbResponse(body);
+    const result = processNbResponse(body, busRoute, busDirection);
 
     logger.debug('nextbus_response_processed', {
       queryUrl,
