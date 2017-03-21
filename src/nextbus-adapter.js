@@ -70,13 +70,14 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
 
   const queryUrl = `/locations/${latitude},${longitude}/predictions`;
 
-  this.logger.debug('pre_nextbus_query', {
+  const logger = this.logger;
+  logger.debug('pre_nextbus_query', {
     queryUrl
   });
 
   nbClient.get(queryUrl, (err, res, body) => {
     if (err) {
-      this.logger.error('post_nextbus_query', {
+      logger.error('post_nextbus_query', {
         queryUrl,
         success: false,
         error: JSON.stringify(err)
@@ -86,7 +87,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
       return;
     }
 
-    this.logger.debug('post_nextbus_query', {
+    logger.debug('post_nextbus_query', {
       queryUrl,
       success: true,
       body: JSON.stringify(body)
@@ -94,7 +95,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
 
     const result = processNbResponse(body);
 
-    this.logger.debug('nextbus_response_processed', {
+    logger.debug('nextbus_response_processed', {
       queryUrl,
       success: true,
       body: JSON.stringify(body),
