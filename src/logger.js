@@ -1,4 +1,5 @@
 var logfmt = require('logfmt');
+const { prefixObject, extendObject } = require('./utils.js');
 
 const LEVEL = {
   // no value 0 because then it's falsy, and that makes edge cases
@@ -12,25 +13,41 @@ function getCurrentLogLevel() {
   return LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
 }
 
-function createLogData(event, data) {
-  var logData = {};
-
-  logData['event'] = event;
-
-  // prefix all the passed in properties with "data"
-  for (var prop in data) {
-    if (data.hasOwnProperty(prop)) {
-      logData[`event.${prop}`] = data[prop];
-    }
-  }
-
-  return logData;
+function createLogData(event, context, data) {
+  return extendObject({},
+    context,
+    prefixObject('event.', { name: event }),
+    prefixObject('event.data.', data)
+  );
 }
 
-function log(level, event, data) {
+function forComponent(componentName) {
+  const context = prefixObject('component.', {
+    name: componentName
+  });
+
+  return new Logger(context);
+}
+
+function Logger(context = {}) {
+  this.context = context;
+}
+
+Logger.prototype.LEVEL = LEVEL;
+
+Logger.prototype.forRequest = function(requestContext) {
+  const context = extendObject(
+    this.context,
+    prefixObject('request.', requestContext)
+  );
+
+  return new Logger(context);
+}
+
+Logger.prototype.log = function(level, event, data) {
   try {
     if (level >= getCurrentLogLevel()) {
-      logfmt.log(createLogData(event, data));
+      logfmt.log(createLogData(event, this.context, data));
     }
   } catch (ex) {
     // just don't blow up the app if anything fails
@@ -39,29 +56,22 @@ function log(level, event, data) {
   }
 }
 
-function debug(event, data) {
-  log(LEVEL.DEBUG, event, data);
+Logger.prototype.debug = function(event, data) {
+  this.log(LEVEL.DEBUG, event, data);
 }
 
-function info(event, data) {
-  log(LEVEL.INFO, event, data);
+Logger.prototype.info = function(event, data) {
+  this.log(LEVEL.INFO, event, data);
 }
 
-function warn(event, data) {
-  log(LEVEL.WARN, event, data);
+Logger.prototype.warn = function(event, data) {
+  this.log(LEVEL.WARN, event, data);
 }
 
-function error(event, data) {
-  log(LEVEL.ERROR, event, data);
+Logger.prototype.error = function(event, data) {
+  this.log(LEVEL.ERROR, event, data);
 }
 
-const logger = {
-  LEVEL,
-  log,
-  debug,
-  info,
-  warn,
-  error
+module.exports = {
+  forComponent
 };
-
-module.exports = logger;
