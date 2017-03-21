@@ -1,5 +1,5 @@
 const Promise = require('promise');
-const logger = require('./logger.js');
+const logger = require('./logger.js').forComponent('db');
 const firebase = require('./db-firebase.js');
 
 const { APP_SOURCE } = require('./ai-config-appSource.js');
