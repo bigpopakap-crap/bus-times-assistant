@@ -1,5 +1,5 @@
 const geocoder = require('./geocoder.js');
-const { NEXTBUS_ERRORS, getNearestStopResult } = require('./nextbus-adapter.js');
+const { NEXTBUS_ERRORS, NextbusAdapter } = require('./nextbus-adapter.js');
 const { pluralPhrase } = require('./utils.js');
 
 const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
@@ -57,7 +57,10 @@ function reportNearestStopResult(deviceLocation, busRoute, busDirection, respons
     return;
   }
 
-  getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
+  // TODO add request context
+  const nextbus = new NextbusAdapter();
+
+  nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {
       switch (err) {
         case NEXTBUS_ERRORS.NOT_FOUND:
