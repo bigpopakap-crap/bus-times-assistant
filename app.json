@@ -18,7 +18,13 @@
     "FIREBASE_URL": {
       "required": true
     },
+    "MIXPANEL_TOKEN": {
+      "required": true
+    },
     "RESTBUS_BASE_URL": {
+      "required": true
+    },
+    "LOG_LEVEL": {
       "required": true
     }
   },
