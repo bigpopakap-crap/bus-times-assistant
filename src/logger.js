@@ -1,5 +1,4 @@
 const logfmt = require('logfmt');
-const MixpanelLogger = require('./logger-mixpanel.js');
 
 const { prefixObject, extendObject } = require('./utils.js');
 
@@ -39,7 +38,6 @@ function forComponent(componentName, extraContext = {}, namespace = '') {
 
 function Logger(appSource, userId, context = {}) {
   this.context = context;
-  this.mixpanelLogger = MixpanelLogger.forRequest(appSource, userId);
 }
 
 Logger.LEVEL = LEVEL;
@@ -78,15 +76,6 @@ Logger.prototype.warn = function(event, data = {}) {
 
 Logger.prototype.error = function(event, data = {}) {
   this.log(LEVEL.ERROR, event, data);
-}
-
-/* BEGIN STUFF FOR METRICS *****************************/
-Logger.prototype.metricsUser = function(...args) {
-  this.mixpanelLogger.metricsUser(...args);
-}
-
-Logger.prototype.metricsUsage = function(...args) {
-  this.mixpanelLogger.metricsUsage(...args);
 }
 
 module.exports = {

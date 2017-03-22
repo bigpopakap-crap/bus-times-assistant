@@ -7,6 +7,7 @@ const INTENTS = require('./ai-config-intents.js');
 
 const Db = require('./db.js');
 const logger = require('./logger.js').forComponent('alexa-handlers');
+const metrics = require('./logger-metrics.js');
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const {
@@ -24,8 +25,8 @@ function handleGetMyLocation(request, response) {
   const userId = request.sessionDetails.userId;
 
   // TODO add requestContext
-  logger.forRequest(APP_SOURCE.ALEXA, userId)
-        .metricsUsage(INTENTS.GET_MY_LOCATION.getName());
+  metrics.forRequest(APP_SOURCE.ALEXA, userId)
+         .logUsage(INTENTS.GET_MY_LOCATION.getName());
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -42,10 +43,10 @@ function handleUpdateMyLocation(request, response) {
   const address = request.slot('address');
 
   // TODO add requestContext
-  logger.forRequest(APP_SOURCE.ALEXA, userId)
-        .metricsUsage(INTENTS.UPDATE_MY_LOCATION.getName(), {
-          address
-        });
+  metrics.forRequest(APP_SOURCE.ALEXA, userId)
+         .logUsage(INTENTS.UPDATE_MY_LOCATION.getName(), {
+           address
+         });
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -66,11 +67,11 @@ function handleNearestBusTimesByRoute(request, response) {
   );
 
   // TODO add requestContext
-  logger.forRequest(APP_SOURCE.ALEXA, userId)
-        .metricsUsage(INTENTS.GET_NEAREST_BUS_BY_ROUTE.getName(), {
-          busRoute,
-          busDirection
-        });
+  metrics.forRequest(APP_SOURCE.ALEXA, userId)
+         .logUsage(INTENTS.GET_NEAREST_BUS_BY_ROUTE.getName(), {
+           busRoute,
+           busDirection
+         });
 
   // TODO add requestContext
   const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
@@ -95,8 +96,8 @@ function handleDefault(request, response) {
   const userId = request.sessionDetails.userId;
 
   // TODO add requestContext
-  logger.forRequest(APP_SOURCE.ALEXA, userId)
-        .metricsUsage(INTENTS.DEFAULT.getName());
+  metrics.forRequest(APP_SOURCE.ALEXA, userId)
+         .logUsage(INTENTS.DEFAULT.getName());
 
   // TODO add requestContext
   const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
