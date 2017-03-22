@@ -61,6 +61,10 @@ function processNbResponse(body, busRoute, busDirection) {
   return cleanResult(result);
 }
 
+function forRequest(requestContext = {}) {
+  return new NextbusAdapter(requestContext);
+}
+
 function NextbusAdapter(requestContext = {}) {
   this.logger = logger.forRequest(requestContext);
 }
@@ -111,6 +115,6 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
 }
 
 module.exports = {
-  NEXTBUS_ERRORS,
-  NextbusAdapter
+  ERRORS: NEXTBUS_ERRORS,
+  forRequest
 };
