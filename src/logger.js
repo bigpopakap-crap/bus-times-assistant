@@ -3,22 +3,14 @@ const { prefixObject, extendObject } = require('./utils.js');
 
 const LEVEL = {
   // no value 0 because then it's falsy, and that makes edge cases
-  DEBUG: 1,
-  INFO: 2,
-  WARN: 3,
-  ERROR: 4
+  DEBUG: { value: 1, name: 'DEBUG' },
+  INFO: { value: 2, name: 'INFO' },
+  WARN: { value: 3, name: 'WARN' },
+  ERROR:{ value: 4, name: 'ERROR' },
 };
 
 function getCurrentLogLevel() {
   return LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
-}
-
-function createLogData(event, context, data) {
-  return extendObject(
-    context,
-    prefixObject('event.', { name: event }),
-    prefixObject('event.data.', data)
-  );
 }
 
 function forComponent(componentName) {
@@ -50,10 +42,17 @@ Logger.prototype.forRequest = function(requestContext) {
   return this.withContext(requestContext, 'request');
 }
 
-Logger.prototype.log = function(level, event, data) {
+Logger.prototype.log = function(level, event, data = {}) {
   try {
-    if (level >= getCurrentLogLevel()) {
-      logfmt.log(createLogData(event, this.context, data));
+    if (level.value >= getCurrentLogLevel().value) {
+      const logData = extendObject(
+        prefixObject('log.', { level: level.name }),
+        this.context,
+        prefixObject('event.', { name: event }),
+        prefixObject('event.data.', data)
+      );
+
+      logfmt.log(logData);
     }
   } catch (ex) {
     // just don't blow up the app if anything fails
@@ -62,19 +61,19 @@ Logger.prototype.log = function(level, event, data) {
   }
 }
 
-Logger.prototype.debug = function(event, data) {
+Logger.prototype.debug = function(event, data = {}) {
   this.log(LEVEL.DEBUG, event, data);
 }
 
-Logger.prototype.info = function(event, data) {
+Logger.prototype.info = function(event, data = {}) {
   this.log(LEVEL.INFO, event, data);
 }
 
-Logger.prototype.warn = function(event, data) {
+Logger.prototype.warn = function(event, data = {}) {
   this.log(LEVEL.WARN, event, data);
 }
 
-Logger.prototype.error = function(event, data) {
+Logger.prototype.error = function(event, data = {}) {
   this.log(LEVEL.ERROR, event, data);
 }
 
