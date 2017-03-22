@@ -15,44 +15,35 @@ function getCurrentLogLevel() {
   return LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
 }
 
-function forComponent(componentName) {
+function forComponent(componentName, extraContext = {}, namespace = '') {
   const context = prefixObject('component.', {
     name: componentName
   });
 
-  return new Logger(context);
+  namespace = namespace && `${namespace}.`
+  extraContext = prefixObject(namespace, extraContext);
+
+  return {
+    forRequest(appSource = 'unset', userId, requestContext = {}) {
+      requestContext = extendObject(requestContext, {
+        appSource,
+        userId
+      });
+
+      const allContext = extendObject(context, extraContext, requestContext);
+
+      return new Logger(appSource, userId, allContext);
+    }
+  }
 }
 
-function Logger(context = {}) {
+function Logger(appSource, userId, context = {}) {
   this.context = context;
-  this.mixpanelLogger = MixpanelLogger.forRequest();
+  this.mixpanelLogger = MixpanelLogger.forRequest(appSource, userId);
 }
 
 Logger.LEVEL = LEVEL;
 Logger.prototype.LEVEL = LEVEL;
-
-Logger.prototype.withContext = function(extraContext = {}, namespace = '') {
-  namespace = namespace && `${namespace}.`;
-
-  const context = extendObject(
-    this.context,
-    prefixObject(namespace, extraContext)
-  );
-
-  return new Logger(context);
-}
-
-Logger.prototype.forRequest = function(appSource, userId, requestContext = {}) {
-  requestContext = extendObject(requestContext, {
-    appSource,
-    userId
-  });
-
-  // TODO worry about how the info will get lost when you call withContext() on this guy
-  const newLogger = this.withContext(requestContext, 'request');
-  newLogger.mixpanelLogger = MixpanelLogger.forRequest(appSource, userId);
-  return newLogger;
-}
 
 Logger.prototype.log = function(level, event, data = {}) {
   try {

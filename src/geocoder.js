@@ -8,8 +8,7 @@ const nodeGeocoder = NodeGeocoder();
 
 const THIS_COMPONENT_NAME = 'geocoder';
 const logger = require('./logger.js')
-                .forComponent(THIS_COMPONENT_NAME)
-                .withContext(nodeGeocoderOptions, 'nodeGeocoderOptions');
+                .forComponent(THIS_COMPONENT_NAME, nodeGeocoderOptions, 'nodeGeocoderOptions');
 
 function forRequest(appSource, userId, requestContext = {}) {
   return new Geocoder(appSource, userId, requestContext);

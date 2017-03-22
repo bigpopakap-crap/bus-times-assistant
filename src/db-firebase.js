@@ -1,10 +1,11 @@
 const Promise = require('promise');
 const firebase = require("firebase-admin");
+const initLogger = require('./logger.js').forComponent('db-firebase-init').forRequest();
 const logger = require('./logger.js').forComponent('db-firebase');
 
 const LOCATION_KEY = 'location';
 
-logger.info('pre_firebase_connect');
+initLogger.info('pre_firebase_connect');
 try {
   firebase.initializeApp({
     credential: firebase.credential.cert({
@@ -15,11 +16,11 @@ try {
     databaseURL: process.env.FIREBASE_URL
   });
 
-  logger.info('post_firebase_connect', {
+  initLogger.info('post_firebase_connect', {
     success: true
   });
 } catch (ex) {
-  logger.error('post_firebase_connect', {
+  initLogger.error('post_firebase_connect', {
     success: false,
     error: ex
   });

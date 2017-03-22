@@ -8,7 +8,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const googleApp = require('./google-app.js');
 const alexaApp = require('./alexa-app.js');
-const logger = require('./logger.js').forComponent('main-app');
+const logger = require('./logger.js').forComponent('main-app').forRequest();
 
 const app = express();
 app.set('port', process.env.PORT);
