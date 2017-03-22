@@ -1,44 +1,37 @@
 const Promise = require('promise');
-const logger = require('./logger.js').forComponent('db');
-const firebase = require('./db-firebase.js');
+const Firebase = require('./db-firebase.js');
 
 const { APP_SOURCE } = require('./ai-config-appSource.js');
 
-function db(appSource) {
-  var data = {};
+function forRequest(appSource, userId, requestContext) {
+  return new Db(appSource, userId, requestContext);
+}
 
-  this.getLocation = function(userId) {
-    return firebase.getLocation(appSource, userId).then(location => {
-      return new Promise(resolve => {
-        logger.debug('fetch_location', {
-          location: JSON.stringify(location)
-        });
-        resolve(location);
-      });
+function Db(appSource, userId, requestContext = {}) {
+  this.firebase = Firebase.forRequest(appSource, userId, requestContext);
+}
+
+Db.prototype.getLocation = function() {
+  return this.firebase.getLocation().then(location => {
+    return new Promise(resolve => {
+      resolve(location);
     });
-  }
+  });
+}
 
-  /**
-   * location is {
-   *   latitude,
-   *   longitude,
-   *   address,
-   *   originalAddressInput,
-   *   originalAddressSource
-   * }
-   */
-  this.saveLocation = function(userId, location) {
-    firebase.saveLocation(appSource, userId, location);
-    logger.debug('save_or_update_location', {
-      location: JSON.stringify(location)
-    });
-  }
-};
-
-const googleDb = new db(APP_SOURCE.GOOGLE);
-const alexaDb = new db(APP_SOURCE.ALEXA);
+/**
+ * location is {
+ *   latitude,
+ *   longitude,
+ *   address,
+ *   originalAddressInput,
+ *   originalAddressSource
+ * }
+ */
+Db.prototype.saveLocation = function(location) {
+  this.firebase.saveLocation(location);
+}
 
 module.exports = {
-  googleDb,
-  alexaDb
+  forRequest
 };

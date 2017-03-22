@@ -25,6 +25,7 @@ function Logger(context = {}) {
   this.context = context;
 }
 
+Logger.LEVEL = LEVEL;
 Logger.prototype.LEVEL = LEVEL;
 
 Logger.prototype.withContext = function(extraContext = {}, namespace = '') {

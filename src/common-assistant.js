@@ -8,7 +8,7 @@ const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
 function reportMyLocation(features, db, userId, responseCallback) {
   const { canUseDeviceLocation } = features;
 
-  db.getLocation(userId).then(location => {
+  db.getLocation().then(location => {
     if (location) {
       responseCallback(`Your location is set to ${location.address}`);
     } else {
@@ -31,7 +31,7 @@ function reportMyLocationUpdate(db, userId, address, responseCallback) {
 
   geocoder.geocode(address).then(
     location => {
-      db.saveLocation(userId, location);
+      db.saveLocation(location);
       responseCallback(`There. Your location has been updated to ${location.address}`);
     },
     err => {

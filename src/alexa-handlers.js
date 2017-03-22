@@ -5,7 +5,7 @@ const {
   APP_SOURCE,
   getFeatures
 } = require('./ai-config-appSource.js');
-const { alexaDb } = require('./db.js');
+const Db = require('./db.js');
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const {
@@ -23,6 +23,9 @@ function handleGetMyLocation(request, response) {
   const userId = request.sessionDetails.userId;
   const features = getFeatures(APP_SOURCE.ALEXA);
 
+  // TODO add requestContext
+  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
+
   // TODO handle errors
   return new Promise(resolve => {
     reportMyLocation(features, alexaDb, userId, responseText => {
@@ -36,6 +39,9 @@ function handleGetMyLocation(request, response) {
 function handleUpdateMyLocation(request, response) {
   const userId = request.sessionDetails.userId;
   const address = request.slot('address');
+
+  // TODO add requestContext
+  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -55,8 +61,11 @@ function handleNearestBusTimesByRoute(request, response) {
     request.slot("busDirection")
   );
 
+  // TODO add requestContext
+  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
+
   // TODO handle errors
-  return alexaDb.getLocation(userId).then(location => {
+  return alexaDb.getLocation().then(location => {
     return new Promise(resolve => {
       if (location) {
         reportNearestStopResult(location, busRoute, busDirection, function(responseText) {
@@ -74,7 +83,10 @@ function handleNearestBusTimesByRoute(request, response) {
 function handleDefault(request, response) {
   const userId = request.sessionDetails.userId;
 
-  return alexaDb.getLocation(userId).then(location => {
+  // TODO add requestContext
+  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
+
+  return alexaDb.getLocation().then(location => {
     const baseResponse = 'Hello there! I can look up bus times for you. For example you can say, "When is the next 12 to downtown?"';
     const noLocationResponse = `${baseResponse}. But first, you'll need to tell me your location by saying "Set my location".`;
 

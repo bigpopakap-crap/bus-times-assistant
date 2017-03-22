@@ -11,7 +11,7 @@ const {
   reportNearestStopResult
 } = require('./common-assistant.js');
 
-const { googleDb } = require('./db.js');
+const Db = require('./db.js');
 
 function cleanDeviceLocation(deviceLocation) {
   return {
@@ -27,6 +27,9 @@ function handleGetMyLocation(assistant) {
   const userId = assistant.getUser().user_id;
   const features = getFeatures(APP_SOURCE.GOOGLE);
 
+  // TODO add requestContext
+  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
+
   reportMyLocation(features, googleDb, userId, response => {
     assistant.tell(response);
   });
@@ -35,6 +38,9 @@ function handleGetMyLocation(assistant) {
 function handleUpdateMyLocation(assistant) {
   const userId = assistant.getUser().user_id;
   const address = assistant.getArgument('address');
+
+  // TODO add requestContext
+  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
 
   reportMyLocationUpdate(googleDb, userId, address, response => {
     assistant.tell(response);
@@ -54,8 +60,11 @@ function handleNearestBusTimesByRoute(assistant) {
     assistant.getArgument('busDirection')
   );
 
+  // TODO add requestContext
+  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
+
   // TODO handle errors
-  googleDb.getLocation(userId).then(location => {
+  googleDb.getLocation().then(location => {
     if (location) {
       // just answer the query because we have a saved location
       reportNearestStopResult(location, busRoute, busDirection, response => {
@@ -90,7 +99,9 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
   const busDirection = assistant.data.busDirection;
 
   // save the user's location, but we don't need to wait for that call to succeed
-  googleDb.saveLocation(userId, deviceLocation);
+  // TODO add requestContext
+  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
+  googleDb.saveLocation(deviceLocation);
 
   reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
     assistant.tell(response);
