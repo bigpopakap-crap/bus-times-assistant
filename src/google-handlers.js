@@ -1,6 +1,7 @@
 'use strict';
 
 const { APP_SOURCE } = require('./ai-config-appSource.js');
+const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const {
   reportMyLocation,
@@ -9,6 +10,7 @@ const {
 } = require('./common-assistant.js');
 
 const Db = require('./db.js');
+const logger = require('./logger.js').forComponent('google-handlers');
 
 function cleanDeviceLocation(deviceLocation) {
   return {
@@ -23,6 +25,10 @@ function cleanDeviceLocation(deviceLocation) {
 function handleGetMyLocation(assistant) {
   const userId = assistant.getUser().user_id;
 
+  // TODO add requestContext
+  logger.forRequest(APP_SOURCE.GOOGLE, userId)
+        .metricsUsage(INTENTS.GET_MY_LOCATION.getName());
+
   reportMyLocation(APP_SOURCE.GOOGLE, userId, response => {
     assistant.tell(response);
   });
@@ -31,6 +37,12 @@ function handleGetMyLocation(assistant) {
 function handleUpdateMyLocation(assistant) {
   const userId = assistant.getUser().user_id;
   const address = assistant.getArgument('address');
+
+  // TODO add requestContext
+  logger.forRequest(APP_SOURCE.GOOGLE, userId)
+        .metricsUsage(INTENTS.UPDATE_MY_LOCATION.getName(), {
+          address
+        });
 
   reportMyLocationUpdate(APP_SOURCE.GOOGLE, userId, address, response => {
     assistant.tell(response);
@@ -49,6 +61,12 @@ function handleNearestBusTimesByRoute(assistant) {
   const busDirection = busDirectionFromInput(
     assistant.getArgument('busDirection')
   );
+
+  logger.forRequest(APP_SOURCE.GOOGLE, userId)
+          .metricsUsage(INTENTS.GET_NEAREST_BUS_BY_ROUTE.getName(), {
+            busRoute,
+            busDirection
+          });
 
   // TODO add requestContext
   const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
@@ -79,14 +97,21 @@ function handleNearestBusTimesByRoute(assistant) {
 function handleNearestBusTimesByRoute_fallback(assistant) {
   const userId = assistant.getUser().user_id;
 
+  const busRoute = assistant.data.busRoute;
+  const busDirection = assistant.data.busDirection;
+
+  logger.forRequest(APP_SOURCE.GOOGLE, userId)
+            .metricsUsage(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK.getName(), {
+              wasPermissionGranted: assistant.isPermissionGranted(),
+              busRoute,
+              busDirection
+            });
+
   if (!assistant.isPermissionGranted()) {
     assistant.tell('To proceed, I\'ll need your location. If you do not want to grant access, you can update your address by saying "Update my location"');
     return;
   }
-
   const deviceLocation = cleanDeviceLocation(assistant.getDeviceLocation());
-  const busRoute = assistant.data.busRoute;
-  const busDirection = assistant.data.busDirection;
 
   // save the user's location, but we don't need to wait for that call to succeed
   // TODO add requestContext

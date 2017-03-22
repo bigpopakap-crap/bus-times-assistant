@@ -1,5 +1,11 @@
-var logfmt = require('logfmt');
+const logfmt = require('logfmt');
+const Mixpanel = require('mixpanel');
+
 const { prefixObject, extendObject } = require('./utils.js');
+
+const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
+  protocol: 'https'
+});
 
 const LEVEL = {
   // no value 0 because then it's falsy, and that makes edge cases
@@ -39,7 +45,7 @@ Logger.prototype.withContext = function(extraContext = {}, namespace = '') {
   return new Logger(context);
 }
 
-Logger.prototype.forRequest = function(appSource, userId, requestContext) {
+Logger.prototype.forRequest = function(appSource, userId, requestContext = {}) {
   requestContext = extendObject(requestContext, {
     appSource,
     userId
@@ -80,6 +86,40 @@ Logger.prototype.warn = function(event, data = {}) {
 
 Logger.prototype.error = function(event, data = {}) {
   this.log(LEVEL.ERROR, event, data);
+}
+
+/* BEGIN STUFF FOR METRICS *****************************/
+// TODO track their location as well?
+Logger.prototype.metricsUser = function() {
+  const appSource = this.context.appSource;
+  const userId = this.context.userId;
+  const now = new Date().toISOString();
+
+  if (userId) {
+    mixpanel.people.set(userId, {
+      appSource,
+      $created: now,
+      last_use: now
+    });
+
+    mixpanel.people.set_once(userId, {
+      first_use: now
+    });
+  }
+}
+
+Logger.prototype.metricsUsage = function(action, params = {}) {
+  const userId = this.context.userId;
+
+  this.metricsUser();
+
+  const mixpanelParams = extendObject(
+    this.context,
+    prefixObject('params.', params),
+    { distinct_id: userId }
+  );
+
+  mixpanel.track(action, mixpanelParams);
 }
 
 module.exports = {
