@@ -1,11 +1,7 @@
 const logfmt = require('logfmt');
-const Mixpanel = require('mixpanel');
+const MixpanelLogger = require('./logger-mixpanel.js');
 
 const { prefixObject, extendObject } = require('./utils.js');
-
-const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
-  protocol: 'https'
-});
 
 const LEVEL = {
   // no value 0 because then it's falsy, and that makes edge cases
@@ -29,6 +25,10 @@ function forComponent(componentName) {
 
 function Logger(context = {}) {
   this.context = context;
+  this.mixpanelLogger = MixpanelLogger.forRequest(
+    this.context.appSource,
+    this.context.userId
+  );
 }
 
 Logger.LEVEL = LEVEL;
@@ -89,46 +89,12 @@ Logger.prototype.error = function(event, data = {}) {
 }
 
 /* BEGIN STUFF FOR METRICS *****************************/
-// TODO track their location as well?
-Logger.prototype.metricsUser = function() {
-  const appSource = this.context.appSource;
-  const userId = this.context.userId;
-  const now = new Date().toISOString();
-
-  if (userId) {
-    const mixpanelParams = {
-      appSource,
-      $created: now,
-      last_use: now
-    };
-
-    mixpanel.people.set(userId, mixpanelParams);
-
-    mixpanel.people.set_once(userId, {
-      first_use: now
-    });
-
-    this.debug('mixpanel_user', prefixObject('data.', mixpanelParams));
-  }
+Logger.prototype.metricsUser = function(...args) {
+  this.mixpanelLogger.metricsUser(...args);
 }
 
-Logger.prototype.metricsUsage = function(action, params = {}) {
-  const userId = this.context.userId;
-
-  this.metricsUser();
-
-  const mixpanelParams = extendObject(
-    this.context,
-    prefixObject('params.', params),
-    { distinct_id: userId }
-  );
-
-  mixpanel.track(action, mixpanelParams);
-
-  this.debug('mixpanel_event', extendObject(
-    { action },
-    prefixObject('data.', mixpanelParams)
-  ));
+Logger.prototype.metricsUsage = function(...args) {
+  this.mixpanelLogger.metricsUsage(...args);
 }
 
 module.exports = {
