@@ -23,6 +23,7 @@ function forComponent(componentName, extraContext = {}, namespace = '') {
   extraContext = prefixObject(namespace, extraContext);
 
   return {
+    // TODO this really needs to be cleaned up so it's not so damn gross
     forRequest(appSource = 'unset', userId, requestContext = {}) {
       requestContext = extendObject(requestContext, {
         appSource,
