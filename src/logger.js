@@ -96,15 +96,19 @@ Logger.prototype.metricsUser = function() {
   const now = new Date().toISOString();
 
   if (userId) {
-    mixpanel.people.set(userId, {
+    const mixpanelParams = {
       appSource,
       $created: now,
       last_use: now
-    });
+    };
+
+    mixpanel.people.set(userId, mixpanelParams);
 
     mixpanel.people.set_once(userId, {
       first_use: now
     });
+
+    this.debug('mixpanel_user', prefixObject('data.', mixpanelParams));
   }
 }
 
@@ -120,6 +124,11 @@ Logger.prototype.metricsUsage = function(action, params = {}) {
   );
 
   mixpanel.track(action, mixpanelParams);
+
+  this.debug('mixpanel_event', extendObject(
+    { action },
+    prefixObject('data.', mixpanelParams)
+  ));
 }
 
 module.exports = {
