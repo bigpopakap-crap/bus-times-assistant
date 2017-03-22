@@ -3,7 +3,9 @@
  * THIS IS FOR USE IN THE REGULAR LOGGER ONLY
  */
 const Mixpanel = require('mixpanel');
-const logger = require('./logger.js').forComponent('mixpanel-logger');
+//const logger = require('./logger.js').forComponent('mixpanel-logger');
+
+const { prefixObject, extendObject } = require('./utils.js');
 
 const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
   protocol: 'https'
@@ -16,7 +18,7 @@ function forRequest(appSource = 'unset', userId) {
 function MixpanelLogger(appSource = 'unset', userId) {
   this.appSource = appSource;
   this.userId = userId;
-  this.logger = logger.forRequest(appSource, userId);
+//  this.logger = logger.forRequest(appSource, userId);
 }
 
 // TODO track their location as well?
@@ -38,27 +40,37 @@ MixpanelLogger.prototype.metricsUser = function() {
       first_use: now
     });
 
-    this.logger.debug('mixpanel_user', prefixObject('data.', mixpanelParams));
+    console.log(extendObject(
+      { event: 'mixpanel_user' },
+      prefixObject('data.', mixpanelParams)
+    ));
+//    this.logger.debug('mixpanel_user', prefixObject('data.', mixpanelParams));
   }
 };
 
 MixpanelLogger.prototype.metricsUsage = function(action, params = {}) {
+  const appSource = this.appSource;
   const userId = this.userId;
 
   this.metricsUser();
 
   const mixpanelParams = extendObject(
-    this.context,
+    { appSource, userId },
     prefixObject('params.', params),
     { distinct_id: userId }
   );
 
   mixpanel.track(action, mixpanelParams);
 
-  this.logger.debug('mixpanel_event', extendObject(
+  console.log(extendObject(
+    { event: 'mixpanel_event' },
     { action },
     prefixObject('data.', mixpanelParams)
   ));
+//  this.logger.debug('mixpanel_event', extendObject(
+//    { action },
+//    prefixObject('data.', mixpanelParams)
+//  ));
 };
 
 module.exports = {
