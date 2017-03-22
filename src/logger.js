@@ -39,7 +39,11 @@ Logger.prototype.withContext = function(extraContext = {}, namespace = '') {
   return new Logger(context);
 }
 
-Logger.prototype.forRequest = function(requestContext) {
+Logger.prototype.forRequest = function(appSource, userId, requestContext) {
+  requestContext = extendObject(requestContext, {
+    appSource,
+    userId
+  });
   return this.withContext(requestContext, 'request');
 }
 

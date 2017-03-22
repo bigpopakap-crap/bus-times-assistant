@@ -11,12 +11,12 @@ const logger = require('./logger.js')
                 .forComponent(THIS_COMPONENT_NAME)
                 .withContext(nodeGeocoderOptions, 'nodeGeocoderOptions');
 
-function forRequest(requestContext = {}) {
-  return new Geocoder(requestContext);
+function forRequest(appSource, userId, requestContext = {}) {
+  return new Geocoder(appSource, userId, requestContext);
 }
 
-function Geocoder(requestContext = {}) {
-  this.logger = logger.forRequest(requestContext);
+function Geocoder(appSource, userId, requestContext = {}) {
+  this.logger = logger.forRequest(appSource, userId, requestContext);
 }
 
 Geocoder.prototype.geocode = function(address) {

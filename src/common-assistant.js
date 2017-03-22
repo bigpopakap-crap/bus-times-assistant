@@ -1,12 +1,16 @@
 const Geocoder = require('./geocoder.js');
 const NextbusAdapter = require('./nextbus-adapter.js');
+const Db = require('./db.js');
+const { getFeatures } = require('./ai-config-appSource.js');
 const { pluralPhrase } = require('./utils.js');
 
 const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
 const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
 
-function reportMyLocation(features, db, userId, responseCallback) {
-  const { canUseDeviceLocation } = features;
+function reportMyLocation(appSource, userId, responseCallback) {
+  const { canUseDeviceLocation } = getFeatures(appSource);
+  // TODO add request context
+  const db = Db.forRequest(appSource, userId);
 
   db.getLocation().then(location => {
     if (location) {
@@ -20,14 +24,15 @@ function reportMyLocation(features, db, userId, responseCallback) {
   });
 }
 
-function reportMyLocationUpdate(db, userId, address, responseCallback) {
+function reportMyLocationUpdate(appSource, userId, address, responseCallback) {
   if (!address) {
     responseCallback(`You must specify the address. For example, "Set my location to ${EXAMPLE_ADDRESS}".`);
     return;
   }
 
   // TODO add request context
-  const geocoder = Geocoder.forRequest();
+  const db = Db.forRequest(appSource, userId);
+  const geocoder = Geocoder.forRequest(appSource, userId);
 
   geocoder.geocode(address).then(
     location => {
@@ -51,7 +56,7 @@ function generatePredictionResponse(p) {
   }
 }
 
-function reportNearestStopResult(deviceLocation, busRoute, busDirection, responseCallback) {
+function reportNearestStopResult(appSource, userId, deviceLocation, busRoute, busDirection, responseCallback) {
   if (!busRoute) {
     responseCallback('You must specify a bus number. For example, "When is the next 12 to downtown?"');
     return;
@@ -61,7 +66,7 @@ function reportNearestStopResult(deviceLocation, busRoute, busDirection, respons
   }
 
   // TODO add request context
-  const nextbus = NextbusAdapter.forRequest();
+  const nextbus = NextbusAdapter.forRequest(appSource, userId);
 
   nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {

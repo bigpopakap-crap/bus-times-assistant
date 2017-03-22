@@ -1,10 +1,7 @@
 "use strict";
 
 const Promise = require('promise');
-const {
-  APP_SOURCE,
-  getFeatures
-} = require('./ai-config-appSource.js');
+const { APP_SOURCE } = require('./ai-config-appSource.js');
 const Db = require('./db.js');
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
@@ -21,14 +18,10 @@ function cleanResponse(response) {
 
 function handleGetMyLocation(request, response) {
   const userId = request.sessionDetails.userId;
-  const features = getFeatures(APP_SOURCE.ALEXA);
-
-  // TODO add requestContext
-  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
 
   // TODO handle errors
   return new Promise(resolve => {
-    reportMyLocation(features, alexaDb, userId, responseText => {
+    reportMyLocation(APP_SOURCE.ALEXA, userId, responseText => {
       resolve(responseText);
     });
   }).then(responseText => {
@@ -40,12 +33,9 @@ function handleUpdateMyLocation(request, response) {
   const userId = request.sessionDetails.userId;
   const address = request.slot('address');
 
-  // TODO add requestContext
-  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
-
   // TODO handle errors
   return new Promise(resolve => {
-    reportMyLocationUpdate(alexaDb, userId, address, responseText => {
+    reportMyLocationUpdate(APP_SOURCE.ALEXA, userId, address, responseText => {
       resolve(responseText);
     });
   }).then(responseText => {
@@ -68,7 +58,7 @@ function handleNearestBusTimesByRoute(request, response) {
   return alexaDb.getLocation().then(location => {
     return new Promise(resolve => {
       if (location) {
-        reportNearestStopResult(location, busRoute, busDirection, function(responseText) {
+        reportNearestStopResult(APP_SOURCE.ALEXA, userId, location, busRoute, busDirection, function(responseText) {
           resolve(responseText);
         });
       } else {

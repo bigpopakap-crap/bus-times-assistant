@@ -1,9 +1,6 @@
 'use strict';
 
-const {
-  APP_SOURCE,
-  getFeatures
-} = require('./ai-config-appSource.js');
+const { APP_SOURCE } = require('./ai-config-appSource.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const {
   reportMyLocation,
@@ -25,12 +22,8 @@ function cleanDeviceLocation(deviceLocation) {
 
 function handleGetMyLocation(assistant) {
   const userId = assistant.getUser().user_id;
-  const features = getFeatures(APP_SOURCE.GOOGLE);
 
-  // TODO add requestContext
-  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
-
-  reportMyLocation(features, googleDb, userId, response => {
+  reportMyLocation(APP_SOURCE.GOOGLE, userId, response => {
     assistant.tell(response);
   });
 }
@@ -39,10 +32,7 @@ function handleUpdateMyLocation(assistant) {
   const userId = assistant.getUser().user_id;
   const address = assistant.getArgument('address');
 
-  // TODO add requestContext
-  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
-
-  reportMyLocationUpdate(googleDb, userId, address, response => {
+  reportMyLocationUpdate(APP_SOURCE.GOOGLE, userId, address, response => {
     assistant.tell(response);
   });
 }
@@ -67,7 +57,7 @@ function handleNearestBusTimesByRoute(assistant) {
   googleDb.getLocation().then(location => {
     if (location) {
       // just answer the query because we have a saved location
-      reportNearestStopResult(location, busRoute, busDirection, response => {
+      reportNearestStopResult(APP_SOURCE.GOOGLE, userId, location, busRoute, busDirection, response => {
         assistant.tell(response);
       });
     } else {
@@ -103,7 +93,7 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
   const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
   googleDb.saveLocation(deviceLocation);
 
-  reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
+  reportNearestStopResult(APP_SOURCE.GOOGLE, userId, deviceLocation, busRoute, busDirection, response => {
     assistant.tell(response);
   });
 }

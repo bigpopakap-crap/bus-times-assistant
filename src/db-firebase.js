@@ -43,7 +43,7 @@ function forRequest(appSource, userId, requestContext) {
 function Firebase(appSource, userId, requestContext = {}) {
   this.appSource = appSource;
   this.userId = userId;
-  this.logger = logger.forRequest(requestContext);
+  this.logger = logger.forRequest(appSource, userId, requestContext);
 }
 
 Firebase.prototype.getLocation = function() {

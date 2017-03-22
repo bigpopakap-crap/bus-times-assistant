@@ -61,12 +61,12 @@ function processNbResponse(body, busRoute, busDirection) {
   return cleanResult(result);
 }
 
-function forRequest(requestContext = {}) {
-  return new NextbusAdapter(requestContext);
+function forRequest(appSource, userId, requestContext = {}) {
+  return new NextbusAdapter(appSource, userId, requestContext);
 }
 
-function NextbusAdapter(requestContext = {}) {
-  this.logger = logger.forRequest(requestContext);
+function NextbusAdapter(appSource, userId, requestContext = {}) {
+  this.logger = logger.forRequest(appSource, userId, requestContext);
 }
 
 NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRoute, busDirection, callBackFn) {
