@@ -3,6 +3,7 @@
  * THIS IS FOR USE IN THE REGULAR LOGGER ONLY
  */
 const Mixpanel = require('mixpanel');
+// TODO break these files up so that we can use logging here
 //const logger = require('./logger.js').forComponent('mixpanel-logger');
 
 const { prefixObject, extendObject } = require('./utils.js');
@@ -40,10 +41,6 @@ MixpanelLogger.prototype.metricsUser = function() {
       first_use: now
     });
 
-    console.log(extendObject(
-      { event: 'mixpanel_user' },
-      prefixObject('data.', mixpanelParams)
-    ));
 //    this.logger.debug('mixpanel_user', prefixObject('data.', mixpanelParams));
   }
 };
@@ -62,11 +59,6 @@ MixpanelLogger.prototype.metricsUsage = function(action, params = {}) {
 
   mixpanel.track(action, mixpanelParams);
 
-  console.log(extendObject(
-    { event: 'mixpanel_event' },
-    { action },
-    prefixObject('data.', mixpanelParams)
-  ));
 //  this.logger.debug('mixpanel_event', extendObject(
 //    { action },
 //    prefixObject('data.', mixpanelParams)
