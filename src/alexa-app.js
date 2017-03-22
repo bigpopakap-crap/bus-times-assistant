@@ -6,18 +6,7 @@ const alexa = require('alexa-app');
 const expressApp = express();
 const alexaApp = new alexa.app('');
 
-const GET_MY_LOCATION = 'Get_my_location';
-const UPDATE_MY_LOCATION = 'Update_my_location';
-const GET_BUS_TIMES = 'Get_next_bus_by_number';
-const DEFAULT_INTENT = 'DefaultWelcomeIntent';
-
-const UPDATE_MY_LOCATION_SLOTS = {
-  slots: { address: 'AMAZON.PostalAddress' }
-};
-const GET_BUS_TIMES_SLOTS = {
-  slots: { busRoute: 'AMAZON.NUMBER',
-           busDirection: 'BUSDIRECTION' }
-};
+const INTENTS = require('./ai-config-intents.js');
 
 const {
   handleGetMyLocation,
@@ -26,15 +15,23 @@ const {
   handleDefault
 } = require('./alexa-handlers.js');
 
+function configureIntent(alexaApp, intent, handler) {
+  alexaApp.intent(
+    intent.getName(),
+    intent.getAlexaSlots(),
+    handler
+  );
+}
+
 // base URL for checking status
 expressApp.get('/status', function(request, response) {
   response.sendStatus(200);
 });
 
-alexaApp.intent(GET_MY_LOCATION, {}, handleGetMyLocation);
-alexaApp.intent(UPDATE_MY_LOCATION, UPDATE_MY_LOCATION_SLOTS, handleUpdateMyLocation);
-alexaApp.intent(GET_BUS_TIMES, GET_BUS_TIMES_SLOTS, handleNearestBusTimesByRoute);
-alexaApp.intent(DEFAULT_INTENT, {}, handleDefault);
+configureIntent(alexaApp, INTENTS.GET_MY_LOCATION, handleGetMyLocation);
+configureIntent(alexaApp, INTENTS.UPDATE_MY_LOCATION, handleUpdateMyLocation);
+configureIntent(alexaApp, INTENTS.GET_NEAREST_BUS_BY_ROUTE, handleNearestBusTimesByRoute);
+configureIntent(alexaApp, INTENTS.DEFAULT, handleDefault);
 
 alexaApp.express({ expressApp });
 

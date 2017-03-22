@@ -7,10 +7,7 @@ const app = express();
 app.use(bodyParser.json({ type: 'application/json' }));
 
 const ApiAiAssistant = require('actions-on-google').ApiAiAssistant;
-const GET_MY_LOCATION = 'get_my_location';
-const UPDATE_MY_LOCATION = 'update_my_location';
-const GET_NEAREST_BUS_TIMES_BY_ROUTE = 'get_nearest_bus_times_by_route';
-const GET_NEAREST_BUS_TIMES_BY_ROUTE_FALLBACK = 'get_nearest_bus_times_by_route_fallback';
+const INTENTS = require('./ai-config-intents.js');
 
 const {
   handleGetMyLocation,
@@ -28,10 +25,10 @@ app.post('/', function (request, response) {
   const assistant = new ApiAiAssistant({request: request, response: response});
 
   const actionMap = new Map();
-  actionMap.set(GET_MY_LOCATION, handleGetMyLocation);
-  actionMap.set(UPDATE_MY_LOCATION, handleUpdateMyLocation);
-  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE, handleNearestBusTimesByRoute);
-  actionMap.set(GET_NEAREST_BUS_TIMES_BY_ROUTE_FALLBACK, handleNearestBusTimesByRoute_fallback);
+  actionMap.set(INTENTS.GET_MY_LOCATION.getName(), handleGetMyLocation);
+  actionMap.set(INTENTS.UPDATE_MY_LOCATION.getName(), handleUpdateMyLocation);
+  actionMap.set(INTENTS.GET_NEAREST_BUS_BY_ROUTE.getName(), handleNearestBusTimesByRoute);
+  actionMap.set(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK.getName(), handleNearestBusTimesByRoute_fallback);
 
   assistant.handleRequest(actionMap);
 });

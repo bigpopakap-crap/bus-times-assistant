@@ -3,6 +3,7 @@ const BUS_DIRECTION = {
   OUTBOUND: 'outbound'
 }
 
+// TODO make sure this is still in sync with API.ai
 const BUS_DIRECTION_INPUT_MAP = {
   'inbound': BUS_DIRECTION.INBOUND,
   'to downtown': BUS_DIRECTION.INBOUND,
@@ -20,7 +21,7 @@ const BUS_DIRECTION_INPUT_MAP = {
   'out of downtown': BUS_DIRECTION.OUTBOUND,
   'heading out of downtown': BUS_DIRECTION.OUTBOUND,
   'going out of downtown': BUS_DIRECTION.OUTBOUND
-}
+};
 
 function busDirectionFromInput(input) {
   return typeof input === 'string'
