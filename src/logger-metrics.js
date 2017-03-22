@@ -44,7 +44,7 @@ MetricsLogger.prototype.logUsage = function(action, params = {}) {
   const mixpanelParams = extendObject(
     prefixObject('params.request.', this.requestContext),
     prefixObject('params.', params),
-    { appSource, userId },
+    prefixObject('context.', { appSource, userId }),
     { distinct_id: userId }
   );
 
@@ -55,6 +55,12 @@ MetricsLogger.prototype.logUsage = function(action, params = {}) {
     prefixObject('mixpanel.params.', mixpanelParams)
   ));
 };
+
+MetricsLogger.prototype.logIntent = function(intent, params = {}) {
+  this.logUsage(intent.getHumanName(), extendObject(params, {
+    intent: intent.getName()
+  }));
+}
 
 module.exports = {
   forRequest

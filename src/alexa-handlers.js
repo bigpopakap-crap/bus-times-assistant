@@ -26,7 +26,7 @@ function handleGetMyLocation(request, response) {
 
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.ALEXA, userId)
-         .logUsage(INTENTS.GET_MY_LOCATION.getName());
+         .logIntent(INTENTS.GET_MY_LOCATION);
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -44,7 +44,7 @@ function handleUpdateMyLocation(request, response) {
 
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.ALEXA, userId)
-         .logUsage(INTENTS.UPDATE_MY_LOCATION.getName(), {
+         .logIntent(INTENTS.UPDATE_MY_LOCATION, {
            address
          });
 
@@ -68,7 +68,7 @@ function handleNearestBusTimesByRoute(request, response) {
 
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.ALEXA, userId)
-         .logUsage(INTENTS.GET_NEAREST_BUS_BY_ROUTE.getName(), {
+         .logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
            busRoute,
            busDirection
          });
@@ -97,7 +97,7 @@ function handleDefault(request, response) {
 
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.ALEXA, userId)
-         .logUsage(INTENTS.DEFAULT.getName());
+         .logIntent(INTENTS.DEFAULT);
 
   // TODO add requestContext
   const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);

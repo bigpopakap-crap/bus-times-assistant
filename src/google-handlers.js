@@ -28,7 +28,7 @@ function handleGetMyLocation(assistant) {
 
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.GOOGLE, userId)
-         .logUsage(INTENTS.GET_MY_LOCATION.getName());
+         .logIntent(INTENTS.GET_MY_LOCATION);
 
   reportMyLocation(APP_SOURCE.GOOGLE, userId, response => {
     assistant.tell(response);
@@ -41,7 +41,7 @@ function handleUpdateMyLocation(assistant) {
 
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.GOOGLE, userId)
-         .logUsage(INTENTS.UPDATE_MY_LOCATION.getName(), {
+         .logIntent(INTENTS.UPDATE_MY_LOCATION, {
            address
          });
 
@@ -64,7 +64,7 @@ function handleNearestBusTimesByRoute(assistant) {
   );
 
   metrics.forRequest(APP_SOURCE.GOOGLE, userId)
-         .logUsage(INTENTS.GET_NEAREST_BUS_BY_ROUTE.getName(), {
+         .logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
            busRoute,
            busDirection
          });
@@ -102,7 +102,7 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
   const busDirection = assistant.data.busDirection;
 
   metrics.forRequest(APP_SOURCE.GOOGLE, userId)
-         .logUsage(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK.getName(), {
+         .logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, {
            wasPermissionGranted: assistant.isPermissionGranted(),
            busRoute,
            busDirection
