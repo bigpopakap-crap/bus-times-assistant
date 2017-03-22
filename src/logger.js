@@ -25,10 +25,7 @@ function forComponent(componentName) {
 
 function Logger(context = {}) {
   this.context = context;
-  this.mixpanelLogger = MixpanelLogger.forRequest(
-    this.context.appSource,
-    this.context.userId
-  );
+  this.mixpanelLogger = MixpanelLogger.forRequest();
 }
 
 Logger.LEVEL = LEVEL;
@@ -50,7 +47,11 @@ Logger.prototype.forRequest = function(appSource, userId, requestContext = {}) {
     appSource,
     userId
   });
-  return this.withContext(requestContext, 'request');
+
+  // TODO worry about how the info will get lost when you call withContext() on this guy
+  const newLogger = this.withContext(requestContext, 'request');
+  newLogger.mixpanelLogger = MixpanelLogger.forRequest(appSource, userId);
+  return newLogger;
 }
 
 Logger.prototype.log = function(level, event, data = {}) {
