@@ -19,22 +19,17 @@ function MetricsLogger(appSource, userId, requestContext = {}) {
 }
 
 // TODO track their location as well?
-MetricsLogger.prototype.logUser = function() {
+MetricsLogger.prototype.logUser = function(extraParams = {}) {
   const appSource = this.appSource;
   const userId = this.userId;
   const now = new Date().toISOString();
 
-  const mixpanelParams = {
-    appSource,
-    $created: now,
-    last_use: now
-  };
+  const mixpanelParams = extendObject(extraParams, {
+    appSource
+  });
 
   mixpanel.people.set(userId, mixpanelParams);
-
-  mixpanel.people.set_once(userId, {
-    first_use: now
-  });
+  mixpanel.people.set_once(userId, '$created', now);
 
   this.logger.debug('mixpanel_user',
       prefixObject('mixpanel.user.params.', mixpanelParams));
