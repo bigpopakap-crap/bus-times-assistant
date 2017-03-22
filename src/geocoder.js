@@ -1,35 +1,73 @@
-var Promise = require('promise');
-var NodeGeocoder = require('node-geocoder');
+const Promise = require('promise');
+const NodeGeocoder = require('node-geocoder');
 
-var geocoder = NodeGeocoder({
+const nodeGeocoderOptions = {
   provider: 'google'
-});
+};
+const nodeGeocoder = NodeGeocoder();
 
-function geocode(address) {
+const THIS_COMPONENT_NAME = 'geocoder';
+const logger = require('./logger.js')
+                .forComponent(THIS_COMPONENT_NAME)
+                .withContext(nodeGeocoderOptions, 'nodeGeocoderOptions');
+
+function forRequest(requestContext = {}) {
+  return new Geocoder(requestContext);
+}
+
+function Geocoder(requestContext = {}) {
+  this.logger = logger.forRequest(requestContext);
+}
+
+Geocoder.prototype.geocode = function(address) {
+  const logger = this.logger;
+
+  logger.debug('pre_geocoding', {
+    address
+  });
+
   return new Promise((resolve, reject) => {
-    geocoder.geocode(address, function(err, result) {
-      if (err) {
-        reject(err);
-      } else if (!result || result.length < 1) {
-        reject('Bad result'); // TODO better error handling?
-      } else {
-        const geo = result[0];
-
-        // TODO format this completely and with localization?
-        const formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
-
-        resolve({
-          latitude: geo.latitude,
-          longitude: geo.longitude,
-          address: formattedAddress,
-          originalAddressInput: address,
-          originalAddressSource: 'geocoder'
-        });
+    nodeGeocoder.geocode(address, function(err, result) {
+      // simulate some errors if the result is not good
+      if (!result) {
+        err = 'result undefined';
+      } else if (result.length < 1) {
+        err = 'result empty';
       }
+
+      if (err) {
+        logger.error('post_geocoding', {
+          address,
+          success: false,
+          error: JSON.stringify(err)
+        });
+
+        reject(err);
+        return;
+      }
+
+      const geo = result[0];
+      // TODO format this completely and with localization?
+      const formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
+      const location = {
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+        address: formattedAddress,
+        originalAddressInput: address,
+        originalAddressSource: THIS_COMPONENT_NAME
+      };
+
+      logger.debug('post_geocoding', {
+        address,
+        success: true,
+        location: JSON.stringify(location)
+      });
+
+      resolve(location);
     });
   });
 }
 
 module.exports = {
-  geocode
+  forRequest
 };

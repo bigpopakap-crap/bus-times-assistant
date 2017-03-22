@@ -36,7 +36,7 @@ function Logger(context = {}) {
 Logger.prototype.LEVEL = LEVEL;
 
 Logger.prototype.withContext = function(extraContext = {}, namespace = '') {
-  namespace = namespace && `.${namespace}`;
+  namespace = namespace && `${namespace}.`;
 
   const context = extendObject(
     this.context,

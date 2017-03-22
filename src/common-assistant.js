@@ -1,4 +1,4 @@
-const geocoder = require('./geocoder.js');
+const Geocoder = require('./geocoder.js');
 const NextbusAdapter = require('./nextbus-adapter.js');
 const { pluralPhrase } = require('./utils.js');
 
@@ -25,6 +25,9 @@ function reportMyLocationUpdate(db, userId, address, responseCallback) {
     responseCallback(`You must specify the address. For example, "Set my location to ${EXAMPLE_ADDRESS}".`);
     return;
   }
+
+  // TODO add request context
+  const geocoder = Geocoder.forRequest();
 
   geocoder.geocode(address).then(
     location => {
