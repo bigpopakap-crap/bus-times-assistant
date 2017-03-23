@@ -10,6 +10,7 @@ const Db = require('./db.js');
 const THIS_COMPONENT_NAME = 'alexa-handlers';
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
+const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const {
@@ -29,6 +30,8 @@ function handleGetMyLocation(request, response) {
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.ALEXA, userId)
          .logIntent(INTENTS.GET_MY_LOCATION);
+  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
+        .start('handleGetMyLocation');
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -37,6 +40,8 @@ function handleGetMyLocation(request, response) {
     });
   }).then(responseText => {
     response.say(responseText);
+
+    perfBeacon.logEnd();
   });
 }
 
@@ -49,6 +54,10 @@ function handleUpdateMyLocation(request, response) {
          .logIntent(INTENTS.UPDATE_MY_LOCATION, {
            address
          });
+  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
+        .start('handleUpdateMyLocation', {
+          address
+        });
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -57,6 +66,8 @@ function handleUpdateMyLocation(request, response) {
     });
   }).then(responseText => {
     response.say(responseText);
+
+    perfBeacon.logEnd();
   });
 }
 
@@ -74,6 +85,11 @@ function handleNearestBusTimesByRoute(request, response) {
            busRoute,
            busDirection
          });
+  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
+          .start('handleNearestBusTimesByRoute', {
+            busRoute,
+            busDirection
+          });
 
   // TODO add requestContext
   const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
@@ -91,6 +107,8 @@ function handleNearestBusTimesByRoute(request, response) {
     });
   }).then(function(responseText) {
     response.say(cleanResponse(responseText));
+
+    perfBeacon.logEnd();
   });
 }
 
@@ -100,6 +118,8 @@ function handleDefault(request, response) {
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.ALEXA, userId)
          .logIntent(INTENTS.DEFAULT);
+  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
+          .start('handleDefault');
 
   // TODO add requestContext
   const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
@@ -110,6 +130,8 @@ function handleDefault(request, response) {
 
     const responseText = location ? baseResponse : noLocationResponse;
     response.say(cleanResponse(responseText));
+
+    perfBeacon.logEnd();
   });
 }
 

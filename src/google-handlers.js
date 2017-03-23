@@ -14,6 +14,7 @@ const Db = require('./db.js');
 const THIS_COMPONENT_NAME = 'google-handlers';
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
+const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 function cleanDeviceLocation(deviceLocation) {
   return {
@@ -31,9 +32,13 @@ function handleGetMyLocation(assistant) {
   // TODO add requestContext
   metrics.forRequest(APP_SOURCE.GOOGLE, userId)
          .logIntent(INTENTS.GET_MY_LOCATION);
+  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+          .start('handleGetMyLocation');
 
   reportMyLocation(APP_SOURCE.GOOGLE, userId, response => {
     assistant.tell(response);
+
+    perfBeacon.logEnd();
   });
 }
 
@@ -46,9 +51,15 @@ function handleUpdateMyLocation(assistant) {
          .logIntent(INTENTS.UPDATE_MY_LOCATION, {
            address
          });
+  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+          .start('handleUpdateMyLocation', {
+            address
+          });
 
   reportMyLocationUpdate(APP_SOURCE.GOOGLE, userId, address, response => {
     assistant.tell(response);
+
+    perfBeacon.logEnd();
   });
 }
 
@@ -70,6 +81,12 @@ function handleNearestBusTimesByRoute(assistant) {
            busRoute,
            busDirection
          });
+  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+          .start('handleNearestBusTimesByRoute', {
+            isFallbackIntent: false,
+            busRoute,
+            busDirection
+          });
 
   // TODO add requestContext
   const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
@@ -81,6 +98,10 @@ function handleNearestBusTimesByRoute(assistant) {
       reportNearestStopResult(APP_SOURCE.GOOGLE, userId, location, busRoute, busDirection, response => {
         assistant.tell(response);
       });
+
+      perfBeacon.logEnd(null, {
+        askedForLocationPermission: false
+      });
     } else {
       // request permission for location, and save parameters
       assistant.data.busRoute = busRoute;
@@ -88,6 +109,10 @@ function handleNearestBusTimesByRoute(assistant) {
 
       const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
       assistant.askForPermission('To look up routes near you', permission);
+
+      perfBeacon.logEnd(null, {
+        askedForLocationPermission: true
+      });
     }
   });
 }
@@ -109,9 +134,21 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
            busRoute,
            busDirection
          });
+  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+          .start('handleNearestBusTimesByRoute', {
+            isFallbackIntent: true,
+            wasPermissionGranted: assistant.isPermissionGranted(),
+            busRoute,
+            busDirection
+          });
 
   if (!assistant.isPermissionGranted()) {
     assistant.tell('To proceed, I\'ll need your location. If you do not want to grant access, you can update your address by saying "Update my location"');
+
+    perfBeacon.logEnd(null, {
+      shortCircuitedForLocation: true
+    });
+
     return;
   }
   const deviceLocation = cleanDeviceLocation(assistant.getDeviceLocation());
@@ -123,6 +160,10 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
 
   reportNearestStopResult(APP_SOURCE.GOOGLE, userId, deviceLocation, busRoute, busDirection, response => {
     assistant.tell(response);
+
+    perfBeacon.logEnd(null, {
+      shortCircuitedForLocation: false
+    });
   });
 }
 

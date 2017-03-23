@@ -10,7 +10,7 @@ const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
 function forComponent(componentName) {
   return {
     forRequest(appSource, userId, requestContext = {}) {
-      return new MetricsLogger(appSource, userId, requestContext);
+      return new MetricsLogger(componentName, appSource, userId, requestContext);
     }
   };
 }
@@ -40,7 +40,7 @@ MetricsLogger.prototype.logUser = function(extraParams = {}) {
       prefixObject('mixpanel.user.params.', mixpanelParams));
 };
 
-MetricsLogger.prototype.logUsage = function(event, params = {}) {
+MetricsLogger.prototype.logEvent = function(event, params = {}) {
   const componentName = this.componentName;
   const appSource = this.appSource;
   const userId = this.userId;
@@ -63,7 +63,7 @@ MetricsLogger.prototype.logUsage = function(event, params = {}) {
 };
 
 MetricsLogger.prototype.logIntent = function(intent, params = {}) {
-  this.logUsage(intent.getHumanName(), extendObject(params, {
+  this.logEvent(`INTENT: ${intent.getHumanName()}`, extendObject(params, {
     intent: intent.getName()
   }));
 }
