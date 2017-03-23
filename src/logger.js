@@ -10,9 +10,9 @@ const LEVEL = {
   ERROR:{ value: 4, name: 'ERROR' },
 };
 
-function getCurrentLogLevel() {
-  return LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
-}
+// we can make this a constant, because Heroku restarts our app
+// every time a config var changes
+const CURRENT_LOG_LEVEL = LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
 
 function forComponent(componentName, extraContext = {}, namespace = '') {
   const context = prefixObject('component.', {
@@ -46,7 +46,7 @@ Logger.prototype.LEVEL = LEVEL;
 
 Logger.prototype.log = function(level, event, data = {}) {
   try {
-    if (level.value >= getCurrentLogLevel().value) {
+    if (level.value >= CURRENT_LOG_LEVEL.value) {
       const logData = extendObject(
         prefixObject('log.', { level: level.name }),
         this.context,
