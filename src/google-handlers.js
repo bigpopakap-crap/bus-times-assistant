@@ -10,8 +10,10 @@ const {
 } = require('./common-assistant.js');
 
 const Db = require('./db.js');
-const logger = require('./logger.js').forComponent('google-handlers');
-const metrics = require('./logger-metrics.js');
+
+const THIS_COMPONENT_NAME = 'google-handlers';
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
+const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
 
 function cleanDeviceLocation(deviceLocation) {
   return {

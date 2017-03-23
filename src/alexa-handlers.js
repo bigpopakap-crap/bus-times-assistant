@@ -6,8 +6,10 @@ const { APP_SOURCE } = require('./ai-config-appSource.js');
 const INTENTS = require('./ai-config-intents.js');
 
 const Db = require('./db.js');
-const logger = require('./logger.js').forComponent('alexa-handlers');
-const metrics = require('./logger-metrics.js');
+
+const THIS_COMPONENT_NAME = 'alexa-handlers';
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
+const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const {

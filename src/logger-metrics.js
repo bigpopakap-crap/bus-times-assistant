@@ -1,5 +1,5 @@
 const Mixpanel = require('mixpanel');
-const logger = require('./logger.js').forComponent('mixpanel-logger');
+const logger = require('./logger.js').forComponent('logger-metrics');
 
 const { prefixObject, extendObject } = require('./utils.js');
 
@@ -7,11 +7,16 @@ const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
   protocol: 'https'
 });
 
-function forRequest(appSource, userId, requestContext = {}) {
-  return new MetricsLogger(appSource, userId);
+function forComponent(componentName) {
+  return {
+    forRequest(appSource, userId, requestContext = {}) {
+      return new MetricsLogger(appSource, userId, requestContext);
+    }
+  };
 }
 
-function MetricsLogger(appSource, userId, requestContext = {}) {
+function MetricsLogger(componentName, appSource, userId, requestContext = {}) {
+  this.componentName = componentName;
   this.appSource = appSource;
   this.userId = userId;
   this.requestContext = requestContext;
@@ -35,7 +40,8 @@ MetricsLogger.prototype.logUser = function(extraParams = {}) {
       prefixObject('mixpanel.user.params.', mixpanelParams));
 };
 
-MetricsLogger.prototype.logUsage = function(action, params = {}) {
+MetricsLogger.prototype.logUsage = function(event, params = {}) {
+  const componentName = this.componentName;
   const appSource = this.appSource;
   const userId = this.userId;
 
@@ -44,14 +50,14 @@ MetricsLogger.prototype.logUsage = function(action, params = {}) {
   const mixpanelParams = extendObject(
     prefixObject('params.request.', this.requestContext),
     prefixObject('params.', params),
-    prefixObject('context.', { appSource, userId }),
+    prefixObject('context.', { componentName, appSource, userId }),
     { distinct_id: userId }
   );
 
-  mixpanel.track(action, mixpanelParams);
+  mixpanel.track(event, mixpanelParams);
 
   this.logger.debug('mixpanel_event', extendObject(
-    prefixObject('mixpanel.', { event: action }),
+    prefixObject('mixpanel.', { event }),
     prefixObject('mixpanel.params.', mixpanelParams)
   ));
 };
@@ -63,5 +69,5 @@ MetricsLogger.prototype.logIntent = function(intent, params = {}) {
 }
 
 module.exports = {
-  forRequest
+  forComponent
 };
