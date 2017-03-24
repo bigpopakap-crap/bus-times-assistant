@@ -73,6 +73,7 @@ LatencyBeacon.prototype.logEnd = function(error, extraParams = {}) {
   });
 
   const params = extendObject(
+    { measuredEvent: this.event },
     prefixObject('start.', { date: this.startDate.toISOString() }),
     prefixObject('start.params.', this.startParams),
     prefixObject('end.', { date: endDate.toISOString() }),
