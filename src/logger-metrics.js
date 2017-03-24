@@ -29,7 +29,6 @@ function MetricsLogger(componentName, appSource, userId, requestContext = {}) {
   this.logger = logger.forRequest(appSource, userId, requestContext);
 }
 
-// TODO track their location as well?
 MetricsLogger.prototype.logUser = function(extraParams = {}) {
   const appSource = this.appSource;
   const userId = this.userId;
