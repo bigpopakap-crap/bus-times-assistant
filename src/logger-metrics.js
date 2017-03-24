@@ -36,8 +36,9 @@ MetricsLogger.prototype.logUser = function(extraParams = {}) {
   mixpanel.people.set(userId, mixpanelParams);
   mixpanel.people.set_once(userId, '$created', now);
 
-  this.logger.debug('mixpanel_user',
-      prefixObject('mixpanel.user.params.', mixpanelParams));
+  this.logger.debug('mixpanel_user', prefixObject('mixpanel.', {
+    params: JSON.stringify(mixpanelParams)
+  }));
 };
 
 MetricsLogger.prototype.logEvent = function(event, params = {}) {
@@ -48,7 +49,7 @@ MetricsLogger.prototype.logEvent = function(event, params = {}) {
   this.logUser();
 
   const mixpanelParams = extendObject(
-    prefixObject('params.request.', this.requestContext),
+    prefixObject('request.', this.requestContext),
     prefixObject('params.', params),
     prefixObject('context.', { componentName, appSource, userId }),
     { distinct_id: userId }
@@ -56,10 +57,10 @@ MetricsLogger.prototype.logEvent = function(event, params = {}) {
 
   mixpanel.track(event, mixpanelParams);
 
-  this.logger.debug('mixpanel_event', extendObject(
-    prefixObject('mixpanel.', { event }),
-    prefixObject('mixpanel.params.', mixpanelParams)
-  ));
+  this.logger.debug('mixpanel_event',  prefixObject('mixpanel.', {
+    event,
+    params: JSON.stringify(mixpanelParams)
+  }));
 };
 
 MetricsLogger.prototype.logIntent = function(intent, params = {}) {
