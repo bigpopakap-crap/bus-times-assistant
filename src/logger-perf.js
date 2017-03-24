@@ -2,6 +2,7 @@ const logger = require('./logger.js').forComponent('logger-perf');
 const beaconLogger = require('./logger.js').forComponent('logger-perf-beacon');
 
 const metricsBase = require('./logger-metrics.js'); // not "for component" yet
+const { EVENT_TYPE } = metricsBase;
 
 const { prefixObject, extendObject } = require('./utils.js');
 
@@ -83,7 +84,8 @@ LatencyBeacon.prototype.logEnd = function(error, extraParams = {}) {
     })
   );
 
-  this.metrics.logEvent(`PERF: ${this.componentName} ${this.event}`, params);
+  this.metrics.logEvent(EVENT_TYPE.PERF,
+          `${this.componentName} ${this.event}`, params);
 }
 
 module.exports = {

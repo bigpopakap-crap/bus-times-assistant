@@ -3,6 +3,12 @@ const logger = require('./logger.js').forComponent('logger-metrics');
 
 const { prefixObject, extendObject } = require('./utils.js');
 
+const EVENT_TYPE = {
+  INTENT: 'User action',
+  PERF: 'Latency and error rate',
+  OTHER: 'Other'
+};
+
 const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
   protocol: 'https'
 });
@@ -41,7 +47,7 @@ MetricsLogger.prototype.logUser = function(extraParams = {}) {
   }));
 };
 
-MetricsLogger.prototype.logEvent = function(event, params = {}) {
+MetricsLogger.prototype.logEvent = function(eventType, event, params = {}) {
   const componentName = this.componentName;
   const appSource = this.appSource;
   const userId = this.userId;
@@ -52,7 +58,10 @@ MetricsLogger.prototype.logEvent = function(event, params = {}) {
     prefixObject('request.', this.requestContext),
     prefixObject('params.', params),
     prefixObject('context.', { componentName, appSource, userId }),
-    { distinct_id: userId }
+    {
+      mixpanelLogType: eventType,
+      distinct_id: userId
+    }
   );
 
   mixpanel.track(event, mixpanelParams);
@@ -64,11 +73,12 @@ MetricsLogger.prototype.logEvent = function(event, params = {}) {
 };
 
 MetricsLogger.prototype.logIntent = function(intent, params = {}) {
-  this.logEvent(`INTENT: ${intent.getHumanName()}`, extendObject(params, {
+  this.logEvent(EVENT_TYPE.INTENT, intent.getHumanName(), extendObject(params, {
     intent: intent.getName()
   }));
 }
 
 module.exports = {
+  EVENT_TYPE,
   forComponent
 };
