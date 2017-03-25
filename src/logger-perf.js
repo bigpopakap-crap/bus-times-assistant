@@ -85,8 +85,7 @@ LatencyBeacon.prototype.logEnd = function(error, extraParams = {}) {
     })
   );
 
-  this.metrics.logEvent(EVENT_TYPE.PERF,
-          `${this.componentName} ${this.event}`, params);
+  this.metrics.logEvent(EVENT_TYPE.PERF, EVENT_TYPE.PERF, params);
 }
 
 module.exports = {
