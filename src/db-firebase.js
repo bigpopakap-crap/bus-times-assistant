@@ -1,7 +1,10 @@
 const Promise = require('promise');
 const firebase = require("firebase-admin");
-const initLogger = require('./logger.js').forComponent('db-firebase-init').forRequest();
-const logger = require('./logger.js').forComponent('db-firebase');
+
+const THIS_COMPONENT_NAME = 'db-firebase';
+const initLogger = require('./logger.js').forComponent(`${THIS_COMPONENT_NAME}-init`).forRequest();
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
+const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 const LOCATION_KEY = 'location';
 
@@ -45,6 +48,7 @@ function Firebase(appSource, userId, requestContext = {}) {
   this.appSource = appSource;
   this.userId = userId;
   this.logger = logger.forRequest(appSource, userId, requestContext);
+  this.perf = perf.forRequest(appSource, userId, requestContext);
 }
 
 Firebase.prototype.getLocation = function() {
@@ -54,6 +58,7 @@ Firebase.prototype.getLocation = function() {
   logger.debug('pre_get_location', {
     firebaseKey
   });
+  const perfBeacon = this.perf.start('getLocation');
 
   return new Promise(resolve => {
     firebase.database().ref(firebaseKey).once('value', data => {
@@ -67,6 +72,7 @@ Firebase.prototype.getLocation = function() {
       });
 
       resolve(locationValue);
+      perfBeacon.logEnd();
     }, error => {
       logger.error('post_get_location', {
         firebaseKey,
@@ -75,6 +81,7 @@ Firebase.prototype.getLocation = function() {
       });
 
       reject(error);
+      perfBeacon.logEnd(error);
     });
   });
 };
@@ -87,18 +94,29 @@ Firebase.prototype.saveLocation = function(location) {
     firebaseKey,
     location: JSON.stringify(location)
   });
+  const perfBeacon = this.perf.start('getLocation');
 
-  firebase.database().ref(firebaseKey).update({
-    [LOCATION_KEY]: location
-  }, error => {
-    const success = !Boolean(error);
-    const logLevel = success ? logger.LEVEL.DEBUG : logger.LEVEL.ERROR;
+  return new Promise(resolve, reject => {
+    firebase.database().ref(firebaseKey).update({
+      [LOCATION_KEY]: location
+    }, error => {
+      const success = !Boolean(error);
+      const logLevel = success ? logger.LEVEL.DEBUG : logger.LEVEL.ERROR;
 
-    logger.log(logLevel, 'post_get_location', {
-      firebaseKey,
-      location: JSON.stringify(location),
-      success,
-      error: error && JSON.stringify(error.toJSON())
+      logger.log(logLevel, 'post_get_location', {
+        firebaseKey,
+        location: JSON.stringify(location),
+        success,
+        error: error && JSON.stringify(error.toJSON())
+      });
+
+      if (success) {
+        resolve(location);
+        perfBeacon.logEnd();
+      } else {
+        reject(error);
+        perfBeacon.logEnd(error);
+      }
     });
   });
 };

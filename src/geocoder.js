@@ -9,6 +9,7 @@ const nodeGeocoder = NodeGeocoder();
 const THIS_COMPONENT_NAME = 'geocoder';
 const logger = require('./logger.js')
                 .forComponent(THIS_COMPONENT_NAME, nodeGeocoderOptions, 'nodeGeocoderOptions');
+const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 function forRequest(appSource, userId, requestContext = {}) {
   return new Geocoder(appSource, userId, requestContext);
@@ -16,12 +17,16 @@ function forRequest(appSource, userId, requestContext = {}) {
 
 function Geocoder(appSource, userId, requestContext = {}) {
   this.logger = logger.forRequest(appSource, userId, requestContext);
+  this.perf = perf.forRequest(appSource, userId, requestContext);
 }
 
 Geocoder.prototype.geocode = function(address) {
   const logger = this.logger;
 
   logger.debug('pre_geocoding', {
+    address
+  });
+  const perfBeacon = this.perf.start('geocode', {
     address
   });
 
@@ -42,6 +47,7 @@ Geocoder.prototype.geocode = function(address) {
         });
 
         reject(err);
+        perfBeacon.logEnd(err);
         return;
       }
 
@@ -63,6 +69,7 @@ Geocoder.prototype.geocode = function(address) {
       });
 
       resolve(location);
+      perfBeacon.logEnd();
     });
   });
 }

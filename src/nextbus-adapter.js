@@ -2,7 +2,9 @@
 
 const { contains } = require('./utils.js');
 
-const logger = require('./logger.js').forComponent('nextbus-adapter');
+const THIS_COMPONENT_NAME = 'nextbus-adapter';
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
+const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 const request = require('request-json');
 
 const nbClient = request.createClient(process.env.RESTBUS_BASE_URL);
@@ -67,6 +69,7 @@ function forRequest(appSource, userId, requestContext = {}) {
 
 function NextbusAdapter(appSource, userId, requestContext = {}) {
   this.logger = logger.forRequest(appSource, userId, requestContext);
+  this.perf = perf.forRequest(appSource, userId, requestContext);
 }
 
 NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRoute, busDirection, callBackFn) {
@@ -78,6 +81,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
   logger.debug('pre_nextbus_query', {
     queryUrl
   });
+  const perfBeacon = this.perf.start('getNearestStopResult');
 
   nbClient.get(queryUrl, (err, res, body) => {
     if (err) {
@@ -88,6 +92,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
       });
 
       callBackFn(NEXTBUS_ERRORS.GENERIC);
+      perfBeacon.logEnd(NEXTBUS_ERRORS.GENERIC);
       return;
     }
 
@@ -108,8 +113,10 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
 
     if (result) {
       callBackFn(null, result);
+      perfBeacon.logEnd();
     } else {
       callBackFn(NEXTBUS_ERRORS.NOT_FOUND);
+      perfBeacon.logEnd(NEXTBUS_ERRORS.NOT_FOUND);
     }
   });
 }
