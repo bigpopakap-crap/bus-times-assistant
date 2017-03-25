@@ -3,6 +3,7 @@
 const { APP_SOURCE } = require('./ai-config-appSource.js');
 const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
+const { METRICS_EVENT } = require('./ai-config-metricsEvents.js');
 const {
   reportMyLocation,
   reportMyLocationUpdate,
@@ -110,6 +111,9 @@ function handleNearestBusTimesByRoute(assistant) {
       const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
       assistant.askForPermission('To look up routes near you', permission);
 
+      metrics.forRequest(APP_SOURCE.GOOGLE, userId)
+               .logEvent(METRICS_EVENT.REQUEST_LOCATION_PERMISSION);
+
       perfBeacon.logEnd(null, {
         askedForLocationPermission: true
       });
@@ -134,21 +138,13 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
            busRoute,
            busDirection
          });
-  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
-          .start('handleNearestBusTimesByRoute', {
-            isFallbackIntent: true,
-            wasPermissionGranted: assistant.isPermissionGranted(),
-            busRoute,
-            busDirection
-          });
+  metrics.forRequest(APP_SOURCE.GOOGLE, userId)
+         .logEvent(METRICS_EVENT.LOCATION_PERMISSION_GRANT, {
+            wasPermissionGranted: assistant.isPermissionGranted()
+         });
 
   if (!assistant.isPermissionGranted()) {
     assistant.tell('To proceed, I\'ll need your location. If you do not want to grant access, you can update your address by saying "Update my location"');
-
-    perfBeacon.logEnd(null, {
-      shortCircuitedForLocation: true
-    });
-
     return;
   }
   const deviceLocation = cleanDeviceLocation(assistant.getDeviceLocation());
@@ -158,12 +154,17 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
   const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
   googleDb.saveLocation(deviceLocation);
 
+  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+            .start('handleNearestBusTimesByRoute', {
+              isFallbackIntent: true,
+              wasPermissionGranted: assistant.isPermissionGranted(),
+              busRoute,
+              busDirection
+            });
+
   reportNearestStopResult(APP_SOURCE.GOOGLE, userId, deviceLocation, busRoute, busDirection, response => {
     assistant.tell(response);
-
-    perfBeacon.logEnd(null, {
-      shortCircuitedForLocation: false
-    });
+    perfBeacon.logEnd();
   });
 }
 
