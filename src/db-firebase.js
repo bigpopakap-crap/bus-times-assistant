@@ -60,7 +60,7 @@ Firebase.prototype.getLocation = function() {
   });
   const perfBeacon = this.perf.start('getLocation');
 
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     firebase.database().ref(firebaseKey).once('value', data => {
       const locationValue = data && data.val() && data.val()[LOCATION_KEY];
 
@@ -96,7 +96,7 @@ Firebase.prototype.saveLocation = function(location) {
   });
   const perfBeacon = this.perf.start('getLocation');
 
-  return new Promise(resolve, reject => {
+  return new Promise((resolve, reject) => {
     firebase.database().ref(firebaseKey).update({
       [LOCATION_KEY]: location
     }, error => {
