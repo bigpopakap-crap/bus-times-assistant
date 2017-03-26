@@ -8,7 +8,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const googleApp = require('./google-app.js');
 const alexaApp = require('./alexa-app.js');
-const logger = require('./logger.js').forComponent('main-app').forRequest();
+const initLogger = require('./logger.js').forComponent('main-app').forRequest();
+
+if (initLogger.isDebugging()) {
+  require('promise/lib/rejection-tracking').enable(
+    { allRejections: true }
+  );
+}
 
 const app = express();
 app.set('port', process.env.PORT);
@@ -23,7 +29,7 @@ app.use('/alexa', alexaApp);
 
 // Start the server
 var server = app.listen(app.get('port'), function () {
-  logger.debug('app_start', {
+  initLogger.debug('app_start', {
     port: server.address().port,
     message: 'Press Ctrl+C to quit.'
   });

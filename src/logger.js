@@ -14,6 +14,10 @@ const LEVEL = {
 // every time a config var changes
 const CURRENT_LOG_LEVEL = LEVEL[process.env.LOG_LEVEL] || LEVEL.INFO;
 
+function isDebugging() {
+  return CURRENT_LOG_LEVEL.value <= LEVEL.DEBUG.value;
+}
+
 function forComponent(componentName, extraContext = {}, namespace = '') {
   const context = prefixObject('component.', {
     name: componentName
@@ -43,6 +47,8 @@ function Logger(appSource, userId, context = {}) {
 
 Logger.LEVEL = LEVEL;
 Logger.prototype.LEVEL = LEVEL;
+Logger.isDebugging = isDebugging;
+Logger.prototype.isDebugging = isDebugging;
 
 Logger.prototype.log = function(level, event, data = {}) {
   try {
@@ -80,5 +86,6 @@ Logger.prototype.error = function(event, data = {}) {
 }
 
 module.exports = {
+  isDebugging,
   forComponent
 };
