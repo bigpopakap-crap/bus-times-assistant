@@ -58,7 +58,6 @@ function handleUpdateMyLocation(assistant) {
 
   reportMyLocationUpdate(APP_SOURCE.GOOGLE, userId, address, response => {
     assistant.tell(response);
-
     perfBeacon.logEnd();
   });
 }

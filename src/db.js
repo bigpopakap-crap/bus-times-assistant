@@ -21,7 +21,7 @@ Db.prototype.getLocation = function() {
   return this.firebase.getLocation().then(location => {
     return new Promise(resolve => {
       resolve(location);
-      metrics.logUser(prefixObject('location.', location));
+      metrics.logUserLocation(location);
     });
   });
 }
@@ -37,7 +37,7 @@ Db.prototype.getLocation = function() {
  */
 Db.prototype.saveLocation = function(location) {
   this.firebase.saveLocation(location);
-  this.metrics.logUser(prefixObject('location.', location));
+  this.metrics.logUserLocation(location);
 }
 
 module.exports = {

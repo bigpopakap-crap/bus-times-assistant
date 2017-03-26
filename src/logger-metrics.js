@@ -73,6 +73,10 @@ MetricsLogger.prototype.logUser = function(extraParams = {}) {
   }));
 };
 
+MetricsLogger.prototype.logUserLocation = function(location) {
+  this.logUser(prefixObject('location.', location));
+};
+
 MetricsLogger.prototype.logIntent = function(intent, params = {}) {
   this.logEvent(METRICS_EVENT_TYPE.INTENT, extendObject(params, {
     userAction: intent.getHumanName(),
