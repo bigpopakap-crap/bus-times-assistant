@@ -3,7 +3,6 @@
 const { APP_SOURCE } = require('./ai-config-appSource.js');
 const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const { METRICS_EVENT } = require('./ai-config-metricsEvents.js');
 const {
   reportMyLocation,
   reportMyLocationUpdate,
@@ -111,8 +110,7 @@ function handleNearestBusTimesByRoute(assistant) {
       const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
       assistant.askForPermission('To look up routes near you', permission);
 
-      metrics.forRequest(APP_SOURCE.GOOGLE, userId)
-               .logEvent(METRICS_EVENT.REQUEST_LOCATION_PERMISSION);
+      metrics.forRequest(APP_SOURCE.GOOGLE, userId).logLocationPermissionRequest();
 
       perfBeacon.logEnd(null, {
         askedForLocationPermission: true
@@ -139,9 +137,7 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
            busDirection
          });
   metrics.forRequest(APP_SOURCE.GOOGLE, userId)
-         .logEvent(METRICS_EVENT.LOCATION_PERMISSION_GRANT, {
-            wasPermissionGranted: assistant.isPermissionGranted()
-         });
+         .logLocationPermissionRequest(assistant.isPermissionGranted());
 
   if (!assistant.isPermissionGranted()) {
     assistant.tell('To proceed, I\'ll need your location. If you do not want to grant access, you can update your address by saying "Update my location"');

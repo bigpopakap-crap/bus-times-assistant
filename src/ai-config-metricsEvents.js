@@ -1,8 +1,15 @@
-const METRICS_EVENT = {
-  REQUEST_LOCATION_PERMISSION: 'Request location permission',
-  LOCATION_PERMISSION_GRANT: 'Location permission grant'
+const METRICS_EVENT_TYPE = {
+  INTENT: 'User action',
+  PERF: 'Latency and errors',
+  LOCATION_PERMISSION: 'Location permission'
+};
+
+const LOCATION_PERMISSION_PHASE = {
+  REQUESTED: 'requested',
+  RESPONDED: 'responded'
 };
 
 module.exports = {
-  METRICS_EVENT
+  METRICS_EVENT_TYPE,
+  LOCATION_PERMISSION_PHASE
 };
