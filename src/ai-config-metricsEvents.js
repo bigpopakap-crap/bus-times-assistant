@@ -1,6 +1,6 @@
 const METRICS_EVENT_TYPE = {
   INTENT: 'User action',
-  PERF: 'Latency and errors',
+  PERF: 'Telemetry',
   LOCATION_PERMISSION: 'Location permission'
 };
 

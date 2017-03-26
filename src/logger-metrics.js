@@ -32,7 +32,7 @@ function MetricsLogger(componentName, appSource, userId, requestContext = {}) {
  * A METHOD SPECIFIC TO THE TYPE OF THING YOU ARE LOGGING
  * EX. logIntent(), or logPerf()
  */
-MetricsLogger.prototype.logEvent = function(eventType, params = {}) {
+MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
   const componentName = this.componentName;
   const appSource = this.appSource;
   const userId = this.userId;
@@ -44,11 +44,12 @@ MetricsLogger.prototype.logEvent = function(eventType, params = {}) {
     prefixObject('params.', params),
     prefixObject('context.', { componentName, appSource, userId }),
     {
+      mixpanelLogType: eventType,
       distinct_id: userId
     }
   );
 
-  mixpanel.track(eventType, mixpanelParams);
+  mixpanel.track(eventName, mixpanelParams);
 
   this.logger.debug('mixpanel_event',  prefixObject('mixpanel.', {
     eventType,
@@ -78,27 +79,45 @@ MetricsLogger.prototype.logUserLocation = function(location) {
 };
 
 MetricsLogger.prototype.logIntent = function(intent, params = {}) {
-  this.logEvent(METRICS_EVENT_TYPE.INTENT, extendObject(params, {
-    userAction: intent.getHumanName(),
-    intentName: intent.getName()
-  }));
+  const eventType = METRICS_EVENT_TYPE.INTENT;
+
+  this.logEvent(
+    eventType,
+    `${eventType}: ${intent.getHumanName()}`,
+    extendObject(params, {
+      userAction: intent.getHumanName(),
+      intentName: intent.getName()
+    })
+  );
 };
 
 MetricsLogger.prototype.logLocationPermissionRequest = function() {
-  this.logEvent(METRICS_EVENT_TYPE.LOCATION_PERMISSION, {
-    phase: LOCATION_PERMISSION_PHASE.REQUESTED
-  });
+  this.logEvent(
+    METRICS_EVENT_TYPE.LOCATION_PERMISSION,
+    METRICS_EVENT_TYPE.LOCATION_PERMISSION,
+    {
+      phase: LOCATION_PERMISSION_PHASE.REQUESTED
+    }
+  );
 };
 
 MetricsLogger.prototype.logLocationPermissionResponse = function(wasPermissionGranted) {
-  this.logEvent(METRICS_EVENT_TYPE.LOCATION_PERMISSION, {
-    phase: LOCATION_PERMISSION_PHASE.RESPONDED,
-    wasPermissionGranted
-  });
+  this.logEvent(
+    METRICS_EVENT_TYPE.LOCATION_PERMISSION,
+    METRICS_EVENT_TYPE.LOCATION_PERMISSION,
+    {
+      phase: LOCATION_PERMISSION_PHASE.RESPONDED,
+      wasPermissionGranted
+    }
+  );
 };
 
 MetricsLogger.prototype.logPerf = function(params = {}) {
-  this.logEvent(METRICS_EVENT_TYPE.PERF, params);
+  this.logEvent(
+    METRICS_EVENT_TYPE.PERF,
+    METRICS_EVENT_TYPE.PERF,
+    params
+  );
 };
 
 module.exports = {
