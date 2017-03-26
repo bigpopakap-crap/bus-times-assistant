@@ -136,7 +136,7 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
            busDirection
          });
   metrics.forRequest(APP_SOURCE.GOOGLE, userId)
-         .logLocationPermissionRequest(assistant.isPermissionGranted());
+         .logLocationPermissionResponse(assistant.isPermissionGranted());
 
   if (!assistant.isPermissionGranted()) {
     assistant.tell('To proceed, I\'ll need your location. If you do not want to grant access, you can update your address by saying "Update my location"');
