@@ -56,7 +56,7 @@ MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
   this.logUser();
 
   const mixpanelParams = extendObject(
-    prefixObject('request.', this.requestContext),
+    prefixObject('request.', this.requestContext.toJSON()),
     prefixObject('params.', params),
     prefixObject('context.', { componentName }),
     {
