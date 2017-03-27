@@ -3,6 +3,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const { APP_SOURCE } = require('./ai-config-appSource.js');
+const RequestContext = require('./request-context.js');
+
 const app = express();
 app.use(bodyParser.json({ type: 'application/json' }));
 
@@ -16,13 +19,24 @@ const {
   handleNearestBusTimesByRoute_fallback
 } = require('./google-handlers.js');
 
+app.use(function(request, response, next) {
+  const requestContext = new RequestContext(request);
+  requestContext.setAppSource(APP_SOURCE.GOOGLE);
+  next();
+});
+
 // base URL for checking status
 app.get('/status', function(request, response) {
   response.sendStatus(200);
 });
 
 app.post('/', function (request, response) {
-  const assistant = new ApiAiAssistant({request: request, response: response});
+  const assistant = new ApiAiAssistant({
+    request,
+    response
+  });
+
+  console.log(assistant.request_);
 
   const actionMap = new Map();
   actionMap.set(INTENTS.GET_MY_LOCATION.getName(), handleGetMyLocation);

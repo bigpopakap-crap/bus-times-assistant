@@ -3,6 +3,9 @@
 const express = require('express');
 const alexa = require('alexa-app');
 
+const { APP_SOURCE } = require('./ai-config-appSource.js');
+const RequestContext = require('./request-context.js');
+
 const expressApp = express();
 const alexaApp = new alexa.app('');
 
@@ -19,9 +22,18 @@ function configureIntent(alexaApp, intent, handler) {
   alexaApp.intent(
     intent.getName(),
     intent.getAlexaSlots(),
-    handler
+    function (request, response) {
+      console.log(JSON.stringify(request));
+      handler(request, response);
+    }
   );
 }
+
+expressApp.use(function(request, response, next) {
+  const requestContext = new RequestContext(request);
+  requestContext.setAppSource(APP_SOURCE.ALEXA);
+  next();
+});
 
 // base URL for checking status
 expressApp.get('/status', function(request, response) {
