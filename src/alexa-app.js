@@ -36,7 +36,7 @@ function configureIntent(alexaApp, intent, handler) {
       const userId = request.sessionDetails.userId;
       requestContext.setUserId(userId);
 
-      handler(requestContext, request, response);
+      return handler(requestContext, request, response);
     }
   );
 }

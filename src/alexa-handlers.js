@@ -29,12 +29,12 @@ function handleGetMyLocation(requestContext, request, response) {
   const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
         .start('handleGetMyLocation');
 
-  const assistant = CommonAssistant.forRequest(requestContext.getAppSource(),
+  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
                         requestContext.getUserId(), requestContext.toJSON());
 
   // TODO handle errors
   return new Promise(resolve => {
-    assistant.reportMyLocation(responseText => {
+    commonAss.reportMyLocation(responseText => {
       resolve(responseText);
     });
   }).then(responseText => {
@@ -58,12 +58,12 @@ function handleUpdateMyLocation(requestContext, request, response) {
           address
         });
 
-  const assistant = CommonAssistant.forRequest(requestContext.getAppSource(),
+  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
                           requestContext.getUserId(), requestContext.toJSON());
 
   // TODO handle errors
   return new Promise(resolve => {
-    assistant.reportMyLocationUpdate(address, responseText => {
+    commonAss.reportMyLocationUpdate(address, responseText => {
       resolve(responseText);
     });
   }).then(responseText => {
@@ -95,14 +95,14 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
 
   // TODO add requestContext
   const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
-  const assistant = CommonAssistant.forRequest(requestContext.getAppSource(),
+  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
                           requestContext.getUserId(), requestContext.toJSON());
 
   // TODO handle errors
   return alexaDb.getLocation().then(location => {
     return new Promise(resolve => {
       if (location) {
-        assistant.reportNearestStopResult(location, busRoute, busDirection, responseText => {
+        commonAss.reportNearestStopResult(location, busRoute, busDirection, responseText => {
           resolve(responseText);
         });
       } else {
