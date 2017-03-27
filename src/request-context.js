@@ -14,7 +14,10 @@ const PARAMS = {
   REQUEST_ID: 'requestId',
   APP_SOURCE: 'appSource',
   USER_ID: 'userId',
-  HEROKU_SLUG_COMMIT: 'heroku_slugCommit'
+  HEROKU_SLUG_COMMIT: 'heroku_slugCommit',
+  HEROKU_SLUG_DESC: 'heroku_slugDescription',
+  HEROKU_RELEASE_VERSION: 'heroku_releaseVersion',
+  HEROKU_RELEASE_CREATED_AT: 'heroku_releaseCreatedAt'
 };
 
 function RequestContext(obj = {}) {
@@ -58,6 +61,18 @@ RequestContext.prototype.getUserId = function() {
 
 RequestContext.prototype.setHerokuSlugCommit = function(herokSlugCommit) {
   this.set(PARAMS.HEROKU_SLUG_COMMIT, herokSlugCommit);
+}
+
+RequestContext.prototype.setHerokuSlugDesc = function(herokuSlugDesc) {
+  this.set(PARAMS.HEROKU_SLUG_DESC, herokuSlugDesc);
+}
+
+RequestContext.prototype.setHerokuReleaseVersion = function(herokuReleaseVersion) {
+  this.set(PARAMS.HEROKU_RELEASE_VERSION, herokuReleaseVersion);
+}
+
+RequestContext.prototype.setHerokuReleaseCreatedAt = function(herokuReleaseCreatedAt) {
+  this.set(PARAMS.HEROKU_RELEASE_CREATED_AT, herokuReleaseCreatedAt);
 }
 
 RequestContext.prototype.toJSON = function() {
