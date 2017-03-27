@@ -6,6 +6,7 @@
 // TODO add the original query?
 // TODO add startTime to get the call's duration?
 // TODO add the ability to set isError?
+// TODO add the intent name (if applicable)
 
 const SCOPE = '$busTimesAssistant$';
 

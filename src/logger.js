@@ -44,8 +44,8 @@ function forComponent(componentName, extraContext = {}, namespace = '') {
   };
 }
 
-function Logger(appSource, userId, context = {}) {
-  this.context = context;
+function Logger(requestContext) {
+  this.requestContext = requestContext;
 }
 
 Logger.LEVEL = LEVEL;
