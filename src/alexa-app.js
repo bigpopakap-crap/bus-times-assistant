@@ -22,11 +22,9 @@ function preRequest(alexaRequest, expressRequest) {
   // here we need to copy over the request context
   // so that we can pass it through to alexa
   const requestContext = new RequestContext(expressRequest);
-  console.log('copying context');
-  console.log(JSON.stringify(requestContext.toJSON()));
+  console.log(alexaRequest);
   requestContext.copyTo(alexaRequest);
-  console.log(new RequestContext(alexaRequest).toJSON());
-  console.log('copied context');
+  console.log(alexaRequest);
   return alexaRequest;
 }
 
@@ -35,8 +33,9 @@ function configureIntent(alexaApp, intent, handler) {
     intent.getName(),
     intent.getAlexaSlots(),
     function (request, response) {
+      console.log(request);
       const requestContext = new RequestContext(request);
-      console.log(JSON.stringify(requestContext.toJSON()));
+      console.log(requestContext.toJSON());
       handler(requestContext, request, response);
     }
   );
