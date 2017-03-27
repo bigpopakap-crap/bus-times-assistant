@@ -51,7 +51,7 @@ function MetricsLogger(componentName, requestContext) {
  */
 MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
   const componentName = this.componentName;
-  const userId = this.userId;
+  const userId = this.requestContext.getUserId();
 
   this.logUser();
 
@@ -74,8 +74,8 @@ MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
 };
 
 MetricsLogger.prototype.logUser = function(extraParams = {}) {
-  const appSource = this.appSource;
-  const userId = this.userId;
+  const appSource = this.requestContext.getAppSource();
+  const userId = this.requestContext.getUserId();
   const now = new Date().toISOString();
 
   const mixpanelParams = extendObject(extraParams, {

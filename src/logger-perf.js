@@ -28,7 +28,7 @@ LatencyLogger.prototype.start = function(event, extraParams = {}) {
     startParams: JSON.stringify(extraParams)
   });
 
-  return new LatencyBeacon(this.componentName, this.appSource, this.userId, this.requestContext,
+  return new LatencyBeacon(this.componentName, this.requestContext,
                           event, extraParams);
 };
 

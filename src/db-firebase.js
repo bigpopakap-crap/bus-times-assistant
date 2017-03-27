@@ -92,7 +92,7 @@ Firebase.prototype.getLocation = function() {
 };
 
 Firebase.prototype.saveLocation = function(location) {
-  const firebaseKey = createFirebaseKey(this.appSource, this.userId);
+  const firebaseKey = createFirebaseKey(this.requestContext);
 
   const logger = this.logger;
   logger.debug('pre_update_location', {
