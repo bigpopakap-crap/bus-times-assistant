@@ -21,8 +21,11 @@ const app = express();
 app.set('port', process.env.PORT);
 
 app.use(function(request, response, next) {
-  const requestId = request.headers['x-request-id'];
-  new RequestContext(request).setRequestId(requestId);
+  const requestContext = new RequestContext(request)
+
+  requestContext.setRequestId(request.headers['x-request-id']);
+  requestContext.setHerokuSlugCommit(process.env.HEROKU_SLUG_COMMIT);
+
   next();
 });
 

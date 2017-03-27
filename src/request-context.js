@@ -13,7 +13,8 @@ const SCOPE = '$busTimesAssistant$';
 const PARAMS = {
   REQUEST_ID: 'requestId',
   APP_SOURCE: 'appSource',
-  USER_ID: 'userId'
+  USER_ID: 'userId',
+  HEROKU_SLUG_COMMIT: 'heroku_slugCommit'
 };
 
 function RequestContext(obj = {}) {
@@ -54,6 +55,10 @@ RequestContext.prototype.setUserId = function(userId) {
 RequestContext.prototype.getUserId = function() {
   return this.get(PARAMS.USER_ID);
 };
+
+RequestContext.prototype.setHerokuSlugCommit = function(herokSlugCommit) {
+  this.set(PARAMS.HEROKU_SLUG_COMMIT, herokSlugCommit);
+}
 
 RequestContext.prototype.toJSON = function() {
   return this.get();
