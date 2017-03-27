@@ -1,5 +1,8 @@
 const Mixpanel = require('mixpanel');
-const logger = require('./logger.js').forComponent('logger-metrics');
+
+const THIS_COMPONENT_NAME = 'logger-metrics';
+const initLogger = require('./logger.js').forComponent(THIS_COMPONENT_NAME).forRequest();
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 
 const { prefixObject, extendObject } = require('./utils.js');
 const {
@@ -7,9 +10,22 @@ const {
   LOCATION_PERMISSION_PHASE
 } = require('./ai-config-metricsEvents.js');
 
-const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
-  protocol: 'https'
-});
+initLogger.info('pre_mixpanel_connect');
+let mixpanel;
+try {
+  mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, {
+    protocol: 'https'
+  });
+
+  initLogger.info('post_mixpanel_connect', {
+    success: true
+  });
+} catch (ex) {
+  initLogger.error('post_mixpanel_connect', {
+    success: false,
+    error: ex
+  });
+}
 
 function forComponent(componentName) {
   return {

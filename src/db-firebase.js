@@ -2,7 +2,7 @@ const Promise = require('promise');
 const firebase = require("firebase-admin");
 
 const THIS_COMPONENT_NAME = 'db-firebase';
-const initLogger = require('./logger.js').forComponent(`${THIS_COMPONENT_NAME}-init`).forRequest();
+const initLogger = require('./logger.js').forComponent(THIS_COMPONENT_NAME).forRequest();
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
