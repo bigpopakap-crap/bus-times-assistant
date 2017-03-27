@@ -32,7 +32,10 @@ function configureIntent(alexaApp, intent, handler) {
     intent.getAlexaSlots(),
     function(request, response) {
       const requestContext = new RequestContext(request.data);
-      console.log(requestContext.toJSON());
+
+      const userId = request.sessionDetails.userId;
+      requestContext.setUserId(userId);
+
       handler(requestContext, request, response);
     }
   );
