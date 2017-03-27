@@ -22,7 +22,11 @@ function preRequest(alexaRequest, expressRequest) {
   // here we need to copy over the request context
   // so that we can pass it through to alexa
   const requestContext = new RequestContext(expressRequest);
+  console.log('copying context');
+  console.log(JSON.stringify(requestContext.toJSON()));
   requestContext.copyTo(alexaRequest);
+  console.log(new RequestContext(alexaRequest).toJSON());
+  console.log('copied context');
   return alexaRequest;
 }
 
