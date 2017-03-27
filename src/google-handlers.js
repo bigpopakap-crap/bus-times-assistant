@@ -26,7 +26,7 @@ function cleanDeviceLocation(deviceLocation) {
   };
 }
 
-function handleGetMyLocation(assistant) {
+function handleGetMyLocation(requestContext, assistant) {
   const userId = assistant.getUser().user_id;
 
   // TODO add requestContext
@@ -42,7 +42,7 @@ function handleGetMyLocation(assistant) {
   });
 }
 
-function handleUpdateMyLocation(assistant) {
+function handleUpdateMyLocation(requestContext, assistant) {
   const userId = assistant.getUser().user_id;
   const address = assistant.getArgument('address');
 
@@ -67,7 +67,7 @@ function handleUpdateMyLocation(assistant) {
  * have the user's location, and either ask for permission or
  * answer the query immediately
  */
-function handleNearestBusTimesByRoute(assistant) {
+function handleNearestBusTimesByRoute(requestContext, assistant) {
   const userId = assistant.getUser().user_id;
 
   const busRoute = assistant.getArgument('busRoute');
@@ -123,7 +123,7 @@ function handleNearestBusTimesByRoute(assistant) {
  * permission. Here, we check if they granted permission and save it before
  * answering the query
  */
-function handleNearestBusTimesByRoute_fallback(assistant) {
+function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
   const userId = assistant.getUser().user_id;
 
   const busRoute = assistant.data.busRoute;
