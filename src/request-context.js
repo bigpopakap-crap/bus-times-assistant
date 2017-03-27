@@ -16,7 +16,7 @@ const PARAMS = {
   USER_ID: 'userId'
 };
 
-function RequestContext(obj) {
+function RequestContext(obj = {}) {
   // don't overwrite this if it's already been set!
   if (!obj[SCOPE]) {
     obj[SCOPE] = {};

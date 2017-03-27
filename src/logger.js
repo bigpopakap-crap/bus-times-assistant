@@ -2,7 +2,7 @@
 'use strict';
 
 const logfmt = require('logfmt');
-
+const RequestContext = require('./request-context.js');
 const { prefixObject, extendObject } = require('./utils.js');
 
 const LEVEL = {
@@ -21,30 +21,17 @@ function isDebugging() {
   return CURRENT_LOG_LEVEL.value <= LEVEL.DEBUG.value;
 }
 
-function forComponent(componentName, extraContext = {}, namespace = '') {
-  const context = prefixObject('component.', {
-    name: componentName
-  });
-
-  namespace = namespace && `${namespace}.`;
-  extraContext = prefixObject(namespace, extraContext);
-
+function forComponent(componentName) {
   return {
     // TODO this really needs to be cleaned up so it's not so damn gross
-    forRequest(appSource = 'unset', userId, requestContext = {}) {
-      requestContext = extendObject(requestContext, {
-        appSource,
-        userId
-      });
-
-      const allContext = extendObject(context, extraContext, requestContext);
-
-      return new Logger(appSource, userId, allContext);
+    forRequest(requestContext = new RequestContext()) {
+      return new Logger(componentName, requestContext);
     }
   };
 }
 
-function Logger(requestContext) {
+function Logger(componentName, requestContext) {
+  this.componentName = componentName;
   this.requestContext = requestContext;
 }
 
@@ -55,10 +42,14 @@ Logger.prototype.isDebugging = isDebugging;
 
 Logger.prototype.log = function(level, event, data = {}) {
   try {
+    const componentName = this.componentName;
+    const requestContext = this.requestContext;
+
     if (level.value >= CURRENT_LOG_LEVEL.value) {
       const logData = extendObject(
         prefixObject('log.', { level: level.name }),
-        this.context,
+        prefixObject('context.', { componentName }),
+        prefixObject('request.', requestContext.toJSON()),
         prefixObject('event.', { name: event }),
         prefixObject('event.data.', data)
       );

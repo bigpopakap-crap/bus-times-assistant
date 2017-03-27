@@ -4,14 +4,12 @@
 const Promise = require('promise');
 const NodeGeocoder = require('node-geocoder');
 
-const nodeGeocoderOptions = {
+const nodeGeocoder = NodeGeocoder({
   provider: 'google'
-};
-const nodeGeocoder = NodeGeocoder();
+});
 
 const THIS_COMPONENT_NAME = 'geocoder';
-const logger = require('./logger.js')
-                .forComponent(THIS_COMPONENT_NAME, nodeGeocoderOptions, 'nodeGeocoderOptions');
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 function forRequest(requestContext) {
