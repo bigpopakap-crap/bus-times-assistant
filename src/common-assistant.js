@@ -18,14 +18,14 @@ function generatePredictionResponse(p) {
   }
 }
 
-function forRequest(appSource, userId, requestContext = {}) {
-  return new CommonAssistant(appSource, userId, requestContext);
+function forRequest(requestContext) {
+  return new CommonAssistant(requestContext
 }
 
-function CommonAssistant(appSource, userId, requestContext = {}) {
-  this.db = Db.forRequest(appSource, userId, requestContext);
-  this.geocoder = Geocoder.forRequest(appSource, userId);
-  this.nextbus = NextbusAdapter.forRequest(appSource, userId);
+function CommonAssistant(requestContext) {
+  this.db = Db.forRequest(requestContext);
+  this.geocoder = Geocoder.forRequest(requestContext);
+  this.nextbus = NextbusAdapter.forRequest(requestContext);
 
   this.features = getFeatures(appSource);
 }

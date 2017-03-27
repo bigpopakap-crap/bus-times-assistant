@@ -40,15 +40,15 @@ function createFirebaseKey(appSource, userId) {
   return `${appSource}/users/${cleanUserId}`;
 }
 
-function forRequest(appSource, userId, requestContext) {
-  return new Firebase(appSource, userId, requestContext);
+function forRequest(requestContext) {
+  return new Firebase(requestContext);
 }
 
-function Firebase(appSource, userId, requestContext = {}) {
+function Firebase(requestContext) {
   this.appSource = appSource;
   this.userId = userId;
-  this.logger = logger.forRequest(appSource, userId, requestContext);
-  this.perf = perf.forRequest(appSource, userId, requestContext);
+  this.logger = logger.forRequest(requestContext);
+  this.perf = perf.forRequest(requestContext);
 }
 
 Firebase.prototype.getLocation = function() {

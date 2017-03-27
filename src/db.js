@@ -6,13 +6,13 @@ const metrics = require('./logger-metrics.js').forComponent('db');
 const { prefixObject } = require('./utils.js');
 const { APP_SOURCE } = require('./ai-config-appSource.js');
 
-function forRequest(appSource, userId, requestContext) {
-  return new Db(appSource, userId, requestContext);
+function forRequest(requestContext) {
+  return new Db(requestContext);
 }
 
-function Db(appSource, userId, requestContext = {}) {
-  this.firebase = Firebase.forRequest(appSource, userId, requestContext);
-  this.metrics = metrics.forRequest(appSource, userId, requestContext);
+function Db(requestContext) {
+  this.firebase = Firebase.forRequest(requestContext);
+  this.metrics = metrics.forRequest(requestContext);
 }
 
 Db.prototype.getLocation = function() {

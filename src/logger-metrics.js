@@ -29,18 +29,18 @@ try {
 
 function forComponent(componentName) {
   return {
-    forRequest(appSource, userId, requestContext = {}) {
-      return new MetricsLogger(componentName, appSource, userId, requestContext);
+    forRequest(requestContext) {
+      return new MetricsLogger(componentName, requestContext);
     }
   };
 }
 
-function MetricsLogger(componentName, appSource, userId, requestContext = {}) {
+function MetricsLogger(componentName, requestContext) {
   this.componentName = componentName;
   this.appSource = appSource;
   this.userId = userId;
   this.requestContext = requestContext;
-  this.logger = logger.forRequest(appSource, userId, requestContext);
+  this.logger = logger.forRequest(requestContext);
 }
 
 /*
@@ -58,7 +58,7 @@ MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
   const mixpanelParams = extendObject(
     prefixObject('request.', this.requestContext),
     prefixObject('params.', params),
-    prefixObject('context.', { componentName, appSource, userId }),
+    prefixObject('context.', { componentName }),
     {
       mixpanelLogType: eventType,
       distinct_id: userId

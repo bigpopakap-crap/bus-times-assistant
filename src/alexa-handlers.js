@@ -23,14 +23,10 @@ function cleanResponse(response) {
 function handleGetMyLocation(requestContext, request, response) {
   const userId = request.sessionDetails.userId;
 
-  // TODO add requestContext
-  metrics.forRequest(APP_SOURCE.ALEXA, userId)
-         .logIntent(INTENTS.GET_MY_LOCATION);
-  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
-        .start('handleGetMyLocation');
+  metrics.forRequest(requestContext).logIntent(INTENTS.GET_MY_LOCATION);
+  const perfBeacon = perf.forRequest(requestContext).start('handleGetMyLocation');
 
-  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
-                        requestContext.getUserId(), requestContext.toJSON());
+  const commonAss = CommonAssistant.forRequest(requestContext);
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -48,18 +44,16 @@ function handleUpdateMyLocation(requestContext, request, response) {
   const userId = request.sessionDetails.userId;
   const address = request.slot('address');
 
-  // TODO add requestContext
-  metrics.forRequest(APP_SOURCE.ALEXA, userId)
+  metrics.forRequest(requestContext)
          .logIntent(INTENTS.UPDATE_MY_LOCATION, {
            address
          });
-  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
+  const perfBeacon = perf.forRequest(requestContext)
         .start('handleUpdateMyLocation', {
           address
         });
 
-  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
-                          requestContext.getUserId(), requestContext.toJSON());
+  const commonAss = CommonAssistant.forRequest(requestContext);
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -81,22 +75,19 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
     request.slot("busDirection")
   );
 
-  // TODO add requestContext
-  metrics.forRequest(APP_SOURCE.ALEXA, userId)
+  metrics.forRequest(requestContext)
          .logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
            busRoute,
            busDirection
          });
-  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
+  const perfBeacon = perf.forRequest(requestContext)
           .start('handleNearestBusTimesByRoute', {
             busRoute,
             busDirection
           });
 
-  // TODO add requestContext
-  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
-  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
-                          requestContext.getUserId(), requestContext.toJSON());
+  const alexaDb = Db.forRequest(requestContext);
+  const commonAss = CommonAssistant.forRequest(requestContext);
 
   // TODO handle errors
   return alexaDb.getLocation().then(location => {
@@ -119,14 +110,12 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
 function handleDefault(requestContext, request, response) {
   const userId = request.sessionDetails.userId;
 
-  // TODO add requestContext
-  metrics.forRequest(APP_SOURCE.ALEXA, userId)
+  metrics.forRequest(requestContext)
          .logIntent(INTENTS.DEFAULT);
-  const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
+  const perfBeacon = perf.forRequest(requestContext)
           .start('handleDefault');
 
-  // TODO add requestContext
-  const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
+  const alexaDb = Db.forRequest(requestContext);
 
   return alexaDb.getLocation().then(location => {
     const baseResponse = 'Hello there! I can look up bus times for you. For example you can say, "When is the next 12 to downtown?"';
