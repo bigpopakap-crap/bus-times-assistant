@@ -24,7 +24,7 @@ function cleanResponse(response) {
   return response.replace(/&/g, 'and');
 }
 
-function handleGetMyLocation(request, response) {
+function handleGetMyLocation(requestContext, request, response) {
   const userId = request.sessionDetails.userId;
 
   // TODO add requestContext
@@ -45,7 +45,7 @@ function handleGetMyLocation(request, response) {
   });
 }
 
-function handleUpdateMyLocation(request, response) {
+function handleUpdateMyLocation(requestContext, request, response) {
   const userId = request.sessionDetails.userId;
   const address = request.slot('address');
 
@@ -71,7 +71,7 @@ function handleUpdateMyLocation(request, response) {
   });
 }
 
-function handleNearestBusTimesByRoute(request, response) {
+function handleNearestBusTimesByRoute(requestContext, request, response) {
   const userId = request.sessionDetails.userId;
 
   const busRoute = request.slot("busRoute");
@@ -112,7 +112,7 @@ function handleNearestBusTimesByRoute(request, response) {
   });
 }
 
-function handleDefault(request, response) {
+function handleDefault(requestContext, request, response) {
   const userId = request.sessionDetails.userId;
 
   // TODO add requestContext

@@ -17,7 +17,7 @@ function RequestContext(rawRequest) {
   }
 
   this.get = function(key) {
-    return rawRequest[SCOPE][key];
+    return key ? rawRequest[SCOPE][key] : rawRequest[SCOPE];
   }
 }
 
@@ -43,6 +43,19 @@ RequestContext.prototype.setUserId = function(userId) {
 
 RequestContext.prototype.getUserId = function() {
   return this.get('userId');
+};
+
+RequestContext.prototype.toJSON = function() {
+  return this.get();
+};
+
+RequestContext.prototype.copyTo = function(newObject) {
+  const thisJSON = this.toJSON();
+  const newRequestContext = new RequestContext(newObject);
+
+  Object.keys(thisJSON).forEach(key => {
+    newRequestContext.set(key, thisJSON[key]);
+  });
 };
 
 module.exports = RequestContext;

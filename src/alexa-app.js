@@ -18,13 +18,22 @@ const {
   handleDefault
 } = require('./alexa-handlers.js');
 
+function preRequest(alexaRequest, expressRequest) {
+  // here we need to copy over the request context
+  // so that we can pass it through to alexa
+  const requestContext = new RequestContext(expressRequest);
+  requestContext.copyTo(alexaRequest);
+  return alexaRequest;
+}
+
 function configureIntent(alexaApp, intent, handler) {
   alexaApp.intent(
     intent.getName(),
     intent.getAlexaSlots(),
     function (request, response) {
-      console.log(JSON.stringify(request));
-      handler(request, response);
+      const requestContext = new RequestContext(request);
+      console.log(JSON.stringify(requestContext.toJSON()));
+      handler(requestContext, request, response);
     }
   );
 }
@@ -45,7 +54,10 @@ configureIntent(alexaApp, INTENTS.UPDATE_MY_LOCATION, handleUpdateMyLocation);
 configureIntent(alexaApp, INTENTS.GET_NEAREST_BUS_BY_ROUTE, handleNearestBusTimesByRoute);
 configureIntent(alexaApp, INTENTS.DEFAULT, handleDefault);
 
-alexaApp.express({ expressApp });
+alexaApp.express({
+  expressApp,
+  preRequest
+});
 
 // TODO add a log when the expressApp starts
 
