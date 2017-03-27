@@ -6,6 +6,12 @@
 
 const SCOPE = '$busTimesAssistant$';
 
+const PARAMS = {
+  REQUEST_ID: 'requestId',
+  APP_SOURCE: 'appSource',
+  USER_ID: 'userId'
+};
+
 function RequestContext(rawRequest) {
   // don't overwrite this if it's already been set!
   if (!rawRequest[SCOPE]) {
@@ -22,27 +28,27 @@ function RequestContext(rawRequest) {
 }
 
 RequestContext.prototype.setRequestId = function(requestId) {
-  this.set('requestId', requestId);
+  this.set(PARAMS.REQUEST_ID, requestId);
 };
 
 RequestContext.prototype.getRequestId = function() {
-  return this.get('requestId');
+  return this.get(PARAMS.REQUEST_ID);
 };
 
 RequestContext.prototype.setAppSource = function(appSource) {
-  this.set('appSource', appSource);
+  this.set(PARAMS.APP_SOURCE, appSource);
 };
 
 RequestContext.prototype.getAppSource = function() {
-  return this.get('appSource');
+  return this.get(PARAMS.APP_SOURCE);
 };
 
 RequestContext.prototype.setUserId = function(userId) {
-  this.set('userId', userId);
+  this.set(PARAMS.USER_ID, userId);
 };
 
 RequestContext.prototype.getUserId = function() {
-  return this.get('userId');
+  return this.get(PARAMS.USER_ID);
 };
 
 RequestContext.prototype.toJSON = function() {
