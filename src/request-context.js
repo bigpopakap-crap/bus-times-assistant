@@ -12,18 +12,18 @@ const PARAMS = {
   USER_ID: 'userId'
 };
 
-function RequestContext(rawRequest) {
+function RequestContext(obj) {
   // don't overwrite this if it's already been set!
-  if (!rawRequest[SCOPE]) {
-    rawRequest[SCOPE] = {};
+  if (!obj[SCOPE]) {
+    obj[SCOPE] = {};
   }
 
   this.set = function(key, value) {
-    rawRequest[SCOPE][key] = value;
+    obj[SCOPE][key] = value;
   }
 
   this.get = function(key) {
-    return key ? rawRequest[SCOPE][key] : rawRequest[SCOPE];
+    return key ? obj[SCOPE][key] : obj[SCOPE];
   }
 }
 
@@ -55,9 +55,9 @@ RequestContext.prototype.toJSON = function() {
   return this.get();
 };
 
-RequestContext.prototype.copyTo = function(newObject) {
+RequestContext.prototype.copyTo = function(newObj) {
   const thisJSON = this.toJSON();
-  const newRequestContext = new RequestContext(newObject);
+  const newRequestContext = new RequestContext(newObj);
 
   Object.keys(thisJSON).forEach(key => {
     newRequestContext.set(key, thisJSON[key]);
