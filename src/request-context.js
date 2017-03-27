@@ -33,6 +33,12 @@ function RequestContext(obj = {}) {
   this.get = function(key) {
     return key ? obj[SCOPE][key] : obj[SCOPE];
   };
+
+  // default the parameters that we can
+  this.setHerokuSlugCommit(process.env.HEROKU_SLUG_COMMIT);
+  this.setHerokuSlugDesc(process.env.HEROKU_SLUG_DESCRIPTION);
+  this.setHerokuReleaseVersion(process.env.HEROKU_RELEASE_VERSION);
+  this.setHerokuReleaseCreatedAt(process.env.HEROKU_RELEASE_CREATED_AT);
 }
 
 RequestContext.prototype.setRequestId = function(requestId) {

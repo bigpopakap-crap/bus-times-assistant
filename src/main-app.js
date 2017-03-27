@@ -21,14 +21,8 @@ const app = express();
 app.set('port', process.env.PORT);
 
 app.use(function(request, response, next) {
-  const requestContext = new RequestContext(request)
-
+  const requestContext = new RequestContext(request);
   requestContext.setRequestId(request.headers['x-request-id']);
-  requestContext.setHerokuSlugCommit(process.env.HEROKU_SLUG_COMMIT);
-  requestContext.setHerokuSlugDesc(process.env.HEROKU_SLUG_DESCRIPTION);
-  requestContext.setHerokuReleaseVersion(process.env.HEROKU_RELEASE_VERSION);
-  requestContext.setHerokuReleaseCreatedAt(process.env.HEROKU_RELEASE_CREATED_AT);
-
   next();
 });
 
