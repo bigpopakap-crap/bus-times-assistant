@@ -92,8 +92,8 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
         error: JSON.stringify(err)
       });
 
-      callBackFn(NEXTBUS_ERRORS.GENERIC);
       perfBeacon.logEnd(NEXTBUS_ERRORS.GENERIC);
+      callBackFn(NEXTBUS_ERRORS.GENERIC);
       return;
     }
 
@@ -113,11 +113,11 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
     });
 
     if (result) {
-      callBackFn(null, result);
       perfBeacon.logEnd();
+      callBackFn(null, result);
     } else {
-      callBackFn(NEXTBUS_ERRORS.NOT_FOUND);
       perfBeacon.logEnd(NEXTBUS_ERRORS.NOT_FOUND);
+      callBackFn(NEXTBUS_ERRORS.NOT_FOUND);
     }
   });
 };

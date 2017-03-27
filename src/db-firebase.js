@@ -76,8 +76,8 @@ Firebase.prototype.getLocation = function() {
         locationValue
       });
 
-      resolve(locationValue);
       perfBeacon.logEnd();
+      resolve(locationValue);
     }, error => {
       logger.error('post_get_location', {
         firebaseKey,
@@ -85,8 +85,8 @@ Firebase.prototype.getLocation = function() {
         error: JSON.stringify(error.toJSON())
       });
 
-      reject(error);
       perfBeacon.logEnd(error);
+      reject(error);
     });
   });
 };
@@ -99,7 +99,7 @@ Firebase.prototype.saveLocation = function(location) {
     firebaseKey,
     location: JSON.stringify(location)
   });
-  const perfBeacon = this.perf.start('getLocation');
+  const perfBeacon = this.perf.start('saveLocation');
 
   return new Promise((resolve, reject) => {
     firebase.database().ref(firebaseKey).update({
@@ -116,11 +116,11 @@ Firebase.prototype.saveLocation = function(location) {
       });
 
       if (success) {
-        resolve(location);
         perfBeacon.logEnd();
+        resolve(location);
       } else {
-        reject(error);
         perfBeacon.logEnd(error);
+        reject(error);
       }
     });
   });

@@ -30,9 +30,8 @@ function handleGetMyLocation(requestContext, assistant) {
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   commonAss.reportMyLocation(response => {
-    assistant.tell(response);
-
     perfBeacon.logEnd();
+    assistant.tell(response);
   });
 }
 
@@ -51,8 +50,8 @@ function handleUpdateMyLocation(requestContext, assistant) {
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   commonAss.reportMyLocationUpdate(address, response => {
-    assistant.tell(response);
     perfBeacon.logEnd();
+    assistant.tell(response);
   });
 }
 
@@ -149,8 +148,8 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   commonAss.reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
-    assistant.tell(response);
     perfBeacon.logEnd();
+    assistant.tell(response);
   });
 }
 

@@ -47,8 +47,8 @@ Geocoder.prototype.geocode = function(address) {
           error: JSON.stringify(err)
         });
 
-        reject(err);
         perfBeacon.logEnd(err);
+        reject(err);
         return;
       }
 
@@ -69,8 +69,8 @@ Geocoder.prototype.geocode = function(address) {
         location: JSON.stringify(location)
       });
 
-      resolve(location);
       perfBeacon.logEnd();
+      resolve(location);
     });
   });
 };

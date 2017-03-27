@@ -31,9 +31,8 @@ function handleGetMyLocation(requestContext, request, response) {
       resolve(responseText);
     });
   }).then(responseText => {
-    response.say(responseText);
-
     perfBeacon.logEnd();
+    response.say(responseText);
   });
 }
 
@@ -57,9 +56,8 @@ function handleUpdateMyLocation(requestContext, request, response) {
       resolve(responseText);
     });
   }).then(responseText => {
-    response.say(responseText);
-
     perfBeacon.logEnd();
+    response.say(responseText);
   });
 }
 
@@ -95,28 +93,27 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
       }
     });
   }).then(function(responseText) {
-    response.say(cleanResponse(responseText));
-
     perfBeacon.logEnd();
+    response.say(cleanResponse(responseText));
   });
 }
 
 function handleDefault(requestContext, request, response) {
   metrics.forRequest(requestContext)
          .logIntent(INTENTS.DEFAULT);
-  const perfBeacon = perf.forRequest(requestContext)
-          .start('handleDefault');
+  const perfBeacon = perf.forRequest(requestContext).start('handleDefault');
 
   const alexaDb = Db.forRequest(requestContext);
 
   return alexaDb.getLocation().then(location => {
+    perfBeacon.logEnd();
+
     const baseResponse = 'Hello there! I can look up bus times for you. For example you can say, "When is the next 12 to downtown?"';
     const noLocationResponse = `${baseResponse}. But first, you'll need to tell me your location by saying "Set my location".`;
 
     const responseText = location ? baseResponse : noLocationResponse;
-    response.say(cleanResponse(responseText));
 
-    perfBeacon.logEnd();
+    response.say(cleanResponse(responseText));
   });
 }
 
