@@ -1,3 +1,4 @@
+/* global require module */
 'use strict';
 
 const express = require('express');

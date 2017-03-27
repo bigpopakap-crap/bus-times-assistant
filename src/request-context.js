@@ -1,3 +1,6 @@
+/* global module */
+'use strict';
+
 // TODO add a conversation ID?
 // TODO add the deployed SHA?
 // TODO add the original query?
@@ -20,11 +23,11 @@ function RequestContext(obj) {
 
   this.set = function(key, value) {
     obj[SCOPE][key] = value;
-  }
+  };
 
   this.get = function(key) {
     return key ? obj[SCOPE][key] : obj[SCOPE];
-  }
+  };
 }
 
 RequestContext.prototype.setRequestId = function(requestId) {

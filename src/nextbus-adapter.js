@@ -1,3 +1,4 @@
+/* global process require module */
 'use strict';
 
 const { contains } = require('./utils.js');
@@ -119,7 +120,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
       perfBeacon.logEnd(NEXTBUS_ERRORS.NOT_FOUND);
     }
   });
-}
+};
 
 module.exports = {
   ERRORS: NEXTBUS_ERRORS,

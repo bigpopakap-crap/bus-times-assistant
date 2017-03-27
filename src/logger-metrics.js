@@ -1,3 +1,6 @@
+/* global process require module */
+'use strict';
+
 const Mixpanel = require('mixpanel');
 
 const THIS_COMPONENT_NAME = 'logger-metrics';
@@ -37,8 +40,6 @@ function forComponent(componentName) {
 
 function MetricsLogger(componentName, requestContext) {
   this.componentName = componentName;
-  this.appSource = appSource;
-  this.userId = userId;
   this.requestContext = requestContext;
   this.logger = logger.forRequest(requestContext);
 }
@@ -50,7 +51,6 @@ function MetricsLogger(componentName, requestContext) {
  */
 MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
   const componentName = this.componentName;
-  const appSource = this.appSource;
   const userId = this.userId;
 
   this.logUser();

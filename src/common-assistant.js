@@ -1,3 +1,6 @@
+/* global require module */
+'use strict';
+
 const Geocoder = require('./geocoder.js');
 const NextbusAdapter = require('./nextbus-adapter.js');
 const Db = require('./db.js');
@@ -19,7 +22,7 @@ function generatePredictionResponse(p) {
 }
 
 function forRequest(requestContext) {
-  return new CommonAssistant(requestContext
+  return new CommonAssistant(requestContext);
 }
 
 function CommonAssistant(requestContext) {
@@ -27,7 +30,7 @@ function CommonAssistant(requestContext) {
   this.geocoder = Geocoder.forRequest(requestContext);
   this.nextbus = NextbusAdapter.forRequest(requestContext);
 
-  this.features = getFeatures(appSource);
+  this.features = getFeatures(requestContext);
 }
 
 CommonAssistant.prototype.reportMyLocation = function(responseCallback) {
@@ -43,7 +46,7 @@ CommonAssistant.prototype.reportMyLocation = function(responseCallback) {
       responseCallback(`You haven't set a location yet. Simply ${deviceLocationPrompt}say "Update my location to ${EXAMPLE_ADDRESS}"`);
     }
   });
-}
+};
 
 CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCallback) {
   if (!address) {
@@ -57,11 +60,11 @@ CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCal
       db.saveLocation(location);
       responseCallback(`There. Your location has been updated to ${location.address}`);
     },
-    err => {
-      responseCallback(`Hmm. I could not find that address. Try saying the full address again`);
+    () => {
+      responseCallback('Hmm. I could not find that address. Try saying the full address again');
     }
   );
-}
+};
 
 CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, busRoute, busDirection, responseCallback) {
   if (!busRoute) {
@@ -111,7 +114,7 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
 
     responseCallback(`${response}.`);
   });
-}
+};
 
 module.exports = {
   forRequest

@@ -1,14 +1,13 @@
-"use strict";
+/* global require module */
+'use strict';
 
 const Promise = require('promise');
 
-const { APP_SOURCE } = require('./ai-config-appSource.js');
 const INTENTS = require('./ai-config-intents.js');
 
 const Db = require('./db.js');
 
 const THIS_COMPONENT_NAME = 'alexa-handlers';
-const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
@@ -21,8 +20,6 @@ function cleanResponse(response) {
 }
 
 function handleGetMyLocation(requestContext, request, response) {
-  const userId = request.sessionDetails.userId;
-
   metrics.forRequest(requestContext).logIntent(INTENTS.GET_MY_LOCATION);
   const perfBeacon = perf.forRequest(requestContext).start('handleGetMyLocation');
 
@@ -41,7 +38,6 @@ function handleGetMyLocation(requestContext, request, response) {
 }
 
 function handleUpdateMyLocation(requestContext, request, response) {
-  const userId = request.sessionDetails.userId;
   const address = request.slot('address');
 
   metrics.forRequest(requestContext)
@@ -68,11 +64,9 @@ function handleUpdateMyLocation(requestContext, request, response) {
 }
 
 function handleNearestBusTimesByRoute(requestContext, request, response) {
-  const userId = request.sessionDetails.userId;
-
-  const busRoute = request.slot("busRoute");
+  const busRoute = request.slot('busRoute');
   const busDirection = busDirectionFromInput(
-    request.slot("busDirection")
+    request.slot('busDirection')
   );
 
   metrics.forRequest(requestContext)
@@ -108,8 +102,6 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
 }
 
 function handleDefault(requestContext, request, response) {
-  const userId = request.sessionDetails.userId;
-
   metrics.forRequest(requestContext)
          .logIntent(INTENTS.DEFAULT);
   const perfBeacon = perf.forRequest(requestContext)

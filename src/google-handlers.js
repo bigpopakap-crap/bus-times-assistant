@@ -1,6 +1,6 @@
+/* global require module */
 'use strict';
 
-const { APP_SOURCE } = require('./ai-config-appSource.js');
 const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const CommonAssistant = require('./common-assistant.js');
@@ -8,7 +8,6 @@ const CommonAssistant = require('./common-assistant.js');
 const Db = require('./db.js');
 
 const THIS_COMPONENT_NAME = 'google-handlers';
-const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
@@ -23,8 +22,6 @@ function cleanDeviceLocation(deviceLocation) {
 }
 
 function handleGetMyLocation(requestContext, assistant) {
-  const userId = assistant.getUser().user_id;
-
   metrics.forRequest(requestContext)
          .logIntent(INTENTS.GET_MY_LOCATION);
   const perfBeacon = perf.forRequest(requestContext)
@@ -40,7 +37,6 @@ function handleGetMyLocation(requestContext, assistant) {
 }
 
 function handleUpdateMyLocation(requestContext, assistant) {
-  const userId = assistant.getUser().user_id;
   const address = assistant.getArgument('address');
 
   metrics.forRequest(requestContext)
@@ -66,8 +62,6 @@ function handleUpdateMyLocation(requestContext, assistant) {
  * answer the query immediately
  */
 function handleNearestBusTimesByRoute(requestContext, assistant) {
-  const userId = assistant.getUser().user_id;
-
   const busRoute = assistant.getArgument('busRoute');
   const busDirection = busDirectionFromInput(
     assistant.getArgument('busDirection')
@@ -122,8 +116,6 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
  * answering the query
  */
 function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
-  const userId = assistant.getUser().user_id;
-
   const busRoute = assistant.data.busRoute;
   const busDirection = assistant.data.busDirection;
 

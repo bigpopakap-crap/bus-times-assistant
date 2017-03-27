@@ -1,3 +1,4 @@
+/* global process require */
 'use strict';
 
 // default the config vars
@@ -5,7 +6,6 @@ process.env.DEBUG = process.env.DEBUG || 'actions-on-google:*';
 process.env.PORT = process.env.PORT || 8080;
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const googleApp = require('./google-app.js');
 const alexaApp = require('./alexa-app.js');
 const RequestContext = require('./request-context.js');

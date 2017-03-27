@@ -1,3 +1,6 @@
+/* global module */
+'use strict';
+
 const METRICS_EVENT_TYPE = {
   INTENT: 'User action',
   PERF: 'Telemetry',

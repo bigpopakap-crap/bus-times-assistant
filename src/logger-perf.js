@@ -1,3 +1,6 @@
+/* global require module */
+'use strict';
+
 const logger = require('./logger.js').forComponent('logger-perf');
 const beaconLogger = require('./logger.js').forComponent('logger-perf-beacon');
 
@@ -15,8 +18,6 @@ function forComponent(componentName) {
 
 function LatencyLogger(componentName, requestContext) {
   this.componentName = componentName;
-  this.appSource = appSource;
-  this.userId = userId;
   this.requestContext = requestContext;
   this.logger = logger.forRequest(requestContext);
 }
@@ -29,12 +30,10 @@ LatencyLogger.prototype.start = function(event, extraParams = {}) {
 
   return new LatencyBeacon(this.componentName, this.appSource, this.userId, this.requestContext,
                           event, extraParams);
-}
+};
 
 function LatencyBeacon(componentName, requestContext, event, extraParams = {}) {
   this.componentName = componentName;
-  this.appSource = appSource;
-  this.userId = userId;
   this.requestContext = requestContext;
   this.event = event;
   this.startParams = extraParams;
@@ -87,7 +86,7 @@ LatencyBeacon.prototype.logEnd = function(error, extraParams = {}) {
   );
 
   this.metrics.logPerf(params);
-}
+};
 
 module.exports = {
   forComponent

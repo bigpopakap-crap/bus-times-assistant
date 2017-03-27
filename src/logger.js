@@ -1,3 +1,6 @@
+/* global process require module */
+'use strict';
+
 const logfmt = require('logfmt');
 
 const { prefixObject, extendObject } = require('./utils.js');
@@ -23,7 +26,7 @@ function forComponent(componentName, extraContext = {}, namespace = '') {
     name: componentName
   });
 
-  namespace = namespace && `${namespace}.`
+  namespace = namespace && `${namespace}.`;
   extraContext = prefixObject(namespace, extraContext);
 
   return {
@@ -38,7 +41,7 @@ function forComponent(componentName, extraContext = {}, namespace = '') {
 
       return new Logger(appSource, userId, allContext);
     }
-  }
+  };
 }
 
 function Logger(appSource, userId, context = {}) {
@@ -63,27 +66,29 @@ Logger.prototype.log = function(level, event, data = {}) {
       logfmt.log(logData);
     }
   } catch (ex) {
+    /* eslint-disable no-console */
     // just don't blow up the app if anything fails
     console.log('Error while logging!');
     console.log(ex);
+    /* eslint-enable */
   }
-}
+};
 
 Logger.prototype.debug = function(event, data = {}) {
   this.log(LEVEL.DEBUG, event, data);
-}
+};
 
 Logger.prototype.info = function(event, data = {}) {
   this.log(LEVEL.INFO, event, data);
-}
+};
 
 Logger.prototype.warn = function(event, data = {}) {
   this.log(LEVEL.WARN, event, data);
-}
+};
 
 Logger.prototype.error = function(event, data = {}) {
   this.log(LEVEL.ERROR, event, data);
-}
+};
 
 module.exports = {
   isDebugging,

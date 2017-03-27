@@ -1,3 +1,6 @@
+/* global require module */
+'use strict';
+
 const Promise = require('promise');
 const NodeGeocoder = require('node-geocoder');
 
@@ -72,7 +75,7 @@ Geocoder.prototype.geocode = function(address) {
       perfBeacon.logEnd();
     });
   });
-}
+};
 
 module.exports = {
   forRequest

@@ -1,5 +1,8 @@
+/* global process require module */
+'use strict';
+
 const Promise = require('promise');
-const firebase = require("firebase-admin");
+const firebase = require('firebase-admin');
 
 const THIS_COMPONENT_NAME = 'db-firebase';
 const initLogger = require('./logger.js').forComponent(THIS_COMPONENT_NAME).forRequest();
@@ -35,7 +38,10 @@ function cleanFirebaseKeyPart(keyPart) {
   return keyPart && keyPart.replace(/[#$\.\/[\]]/g, '-');
 }
 
-function createFirebaseKey(appSource, userId) {
+function createFirebaseKey(requestContext) {
+  const appSource = requestContext.getAppSource();
+  const userId = requestContext.getUserId();
+
   const cleanUserId = cleanFirebaseKeyPart(userId);
   return `${appSource}/users/${cleanUserId}`;
 }
@@ -45,14 +51,13 @@ function forRequest(requestContext) {
 }
 
 function Firebase(requestContext) {
-  this.appSource = appSource;
-  this.userId = userId;
+  this.requestContext = requestContext;
   this.logger = logger.forRequest(requestContext);
   this.perf = perf.forRequest(requestContext);
 }
 
 Firebase.prototype.getLocation = function() {
-  const firebaseKey = createFirebaseKey(this.appSource, this.userId);
+  const firebaseKey = createFirebaseKey(this.requestContext);
 
   const logger = this.logger;
   logger.debug('pre_get_location', {
@@ -100,7 +105,7 @@ Firebase.prototype.saveLocation = function(location) {
     firebase.database().ref(firebaseKey).update({
       [LOCATION_KEY]: location
     }, error => {
-      const success = !Boolean(error);
+      const success = !error;
       const logLevel = success ? logger.LEVEL.DEBUG : logger.LEVEL.ERROR;
 
       logger.log(logLevel, 'post_get_location', {

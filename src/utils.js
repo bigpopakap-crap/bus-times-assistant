@@ -1,3 +1,4 @@
+/* global module */
 'use strict';
 
 function contains(bigStr, smallStr, caseSensitive = false) {
@@ -40,4 +41,4 @@ module.exports = {
   pluralPhrase,
   prefixObject,
   extendObject
-}
+};
