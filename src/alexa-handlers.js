@@ -13,11 +13,7 @@ const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME)
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const {
-  reportMyLocation,
-  reportMyLocationUpdate,
-  reportNearestStopResult
-} = require('./common-assistant.js');
+const CommonAssistant = require('./common-assistant.js');
 
 // Alexa doesn't like ampersands in SSML
 function cleanResponse(response) {
@@ -33,9 +29,12 @@ function handleGetMyLocation(requestContext, request, response) {
   const perfBeacon = perf.forRequest(APP_SOURCE.ALEXA, userId)
         .start('handleGetMyLocation');
 
+  const assistant = CommonAssistant.forRequest(requestContext.getAppSource(),
+                        requestContext.getUserId(), requestContext.toJSON());
+
   // TODO handle errors
   return new Promise(resolve => {
-    reportMyLocation(APP_SOURCE.ALEXA, userId, responseText => {
+    assistant.reportMyLocation(responseText => {
       resolve(responseText);
     });
   }).then(responseText => {
@@ -59,9 +58,12 @@ function handleUpdateMyLocation(requestContext, request, response) {
           address
         });
 
+  const assistant = CommonAssistant.forRequest(requestContext.getAppSource(),
+                          requestContext.getUserId(), requestContext.toJSON());
+
   // TODO handle errors
   return new Promise(resolve => {
-    reportMyLocationUpdate(APP_SOURCE.ALEXA, userId, address, responseText => {
+    assistant.reportMyLocationUpdate(address, responseText => {
       resolve(responseText);
     });
   }).then(responseText => {
@@ -93,12 +95,14 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
 
   // TODO add requestContext
   const alexaDb = Db.forRequest(APP_SOURCE.ALEXA, userId);
+  const assistant = CommonAssistant.forRequest(requestContext.getAppSource(),
+                          requestContext.getUserId(), requestContext.toJSON());
 
   // TODO handle errors
   return alexaDb.getLocation().then(location => {
     return new Promise(resolve => {
       if (location) {
-        reportNearestStopResult(APP_SOURCE.ALEXA, userId, location, busRoute, busDirection, function(responseText) {
+        assistant.reportNearestStopResult(location, busRoute, busDirection, responseText => {
           resolve(responseText);
         });
       } else {

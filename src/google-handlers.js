@@ -3,11 +3,7 @@
 const { APP_SOURCE } = require('./ai-config-appSource.js');
 const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const {
-  reportMyLocation,
-  reportMyLocationUpdate,
-  reportNearestStopResult
-} = require('./common-assistant.js');
+const CommonAssistant = require('./common-assistant.js');
 
 const Db = require('./db.js');
 
@@ -35,7 +31,10 @@ function handleGetMyLocation(requestContext, assistant) {
   const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
           .start('handleGetMyLocation');
 
-  reportMyLocation(APP_SOURCE.GOOGLE, userId, response => {
+  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
+                          requestContext.getUserId(), requestContext.toJSON());
+
+  commonAss.reportMyLocation(response => {
     assistant.tell(response);
 
     perfBeacon.logEnd();
@@ -56,7 +55,10 @@ function handleUpdateMyLocation(requestContext, assistant) {
             address
           });
 
-  reportMyLocationUpdate(APP_SOURCE.GOOGLE, userId, address, response => {
+  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
+                          requestContext.getUserId(), requestContext.toJSON());
+
+  commonAss.reportMyLocationUpdate(address, response => {
     assistant.tell(response);
     perfBeacon.logEnd();
   });
@@ -89,12 +91,14 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
 
   // TODO add requestContext
   const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
+  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
+                          requestContext.getUserId(), requestContext.toJSON());
 
   // TODO handle errors
   googleDb.getLocation().then(location => {
     if (location) {
       // just answer the query because we have a saved location
-      reportNearestStopResult(APP_SOURCE.GOOGLE, userId, location, busRoute, busDirection, response => {
+      commonAss.reportNearestStopResult(location, busRoute, busDirection, response => {
         assistant.tell(response);
       });
 
@@ -157,7 +161,10 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
               busDirection
             });
 
-  reportNearestStopResult(APP_SOURCE.GOOGLE, userId, deviceLocation, busRoute, busDirection, response => {
+  const commonAss = CommonAssistant.forRequest(requestContext.getAppSource(),
+                          requestContext.getUserId(), requestContext.toJSON());
+
+  commonAss.reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
     assistant.tell(response);
     perfBeacon.logEnd();
   });
