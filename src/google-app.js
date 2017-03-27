@@ -28,8 +28,6 @@ function configureIntent(request, actionMap, intent, handler) {
       const userId = assistant.getUser().userId;
       requestContext.setUserId(userId);
 
-      console.log(JSON.stringify(requestContext.toJSON()));
-
       handler(requestContext, assistant);
     }
   );
