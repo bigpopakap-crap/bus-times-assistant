@@ -79,7 +79,7 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
     if (err) {
       switch (err) {
         case NextbusAdapter.ERRORS.NOT_FOUND:
-          responseCallback(`No nearby stops found for ${busDirection} route ${busRoute}.`);
+          responseCallback(`No predictions found for ${busDirection} route ${busRoute}.`);
           break;
         default:
           responseCallback(GENERIC_ERROR_RESPONSE);
