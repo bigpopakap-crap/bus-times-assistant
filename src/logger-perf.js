@@ -1,3 +1,6 @@
+/* global require module */
+'use strict';
+
 const logger = require('./logger.js').forComponent('logger-perf');
 const beaconLogger = require('./logger.js').forComponent('logger-perf-beacon');
 
@@ -7,18 +10,16 @@ const { prefixObject, extendObject } = require('./utils.js');
 
 function forComponent(componentName) {
   return {
-    forRequest(appSource, userId, requestContext = {}) {
-      return new LatencyLogger(componentName, appSource, userId, requestContext);
+    forRequest(requestContext) {
+      return new LatencyLogger(componentName, requestContext);
     }
   };
 }
 
-function LatencyLogger(componentName, appSource, userId, requestContext = {}) {
+function LatencyLogger(componentName, requestContext) {
   this.componentName = componentName;
-  this.appSource = appSource;
-  this.userId = userId;
   this.requestContext = requestContext;
-  this.logger = logger.forRequest(appSource, userId, requestContext);
+  this.logger = logger.forRequest(requestContext);
 }
 
 LatencyLogger.prototype.start = function(event, extraParams = {}) {
@@ -27,21 +28,18 @@ LatencyLogger.prototype.start = function(event, extraParams = {}) {
     startParams: JSON.stringify(extraParams)
   });
 
-  return new LatencyBeacon(this.componentName, this.appSource, this.userId, this.requestContext,
+  return new LatencyBeacon(this.componentName, this.requestContext,
                           event, extraParams);
-}
+};
 
-function LatencyBeacon(componentName, appSource, userId, requestContext,
-                       event, extraParams = {}) {
+function LatencyBeacon(componentName, requestContext, event, extraParams = {}) {
   this.componentName = componentName;
-  this.appSource = appSource;
-  this.userId = userId;
   this.requestContext = requestContext;
   this.event = event;
   this.startParams = extraParams;
 
-  this.logger = beaconLogger.forRequest(appSource, userId, requestContext);
-  this.metrics = metricsBase.forComponent(componentName).forRequest(appSource, userId, requestContext);
+  this.logger = beaconLogger.forRequest(requestContext);
+  this.metrics = metricsBase.forComponent(componentName).forRequest(requestContext);
 
   this.startDate = new Date();
   this.hasLogged = false;
@@ -88,7 +86,7 @@ LatencyBeacon.prototype.logEnd = function(error, extraParams = {}) {
   );
 
   this.metrics.logPerf(params);
-}
+};
 
 module.exports = {
   forComponent

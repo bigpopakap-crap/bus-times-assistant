@@ -1,3 +1,4 @@
+/* global process require module */
 'use strict';
 
 const { contains } = require('./utils.js');
@@ -63,13 +64,13 @@ function processNbResponse(body, busRoute, busDirection) {
   return cleanResult(result);
 }
 
-function forRequest(appSource, userId, requestContext = {}) {
-  return new NextbusAdapter(appSource, userId, requestContext);
+function forRequest(requestContext) {
+  return new NextbusAdapter(requestContext);
 }
 
-function NextbusAdapter(appSource, userId, requestContext = {}) {
-  this.logger = logger.forRequest(appSource, userId, requestContext);
-  this.perf = perf.forRequest(appSource, userId, requestContext);
+function NextbusAdapter(requestContext) {
+  this.logger = logger.forRequest(requestContext);
+  this.perf = perf.forRequest(requestContext);
 }
 
 NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRoute, busDirection, callBackFn) {
@@ -91,8 +92,8 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
         error: JSON.stringify(err)
       });
 
-      callBackFn(NEXTBUS_ERRORS.GENERIC);
       perfBeacon.logEnd(NEXTBUS_ERRORS.GENERIC);
+      callBackFn(NEXTBUS_ERRORS.GENERIC);
       return;
     }
 
@@ -112,14 +113,14 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
     });
 
     if (result) {
-      callBackFn(null, result);
       perfBeacon.logEnd();
+      callBackFn(null, result);
     } else {
-      callBackFn(NEXTBUS_ERRORS.NOT_FOUND);
       perfBeacon.logEnd(NEXTBUS_ERRORS.NOT_FOUND);
+      callBackFn(NEXTBUS_ERRORS.NOT_FOUND);
     }
   });
-}
+};
 
 module.exports = {
   ERRORS: NEXTBUS_ERRORS,

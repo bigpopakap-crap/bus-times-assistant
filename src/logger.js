@@ -1,5 +1,8 @@
-const logfmt = require('logfmt');
+/* global process require module */
+'use strict';
 
+const logfmt = require('logfmt');
+const RequestContext = require('./request-context.js');
 const { prefixObject, extendObject } = require('./utils.js');
 
 const LEVEL = {
@@ -18,31 +21,18 @@ function isDebugging() {
   return CURRENT_LOG_LEVEL.value <= LEVEL.DEBUG.value;
 }
 
-function forComponent(componentName, extraContext = {}, namespace = '') {
-  const context = prefixObject('component.', {
-    name: componentName
-  });
-
-  namespace = namespace && `${namespace}.`
-  extraContext = prefixObject(namespace, extraContext);
-
+function forComponent(componentName) {
   return {
     // TODO this really needs to be cleaned up so it's not so damn gross
-    forRequest(appSource = 'unset', userId, requestContext = {}) {
-      requestContext = extendObject(requestContext, {
-        appSource,
-        userId
-      });
-
-      const allContext = extendObject(context, extraContext, requestContext);
-
-      return new Logger(appSource, userId, allContext);
+    forRequest(requestContext = new RequestContext()) {
+      return new Logger(componentName, requestContext);
     }
-  }
+  };
 }
 
-function Logger(appSource, userId, context = {}) {
-  this.context = context;
+function Logger(componentName, requestContext) {
+  this.componentName = componentName;
+  this.requestContext = requestContext;
 }
 
 Logger.LEVEL = LEVEL;
@@ -52,10 +42,14 @@ Logger.prototype.isDebugging = isDebugging;
 
 Logger.prototype.log = function(level, event, data = {}) {
   try {
+    const componentName = this.componentName;
+    const requestContext = this.requestContext;
+
     if (level.value >= CURRENT_LOG_LEVEL.value) {
       const logData = extendObject(
         prefixObject('log.', { level: level.name }),
-        this.context,
+        prefixObject('context.', { componentName }),
+        prefixObject('request.', requestContext.toJSON()),
         prefixObject('event.', { name: event }),
         prefixObject('event.data.', data)
       );
@@ -63,27 +57,29 @@ Logger.prototype.log = function(level, event, data = {}) {
       logfmt.log(logData);
     }
   } catch (ex) {
+    /* eslint-disable no-console */
     // just don't blow up the app if anything fails
     console.log('Error while logging!');
     console.log(ex);
+    /* eslint-enable */
   }
-}
+};
 
 Logger.prototype.debug = function(event, data = {}) {
   this.log(LEVEL.DEBUG, event, data);
-}
+};
 
 Logger.prototype.info = function(event, data = {}) {
   this.log(LEVEL.INFO, event, data);
-}
+};
 
 Logger.prototype.warn = function(event, data = {}) {
   this.log(LEVEL.WARN, event, data);
-}
+};
 
 Logger.prototype.error = function(event, data = {}) {
   this.log(LEVEL.ERROR, event, data);
-}
+};
 
 module.exports = {
   isDebugging,

@@ -1,18 +1,13 @@
+/* global require module */
 'use strict';
 
-const { APP_SOURCE } = require('./ai-config-appSource.js');
 const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
-const {
-  reportMyLocation,
-  reportMyLocationUpdate,
-  reportNearestStopResult
-} = require('./common-assistant.js');
+const CommonAssistant = require('./common-assistant.js');
 
 const Db = require('./db.js');
 
 const THIS_COMPONENT_NAME = 'google-handlers';
-const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
@@ -26,39 +21,37 @@ function cleanDeviceLocation(deviceLocation) {
   };
 }
 
-function handleGetMyLocation(assistant) {
-  const userId = assistant.getUser().user_id;
-
-  // TODO add requestContext
-  metrics.forRequest(APP_SOURCE.GOOGLE, userId)
+function handleGetMyLocation(requestContext, assistant) {
+  metrics.forRequest(requestContext)
          .logIntent(INTENTS.GET_MY_LOCATION);
-  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+  const perfBeacon = perf.forRequest(requestContext)
           .start('handleGetMyLocation');
 
-  reportMyLocation(APP_SOURCE.GOOGLE, userId, response => {
-    assistant.tell(response);
+  const commonAss = CommonAssistant.forRequest(requestContext);
 
+  commonAss.reportMyLocation(response => {
     perfBeacon.logEnd();
+    assistant.tell(response);
   });
 }
 
-function handleUpdateMyLocation(assistant) {
-  const userId = assistant.getUser().user_id;
+function handleUpdateMyLocation(requestContext, assistant) {
   const address = assistant.getArgument('address');
 
-  // TODO add requestContext
-  metrics.forRequest(APP_SOURCE.GOOGLE, userId)
+  metrics.forRequest(requestContext)
          .logIntent(INTENTS.UPDATE_MY_LOCATION, {
            address
          });
-  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+  const perfBeacon = perf.forRequest(requestContext)
           .start('handleUpdateMyLocation', {
             address
           });
 
-  reportMyLocationUpdate(APP_SOURCE.GOOGLE, userId, address, response => {
-    assistant.tell(response);
+  const commonAss = CommonAssistant.forRequest(requestContext);
+
+  commonAss.reportMyLocationUpdate(address, response => {
     perfBeacon.logEnd();
+    assistant.tell(response);
   });
 }
 
@@ -67,34 +60,32 @@ function handleUpdateMyLocation(assistant) {
  * have the user's location, and either ask for permission or
  * answer the query immediately
  */
-function handleNearestBusTimesByRoute(assistant) {
-  const userId = assistant.getUser().user_id;
-
+function handleNearestBusTimesByRoute(requestContext, assistant) {
   const busRoute = assistant.getArgument('busRoute');
   const busDirection = busDirectionFromInput(
     assistant.getArgument('busDirection')
   );
 
-  metrics.forRequest(APP_SOURCE.GOOGLE, userId)
+  metrics.forRequest(requestContext)
          .logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
            busRoute,
            busDirection
          });
-  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+  const perfBeacon = perf.forRequest(requestContext)
           .start('handleNearestBusTimesByRoute', {
             isFallbackIntent: false,
             busRoute,
             busDirection
           });
 
-  // TODO add requestContext
-  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
+  const googleDb = Db.forRequest(requestContext);
+  const commonAss = CommonAssistant.forRequest(requestContext);
 
   // TODO handle errors
   googleDb.getLocation().then(location => {
     if (location) {
       // just answer the query because we have a saved location
-      reportNearestStopResult(APP_SOURCE.GOOGLE, userId, location, busRoute, busDirection, response => {
+      commonAss.reportNearestStopResult(location, busRoute, busDirection, response => {
         assistant.tell(response);
       });
 
@@ -109,7 +100,7 @@ function handleNearestBusTimesByRoute(assistant) {
       const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
       assistant.askForPermission('To look up routes near you', permission);
 
-      metrics.forRequest(APP_SOURCE.GOOGLE, userId).logLocationPermissionRequest();
+      metrics.forRequest(requestContext).logLocationPermissionRequest();
 
       perfBeacon.logEnd(null, {
         askedForLocationPermission: true
@@ -123,19 +114,17 @@ function handleNearestBusTimesByRoute(assistant) {
  * permission. Here, we check if they granted permission and save it before
  * answering the query
  */
-function handleNearestBusTimesByRoute_fallback(assistant) {
-  const userId = assistant.getUser().user_id;
-
+function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
   const busRoute = assistant.data.busRoute;
   const busDirection = assistant.data.busDirection;
 
-  metrics.forRequest(APP_SOURCE.GOOGLE, userId)
+  metrics.forRequest(requestContext)
          .logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, {
            wasPermissionGranted: assistant.isPermissionGranted(),
            busRoute,
            busDirection
          });
-  metrics.forRequest(APP_SOURCE.GOOGLE, userId)
+  metrics.forRequest(requestContext)
          .logLocationPermissionResponse(assistant.isPermissionGranted());
 
   if (!assistant.isPermissionGranted()) {
@@ -145,11 +134,10 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
   const deviceLocation = cleanDeviceLocation(assistant.getDeviceLocation());
 
   // save the user's location, but we don't need to wait for that call to succeed
-  // TODO add requestContext
-  const googleDb = Db.forRequest(APP_SOURCE.GOOGLE, userId);
+  const googleDb = Db.forRequest(requestContext);
   googleDb.saveLocation(deviceLocation);
 
-  const perfBeacon = perf.forRequest(APP_SOURCE.GOOGLE, userId)
+  const perfBeacon = perf.forRequest(requestContext)
             .start('handleNearestBusTimesByRoute', {
               isFallbackIntent: true,
               wasPermissionGranted: assistant.isPermissionGranted(),
@@ -157,9 +145,11 @@ function handleNearestBusTimesByRoute_fallback(assistant) {
               busDirection
             });
 
-  reportNearestStopResult(APP_SOURCE.GOOGLE, userId, deviceLocation, busRoute, busDirection, response => {
-    assistant.tell(response);
+  const commonAss = CommonAssistant.forRequest(requestContext);
+
+  commonAss.reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
     perfBeacon.logEnd();
+    assistant.tell(response);
   });
 }
 

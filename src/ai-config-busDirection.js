@@ -1,7 +1,10 @@
+/* global module */
+'use strict';
+
 const BUS_DIRECTION = {
   INBOUND: 'inbound',
   OUTBOUND: 'outbound'
-}
+};
 
 // TODO make sure this is still in sync with API.ai
 const BUS_DIRECTION_INPUT_MAP = {

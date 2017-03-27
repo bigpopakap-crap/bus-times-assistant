@@ -1,18 +1,18 @@
+/* global require module */
+'use strict';
+
 const Promise = require('promise');
 const Firebase = require('./db-firebase.js');
 
 const metrics = require('./logger-metrics.js').forComponent('db');
 
-const { prefixObject } = require('./utils.js');
-const { APP_SOURCE } = require('./ai-config-appSource.js');
-
-function forRequest(appSource, userId, requestContext) {
-  return new Db(appSource, userId, requestContext);
+function forRequest(requestContext) {
+  return new Db(requestContext);
 }
 
-function Db(appSource, userId, requestContext = {}) {
-  this.firebase = Firebase.forRequest(appSource, userId, requestContext);
-  this.metrics = metrics.forRequest(appSource, userId, requestContext);
+function Db(requestContext) {
+  this.firebase = Firebase.forRequest(requestContext);
+  this.metrics = metrics.forRequest(requestContext);
 }
 
 Db.prototype.getLocation = function() {
@@ -24,7 +24,7 @@ Db.prototype.getLocation = function() {
       metrics.logUserLocation(location);
     });
   });
-}
+};
 
 /**
  * location is {
@@ -38,7 +38,7 @@ Db.prototype.getLocation = function() {
 Db.prototype.saveLocation = function(location) {
   this.firebase.saveLocation(location);
   this.metrics.logUserLocation(location);
-}
+};
 
 module.exports = {
   forRequest

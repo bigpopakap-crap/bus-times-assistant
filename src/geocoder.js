@@ -1,23 +1,24 @@
+/* global require module */
+'use strict';
+
 const Promise = require('promise');
 const NodeGeocoder = require('node-geocoder');
 
-const nodeGeocoderOptions = {
+const nodeGeocoder = NodeGeocoder({
   provider: 'google'
-};
-const nodeGeocoder = NodeGeocoder();
+});
 
 const THIS_COMPONENT_NAME = 'geocoder';
-const logger = require('./logger.js')
-                .forComponent(THIS_COMPONENT_NAME, nodeGeocoderOptions, 'nodeGeocoderOptions');
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
-function forRequest(appSource, userId, requestContext = {}) {
-  return new Geocoder(appSource, userId, requestContext);
+function forRequest(requestContext) {
+  return new Geocoder(requestContext);
 }
 
-function Geocoder(appSource, userId, requestContext = {}) {
-  this.logger = logger.forRequest(appSource, userId, requestContext);
-  this.perf = perf.forRequest(appSource, userId, requestContext);
+function Geocoder(requestContext) {
+  this.logger = logger.forRequest(requestContext);
+  this.perf = perf.forRequest(requestContext);
 }
 
 Geocoder.prototype.geocode = function(address) {
@@ -46,8 +47,8 @@ Geocoder.prototype.geocode = function(address) {
           error: JSON.stringify(err)
         });
 
-        reject(err);
         perfBeacon.logEnd(err);
+        reject(err);
         return;
       }
 
@@ -68,11 +69,11 @@ Geocoder.prototype.geocode = function(address) {
         location: JSON.stringify(location)
       });
 
-      resolve(location);
       perfBeacon.logEnd();
+      resolve(location);
     });
   });
-}
+};
 
 module.exports = {
   forRequest

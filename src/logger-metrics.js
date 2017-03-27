@@ -1,3 +1,6 @@
+/* global process require module */
+'use strict';
+
 const Mixpanel = require('mixpanel');
 
 const THIS_COMPONENT_NAME = 'logger-metrics';
@@ -29,18 +32,16 @@ try {
 
 function forComponent(componentName) {
   return {
-    forRequest(appSource, userId, requestContext = {}) {
-      return new MetricsLogger(componentName, appSource, userId, requestContext);
+    forRequest(requestContext) {
+      return new MetricsLogger(componentName, requestContext);
     }
   };
 }
 
-function MetricsLogger(componentName, appSource, userId, requestContext = {}) {
+function MetricsLogger(componentName, requestContext) {
   this.componentName = componentName;
-  this.appSource = appSource;
-  this.userId = userId;
   this.requestContext = requestContext;
-  this.logger = logger.forRequest(appSource, userId, requestContext);
+  this.logger = logger.forRequest(requestContext);
 }
 
 /*
@@ -50,15 +51,14 @@ function MetricsLogger(componentName, appSource, userId, requestContext = {}) {
  */
 MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
   const componentName = this.componentName;
-  const appSource = this.appSource;
-  const userId = this.userId;
+  const userId = this.requestContext.getUserId();
 
   this.logUser();
 
   const mixpanelParams = extendObject(
-    prefixObject('request.', this.requestContext),
+    prefixObject('request.', this.requestContext.toJSON()),
     prefixObject('params.', params),
-    prefixObject('context.', { componentName, appSource, userId }),
+    prefixObject('context.', { componentName }),
     {
       mixpanelLogType: eventType,
       distinct_id: userId
@@ -74,8 +74,8 @@ MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
 };
 
 MetricsLogger.prototype.logUser = function(extraParams = {}) {
-  const appSource = this.appSource;
-  const userId = this.userId;
+  const appSource = this.requestContext.getAppSource();
+  const userId = this.requestContext.getUserId();
   const now = new Date().toISOString();
 
   const mixpanelParams = extendObject(extraParams, {

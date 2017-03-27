@@ -1,3 +1,6 @@
+/* global module */
+'use strict';
+
 /* BEGIN INTENT OBJECT ******************************* */
 function Intent(name, humanName, intentParams = []) {
   this.name = name;
@@ -17,7 +20,7 @@ Intent.prototype.getAlexaSlots = function() {
   });
 
   return { slots };
-}
+};
 
 /* BEGIN INTENT PARAMS OBJECT ************************* */
 function IntentParam(name, alexaType) {
@@ -25,8 +28,8 @@ function IntentParam(name, alexaType) {
   this.alexaType = alexaType;
 }
 
-IntentParam.prototype.getName = function() { return this.name; }
-IntentParam.prototype.getAlexaType = function() { return this.alexaType; }
+IntentParam.prototype.getName = function() { return this.name; };
+IntentParam.prototype.getAlexaType = function() { return this.alexaType; };
 
 /* BEGIN INTENT DEFS ********************************* */
 const GET_MY_LOCATION = new Intent('get_my_location', 'Get my location');
@@ -50,7 +53,7 @@ const GET_NEAREST_BUS_BY_ROUTE_FALLBACK = new Intent(
   GET_NEAREST_BUS_BY_ROUTE.getIntentParams()
 );
 
-DEFAULT = new Intent('default_welcome', 'Hello');
+const DEFAULT = new Intent('default_welcome', 'Hello');
 
 module.exports = {
   GET_MY_LOCATION,

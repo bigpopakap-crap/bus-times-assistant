@@ -1,3 +1,6 @@
+/* global require module */
+'use strict';
+
 const Geocoder = require('./geocoder.js');
 const NextbusAdapter = require('./nextbus-adapter.js');
 const Db = require('./db.js');
@@ -6,44 +9,6 @@ const { pluralPhrase } = require('./utils.js');
 
 const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
 const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
-
-function reportMyLocation(appSource, userId, responseCallback) {
-  const { canUseDeviceLocation } = getFeatures(appSource);
-  // TODO add request context
-  const db = Db.forRequest(appSource, userId);
-
-  db.getLocation().then(location => {
-    if (location) {
-      responseCallback(`Your location is set to ${location.address}`);
-    } else {
-      const deviceLocationPrompt = canUseDeviceLocation
-        ? 'ask for bus times to use your device\'s location, or '
-        : '';
-      responseCallback(`You haven't set a location yet. Simply ${deviceLocationPrompt}say "Update my location to ${EXAMPLE_ADDRESS}"`);
-    }
-  });
-}
-
-function reportMyLocationUpdate(appSource, userId, address, responseCallback) {
-  if (!address) {
-    responseCallback(`You must specify the address. For example, "Set my location to ${EXAMPLE_ADDRESS}".`);
-    return;
-  }
-
-  // TODO add request context
-  const db = Db.forRequest(appSource, userId);
-  const geocoder = Geocoder.forRequest(appSource, userId);
-
-  geocoder.geocode(address).then(
-    location => {
-      db.saveLocation(location);
-      responseCallback(`There. Your location has been updated to ${location.address}`);
-    },
-    err => {
-      responseCallback(`Hmm. I could not find that address. Try saying the full address again`);
-    }
-  );
-}
 
 function generatePredictionResponse(p) {
   // special case for arriving
@@ -56,7 +21,52 @@ function generatePredictionResponse(p) {
   }
 }
 
-function reportNearestStopResult(appSource, userId, deviceLocation, busRoute, busDirection, responseCallback) {
+function forRequest(requestContext) {
+  return new CommonAssistant(requestContext);
+}
+
+function CommonAssistant(requestContext) {
+  this.db = Db.forRequest(requestContext);
+  this.geocoder = Geocoder.forRequest(requestContext);
+  this.nextbus = NextbusAdapter.forRequest(requestContext);
+
+  this.features = getFeatures(requestContext);
+}
+
+CommonAssistant.prototype.reportMyLocation = function(responseCallback) {
+  const { canUseDeviceLocation } = this.features;
+
+  this.db.getLocation().then(location => {
+    if (location) {
+      responseCallback(`Your location is set to ${location.address}`);
+    } else {
+      const deviceLocationPrompt = canUseDeviceLocation
+        ? 'ask for bus times to use your device\'s location, or '
+        : '';
+      responseCallback(`You haven't set a location yet. Simply ${deviceLocationPrompt}say "Update my location to ${EXAMPLE_ADDRESS}"`);
+    }
+  });
+};
+
+CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCallback) {
+  if (!address) {
+    responseCallback(`You must specify the address. For example, "Set my location to ${EXAMPLE_ADDRESS}".`);
+    return;
+  }
+
+  const db = this.db;
+  this.geocoder.geocode(address).then(
+    location => {
+      db.saveLocation(location);
+      responseCallback(`There. Your location has been updated to ${location.address}`);
+    },
+    () => {
+      responseCallback('Hmm. I could not find that address. Try saying the full address again');
+    }
+  );
+};
+
+CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, busRoute, busDirection, responseCallback) {
   if (!busRoute) {
     responseCallback('You must specify a bus number. For example, "When is the next 12 to downtown?"');
     return;
@@ -65,10 +75,7 @@ function reportNearestStopResult(appSource, userId, deviceLocation, busRoute, bu
     return;
   }
 
-  // TODO add request context
-  const nextbus = NextbusAdapter.forRequest(appSource, userId);
-
-  nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
+  this.nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {
       switch (err) {
         case NextbusAdapter.ERRORS.NOT_FOUND:
@@ -107,10 +114,8 @@ function reportNearestStopResult(appSource, userId, deviceLocation, busRoute, bu
 
     responseCallback(`${response}.`);
   });
-}
+};
 
 module.exports = {
-  reportMyLocation,
-  reportMyLocationUpdate,
-  reportNearestStopResult
+  forRequest
 };
