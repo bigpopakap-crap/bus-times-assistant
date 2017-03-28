@@ -30,6 +30,13 @@ try {
   });
 }
 
+function createIntentParams(intent, params = {}) {
+  return extendObject(params, {
+    userAction: intent.getHumanName(),
+    intentName: intent.getName()
+  });
+}
+
 function forComponent(componentName) {
   return {
     forRequest(requestContext) {
@@ -100,10 +107,25 @@ MetricsLogger.prototype.logIntent = function(intent, params = {}) {
   this.logEvent(
     eventType,
     `${eventType}: ${intent.getHumanName()}`,
-    extendObject(params, {
-      userAction: intent.getHumanName(),
-      intentName: intent.getName()
-    })
+    createIntentParams(intent, params)
+  );
+};
+
+MetricsLogger.prototype.logIntentResponse = function(intent, startDate, response, params = {}) {
+  const eventType = METRICS_EVENT_TYPE.INTENT_RESPONSE;
+
+  const durationMillis = new Date().getTime() - startDate.getTime();
+
+  this.logEvent(
+    eventType,
+    `${eventType}: ${intent.getHumanName()}`,
+    extendObject(
+      createIntentParams(intent, params),
+      prefixObject('stats.', {
+        response,
+        durationMillis
+      })
+    )
   );
 };
 

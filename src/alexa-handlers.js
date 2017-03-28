@@ -20,6 +20,7 @@ function cleanResponse(response) {
 }
 
 function handleGetMyLocation(requestContext, request, response) {
+  const startDate = new Date();
   metrics.forRequest(requestContext).logIntent(INTENTS.GET_MY_LOCATION);
   const perfBeacon = perf.forRequest(requestContext).start('handleGetMyLocation');
 
@@ -31,12 +32,15 @@ function handleGetMyLocation(requestContext, request, response) {
       resolve(responseText);
     });
   }).then(responseText => {
+    metrics.forRequest(requestContext)
+           .logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, responseText);
     perfBeacon.logEnd();
     response.say(responseText);
   });
 }
 
 function handleUpdateMyLocation(requestContext, request, response) {
+  const startDate = new Date();
   const address = request.slot('address');
 
   metrics.forRequest(requestContext)
@@ -56,12 +60,17 @@ function handleUpdateMyLocation(requestContext, request, response) {
       resolve(responseText);
     });
   }).then(responseText => {
+    metrics.forRequest(requestContext)
+           .logIntentResponse(INTENTS.UPDATE_MY_LOCATION, startDate, responseText, {
+             address
+           });
     perfBeacon.logEnd();
     response.say(responseText);
   });
 }
 
 function handleNearestBusTimesByRoute(requestContext, request, response) {
+  const startDate = new Date();
   const busRoute = request.slot('busRoute');
   const busDirection = busDirectionFromInput(
     request.slot('busDirection')
@@ -93,12 +102,19 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
       }
     });
   }).then(function(responseText) {
+    responseText = cleanResponse(responseText);
+    metrics.forRequest(requestContext)
+           .logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, responseText, {
+             busRoute,
+             busDirection
+           });
     perfBeacon.logEnd();
-    response.say(cleanResponse(responseText));
+    response.say(responseText);
   });
 }
 
 function handleDefault(requestContext, request, response) {
+  const startDate = new Date();
   metrics.forRequest(requestContext)
          .logIntent(INTENTS.DEFAULT);
   const perfBeacon = perf.forRequest(requestContext).start('handleDefault');
@@ -106,14 +122,15 @@ function handleDefault(requestContext, request, response) {
   const alexaDb = Db.forRequest(requestContext);
 
   return alexaDb.getLocation().then(location => {
-    perfBeacon.logEnd();
-
     const baseResponse = 'Hello there! I can look up bus times for you. For example you can say, "When is the next 12 to downtown?"';
     const noLocationResponse = `${baseResponse}. But first, you'll need to tell me your location by saying "Set my location".`;
 
-    const responseText = location ? baseResponse : noLocationResponse;
+    const responseText = cleanResponse(location ? baseResponse : noLocationResponse);
 
-    response.say(cleanResponse(responseText));
+    metrics.forRequest(requestContext)
+           .logIntentResponse(INTENTS.DEFAULT, startDate, responseText);
+    perfBeacon.logEnd();
+    response.say(responseText);
   });
 }
 

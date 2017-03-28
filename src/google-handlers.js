@@ -22,6 +22,7 @@ function cleanDeviceLocation(deviceLocation) {
 }
 
 function handleGetMyLocation(requestContext, assistant) {
+  const startDate = new Date();
   metrics.forRequest(requestContext)
          .logIntent(INTENTS.GET_MY_LOCATION);
   const perfBeacon = perf.forRequest(requestContext)
@@ -30,12 +31,15 @@ function handleGetMyLocation(requestContext, assistant) {
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   commonAss.reportMyLocation(response => {
+    metrics.forRequest(requestContext)
+           .logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, response);
     perfBeacon.logEnd();
     assistant.tell(response);
   });
 }
 
 function handleUpdateMyLocation(requestContext, assistant) {
+  const startDate = new Date();
   const address = assistant.getArgument('address');
 
   metrics.forRequest(requestContext)
@@ -50,6 +54,10 @@ function handleUpdateMyLocation(requestContext, assistant) {
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   commonAss.reportMyLocationUpdate(address, response => {
+    metrics.forRequest(requestContext)
+           .logIntentResponse(INTENTS.UPDATE_MY_LOCATION, startDate, response, {
+             address
+           });
     perfBeacon.logEnd();
     assistant.tell(response);
   });
@@ -61,6 +69,7 @@ function handleUpdateMyLocation(requestContext, assistant) {
  * answer the query immediately
  */
 function handleNearestBusTimesByRoute(requestContext, assistant) {
+  const startDate = new Date();
   const busRoute = assistant.getArgument('busRoute');
   const busDirection = busDirectionFromInput(
     assistant.getArgument('busDirection')
@@ -86,11 +95,15 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
     if (location) {
       // just answer the query because we have a saved location
       commonAss.reportNearestStopResult(location, busRoute, busDirection, response => {
+        metrics.forRequest(requestContext)
+               .logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, response, {
+                 busRoute,
+                 busDirection
+               });
+        perfBeacon.logEnd(null, {
+          askedForLocationPermission: false
+        });
         assistant.tell(response);
-      });
-
-      perfBeacon.logEnd(null, {
-        askedForLocationPermission: false
       });
     } else {
       // request permission for location, and save parameters
@@ -98,13 +111,18 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
       assistant.data.busDirection = busDirection;
 
       const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
-      assistant.askForPermission('To look up routes near you', permission);
 
+      const responseText = 'To look up routes near you';
       metrics.forRequest(requestContext).logLocationPermissionRequest();
-
+      metrics.forRequest(requestContext)
+             .logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, responseText, {
+               busRoute,
+               busDirection
+             });
       perfBeacon.logEnd(null, {
         askedForLocationPermission: true
       });
+      assistant.askForPermission(responseText, permission);
     }
   });
 }
@@ -115,6 +133,7 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
  * answering the query
  */
 function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
+  const startDate = new Date();
   const busRoute = assistant.data.busRoute;
   const busDirection = assistant.data.busDirection;
 
@@ -148,6 +167,12 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   commonAss.reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
+    metrics.forRequest(requestContext)
+           .logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, startDate, response, {
+             wasPermissionGranted: assistant.isPermissionGranted(),
+             busRoute,
+             busDirection
+           });
     perfBeacon.logEnd();
     assistant.tell(response);
   });
