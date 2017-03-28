@@ -1,4 +1,4 @@
-/* global module */
+/* global process module */
 'use strict';
 
 // TODO add a conversation ID?
@@ -67,19 +67,19 @@ RequestContext.prototype.getUserId = function() {
 
 RequestContext.prototype.setHerokuSlugCommit = function(herokSlugCommit) {
   this.set(PARAMS.HEROKU_SLUG_COMMIT, herokSlugCommit);
-}
+};
 
 RequestContext.prototype.setHerokuSlugDesc = function(herokuSlugDesc) {
   this.set(PARAMS.HEROKU_SLUG_DESC, herokuSlugDesc);
-}
+};
 
 RequestContext.prototype.setHerokuReleaseVersion = function(herokuReleaseVersion) {
   this.set(PARAMS.HEROKU_RELEASE_VERSION, herokuReleaseVersion);
-}
+};
 
 RequestContext.prototype.setHerokuReleaseCreatedAt = function(herokuReleaseCreatedAt) {
   this.set(PARAMS.HEROKU_RELEASE_CREATED_AT, herokuReleaseCreatedAt);
-}
+};
 
 RequestContext.prototype.toJSON = function() {
   return this.get();
