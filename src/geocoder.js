@@ -59,6 +59,7 @@ Geocoder.prototype.geocode = function(address) {
         latitude: geo.latitude,
         longitude: geo.longitude,
         address: formattedAddress,
+        city: geo.city,
         originalAddressInput: address,
         originalAddressSource: THIS_COMPONENT_NAME
       };
@@ -66,7 +67,8 @@ Geocoder.prototype.geocode = function(address) {
       logger.debug('post_geocoding', {
         address,
         success: true,
-        location: JSON.stringify(location)
+        location: JSON.stringify(location),
+        rawLocation: JSON.stringify(geo)
       });
 
       perfBeacon.logEnd();

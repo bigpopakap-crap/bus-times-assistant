@@ -6,9 +6,20 @@ const NextbusAdapter = require('./nextbus-adapter.js');
 const Db = require('./db.js');
 const { getFeatures } = require('./ai-config-appSource.js');
 const { pluralPhrase } = require('./utils.js');
+const { getLocationWarningSentence } = require('./ai-config-supportedCities.js');
 
 const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
 const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
+
+function appendLocationWarning(responseText, location) {
+  const locationWarning = getLocationWarningSentence(location);
+  if (locationWarning) {
+    // TODO add mixpanel logging
+    return `${responseText} ${locationWarning}`;
+  } else {
+    return responseText;
+  }
+}
 
 function generatePredictionResponse(p) {
   // special case for arriving
@@ -58,13 +69,23 @@ CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCal
   this.geocoder.geocode(address).then(
     location => {
       db.saveLocation(location);
-      responseCallback(`There. Your location has been updated to ${location.address}`);
+
+      let responseText = `There. Your location has been updated to ${location.address}.`;
+      responseText = appendLocationWarning(responseText, location);
+      responseCallback(responseText);
     },
     () => {
       responseCallback('Hmm. I could not find that address. Try saying the full address again');
     }
   );
 };
+
+function noPredictionsResponse(busRoute, busDirection, location) {
+  return appendLocationWarning(
+    `No predictions found for ${busDirection} route ${busRoute}.`,
+    location
+  );
+}
 
 CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, busRoute, busDirection, responseCallback) {
   if (busRoute === null || busRoute === '' || typeof busRoute === 'undefined') {
@@ -79,10 +100,12 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
     if (err) {
       switch (err) {
         case NextbusAdapter.ERRORS.NOT_FOUND:
-          responseCallback(`No predictions found for ${busDirection} route ${busRoute}.`);
+          responseCallback(noPredictionsResponse(busRoute, busDirection, deviceLocation));
           break;
         default:
-          responseCallback(GENERIC_ERROR_RESPONSE);
+          responseCallback(
+            appendLocationWarning(GENERIC_ERROR_RESPONSE, deviceLocation)
+          );
           break;
       }
 
@@ -91,7 +114,7 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
 
     const predictions = (result && result.values) || [];
     if (predictions.length <= 0) {
-      responseCallback(`No predictions found for ${busDirection} route ${busRoute}`);
+      responseCallback(noPredictionsResponse(busRoute, busDirection, deviceLocation));
       return;
     }
 
