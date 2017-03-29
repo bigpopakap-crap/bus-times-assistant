@@ -67,7 +67,7 @@ CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCal
 };
 
 CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, busRoute, busDirection, responseCallback) {
-  if (!busRoute) {
+  if (busRoute === null || busRoute === '' || typeof busRoute === 'undefined') {
     responseCallback('You must specify a bus number. For example, "When is the next 12 to downtown?"');
     return;
   } else if (!busDirection) {
