@@ -98,6 +98,7 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
           resolve(responseText);
         });
       } else {
+        // TODO log the location request here?
         resolve('You have not set your location yet. You can set one by saying "Update my location".');
       }
     });
