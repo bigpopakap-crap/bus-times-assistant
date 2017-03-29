@@ -150,6 +150,17 @@ MetricsLogger.prototype.logLocationPermissionResponse = function(wasPermissionGr
   );
 };
 
+MetricsLogger.prototype.logLocationWarning = function(location) {
+  this.logEvent(
+    METRICS_EVENT_TYPE.LOCATION_WARNING,
+    METRICS_EVENT_TYPE.LOCATION_WARNING,
+    {
+      location: JSON.stringify(location),
+      city: location.city
+    }
+  );
+};
+
 MetricsLogger.prototype.logPerf = function(params = {}) {
   this.logEvent(
     METRICS_EVENT_TYPE.PERF,

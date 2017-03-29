@@ -4,6 +4,8 @@
 const Geocoder = require('./geocoder.js');
 const NextbusAdapter = require('./nextbus-adapter.js');
 const Db = require('./db.js');
+const metrics = require('./logger-metrics.js').forComponent('common-assistant');
+
 const { getFeatures } = require('./ai-config-appSource.js');
 const { pluralPhrase } = require('./utils.js');
 const { getLocationWarningSentence } = require('./ai-config-supportedCities.js');
@@ -11,10 +13,10 @@ const { getLocationWarningSentence } = require('./ai-config-supportedCities.js')
 const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
 const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
 
-function appendLocationWarning(responseText, location) {
+function appendLocationWarning(metrics, responseText, location) {
   const locationWarning = getLocationWarningSentence(location);
   if (locationWarning) {
-    // TODO add mixpanel logging
+    metrics.logLocationWarning(location);
     return `${responseText} ${locationWarning}`;
   } else {
     return responseText;
@@ -40,6 +42,7 @@ function CommonAssistant(requestContext) {
   this.db = Db.forRequest(requestContext);
   this.geocoder = Geocoder.forRequest(requestContext);
   this.nextbus = NextbusAdapter.forRequest(requestContext);
+  this.metrics = metrics.forRequest(requestContext);
 
   this.features = getFeatures(requestContext);
 }
@@ -66,12 +69,13 @@ CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCal
   }
 
   const db = this.db;
+  const metrics = this.metrics;
   this.geocoder.geocode(address).then(
     location => {
       db.saveLocation(location);
 
       let responseText = `There. Your location has been updated to ${location.address}.`;
-      responseText = appendLocationWarning(responseText, location);
+      responseText = appendLocationWarning(metrics, responseText, location);
       responseCallback(responseText);
     },
     () => {
@@ -80,8 +84,9 @@ CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCal
   );
 };
 
-function noPredictionsResponse(busRoute, busDirection, location) {
+function noPredictionsResponse(metrics, busRoute, busDirection, location) {
   return appendLocationWarning(
+    metrics,
     `No predictions found for ${busDirection} route ${busRoute}.`,
     location
   );
@@ -96,15 +101,16 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
     return;
   }
 
+  const metrics = this.metrics;
   this.nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {
       switch (err) {
         case NextbusAdapter.ERRORS.NOT_FOUND:
-          responseCallback(noPredictionsResponse(busRoute, busDirection, deviceLocation));
+          responseCallback(noPredictionsResponse(metrics, busRoute, busDirection, deviceLocation));
           break;
         default:
           responseCallback(
-            appendLocationWarning(GENERIC_ERROR_RESPONSE, deviceLocation)
+            appendLocationWarning(metrics, GENERIC_ERROR_RESPONSE, deviceLocation)
           );
           break;
       }
@@ -114,7 +120,7 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
 
     const predictions = (result && result.values) || [];
     if (predictions.length <= 0) {
-      responseCallback(noPredictionsResponse(busRoute, busDirection, deviceLocation));
+      responseCallback(noPredictionsResponse(metrics, busRoute, busDirection, deviceLocation));
       return;
     }
 

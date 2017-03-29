@@ -5,7 +5,8 @@ const METRICS_EVENT_TYPE = {
   INTENT: 'User action',
   INTENT_RESPONSE: 'User action response',
   PERF: 'Telemetry',
-  LOCATION_PERMISSION: 'Location permission'
+  LOCATION_PERMISSION: 'Location permission',
+  LOCATION_WARNING: 'Location warning'
 };
 
 const LOCATION_PERMISSION_PHASE = {
