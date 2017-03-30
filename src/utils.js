@@ -10,10 +10,6 @@ function contains(bigStr, smallStr, caseSensitive = false) {
   return bigStr.indexOf(smallStr) >= 0;
 }
 
-function pluralPhrase(count, singularLabel, pluralLabel) {
- return count == 1 ? `${count} ${singularLabel}` : `${count} ${pluralLabel}`;
-}
-
 function prefixObject(prefix, obj) {
   const newObj = {};
 
@@ -38,7 +34,6 @@ function extendObject(...objs) {
 
 module.exports = {
   contains,
-  pluralPhrase,
   prefixObject,
   extendObject
 };

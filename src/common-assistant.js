@@ -8,19 +8,7 @@ const Respond = require('./respond.js');
 const metrics = require('./logger-metrics.js').forComponent('common-assistant');
 
 const { getFeatures } = require('./ai-config-appSource.js');
-const { pluralPhrase } = require('./utils.js');
 const { isSupportedInLocation } = require('./ai-config-supportedCities.js');
-
-function generatePredictionResponse(p) {
-  // special case for arriving
-  if (p.minutes === 0) {
-    return p.isScheduleBased ? 'is scheduled to arrive now' : 'is arriving now';
-  } else {
-    const pTypeLabel = p.isScheduleBased ? 'is scheduled to arrive' : 'will arrive';
-    const minutePhrase = pluralPhrase(p.minutes, 'minute', 'minutes');
-    return `${pTypeLabel} in ${minutePhrase}`;
-  }
-}
 
 function forRequest(requestContext) {
   return new CommonAssistant(requestContext);
@@ -119,30 +107,25 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
     }
 
     const predictions = (result && result.values) || [];
+
     if (predictions.length <= 0) {
       const responseKey = maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation);
       responseCallback(respond.saying(responseKey));
-      return;
-    }
-
-    const p1 = predictions[0];
-    const p1Response = generatePredictionResponse(p1);
-
-    let response = `The next ${busDirection} ${busRoute} from ${result.busStop} ${p1Response}`;
-
-    if (predictions.length > 1) {
+    } else {
+      const p1 = predictions[0];
       const p2 = predictions[1];
 
-      if (p1.isScheduleBased !== p2.isScheduleBased) {
-        const p2Response = generatePredictionResponse(p2);
-        response = `${response}. After that, the next one ${p2Response}`;
-      } else {
-        const minutePhrase = pluralPhrase(p2.minutes, 'minute', 'minutes');
-        response = `${response}, then again in ${minutePhrase}`;
-      }
+      responseCallback(respond.saying('getBusTimes', {
+        busDirection,
+        busRoute,
+        busStop: result.busStop,
+        p1Minutes: p1.minutes,
+        p1IsScheduleBased: p1.isScheduleBased,
+        hasSecondPrediction: Boolean(p2),
+        p2Minutes: p2 && p2.minutes,
+        p2IsScheduleBased: p2 && p2.isScheduleBased
+      }));
     }
-
-    responseCallback(`${response}.`);
   });
 };
 

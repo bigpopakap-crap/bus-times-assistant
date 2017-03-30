@@ -32,7 +32,10 @@ function Respond(requestContext) {
 }
 
 Respond.prototype.saying = function(responseKey, params = {}) {
-  const response = responses[responseKey];
+  let response = responses[responseKey];
+  if (typeof response === 'function') {
+    response = response(params);
+  }
 
   if (!response) {
     this.logger.error('missing_responseKey', {

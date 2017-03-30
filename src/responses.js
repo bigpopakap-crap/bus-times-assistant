@@ -3,6 +3,41 @@
 const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
 const LOCATION_WARNING = 'This service currently works in the San Francisco Bay Area only, but I am always learning about bus times in new cities!';
 
+function pluralPhrase(count, singularLabel, pluralLabel) {
+  return count == 1 ? `${count} ${singularLabel}` : `${count} ${pluralLabel}`;
+}
+
+function getBusTimesString({
+  // The are passed in, but only used as variables in the string
+  // busDirection,
+  // busRoute,
+  // busStop,
+  p1Minutes,
+  p1IsScheduleBased,
+  hasSecondPrediction,
+  p2Minutes,
+  p2IsScheduleBased
+}) {
+  let strPreamble = 'The next {{busDirection}} {{busRoute}} from {{busStop}}';
+  let strP1Relation = p1IsScheduleBased
+                    ? 'is scheduled to arrive'
+                    : (p1Minutes === 0 ? 'is arriving' : 'will arrive');
+  let strP1Minutes = p1Minutes === 0
+                    ? 'now'
+                    : 'in' + pluralPhrase(p1Minutes, 'minute', 'minutes');
+
+  if (!hasSecondPrediction) {
+    return `${strPreamble} ${strP1Relation} ${strP1Minutes}.`;
+  }
+
+  let strP2Joiner = (p1IsScheduleBased === p2IsScheduleBased)
+                    ? ', then again'
+                    : (p2IsScheduleBased ? '. After that, the next one is scheduled to arrive' : '. After that, next one will arrive');
+  let strP2Minutes = 'in' + pluralPhrase(p2Minutes, 'minute', 'minutes');
+
+  return `${strPreamble} ${strP1Relation} ${strP1Minutes} ${strP2Joiner} ${strP2Minutes}.`;
+}
+
 module.exports = {
   'welcome':        'Hi',
 
@@ -18,7 +53,7 @@ module.exports = {
   'updateLocation.locationWarning': `There. Your location has been updated to {{address}}. ${LOCATION_WARNING}`,
   'updateLocation.notFound':        'Hmm. I could not find that address. Try saying the full address again, including the city.',
 
-  'getBusTimes':                      'It will come soon',
+  'getBusTimes':                      getBusTimesString,
   'getBusTimes.missingBusDirection':  'You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"',
   'getBusTimes.missingBusRoute':      'You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"',
   'getBusTimes.noPredictions':        'No predictions found for {{busDirection}} route {{busRoute}}.',
