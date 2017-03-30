@@ -53,10 +53,11 @@ module.exports = {
   'updateLocation.locationWarning': `There. Your location has been updated to {{address}}. ${LOCATION_WARNING}`,
   'updateLocation.notFound':        'Hmm. I could not find that address. Try saying the full address again, including the city.',
 
-  'getBusTimes':                      getBusTimesString,
-  'getBusTimes.missingBusDirection':  'You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"',
-  'getBusTimes.missingBusRoute':      'You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"',
-  'getBusTimes.noPredictions':        'No predictions found for {{busDirection}} route {{busRoute}}.',
+  'getBusTimes':                                getBusTimesString,
+  'getBusTimes.missingBusDirection':            'You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"',
+  'getBusTimes.missingBusRoute':                'You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"',
+  'getBusTimes.noPredictions':                  'No predictions found for {{busDirection}} route {{busRoute}}.',
+  'getBusTimes.noPredictions.locationWarning':  `No predictions found for {{busDirection}} route {{busRoute}}. ${LOCATION_WARNING}`,
 
   'error.generic':                  'Sorry, there was an unexpected error. Please try again.',
   // TODO should we put the location warning in the generic error case?
