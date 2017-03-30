@@ -73,7 +73,7 @@ Firebase.prototype.getLocation = function() {
         firebaseKey,
         success: true,
         foundValue: Boolean(locationValue),
-        locationValue
+        locationValue: JSON.stringify(locationValue)
       });
 
       perfBeacon.logEnd();
