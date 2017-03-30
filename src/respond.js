@@ -36,6 +36,7 @@ function forRequest(requestContext) {
 
 function Respond(requestContext) {
   this.requestContext = requestContext;
+  this.cache = cache.forRequest(requestContext);
   this.logger = logger.forRequest(requestContext);
 }
 
@@ -57,14 +58,14 @@ Respond.prototype.rotateResponse = function(responseKey, responses) {
   const userId = this.requestContext.getUserId();
   const cacheKey = `${userId}.${responseKey}.nextIndex`;
 
-  if (!cache.has(cacheKey)) {
-    cache.set(cacheKey, 0);
+  if (!this.cache.has(cacheKey)) {
+    this.cache.set(cacheKey, 0);
   }
 
-  const index = cache.get(cacheKey);
+  const index = this.cache.get(cacheKey);
   const modIndex = index % responses.length;
 
-  cache.set(cacheKey, modIndex + 1);
+  this.cache.set(cacheKey, modIndex + 1);
 
   this.logger.debug('post_rotate_response', {
     responseKey,

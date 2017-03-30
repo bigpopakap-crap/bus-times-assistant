@@ -1,7 +1,7 @@
-/* global module */
+/* global require module */
 const THIS_COMPONENT_NAME = 'cache';
-const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME).forRequest();
-const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME).forRequest();
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
+const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 function CacheItem(key, data, expiryDate) {
   this.key = key;
@@ -19,11 +19,23 @@ function Cache() {
 
 Cache.init = function() {
   return new Cache();
+};
+
+Cache.prototype.forRequest = function(requestContext) {
+  return new CacheAccessor(this.data, requestContext);
+};
+
+function CacheAccessor(data, requestContext) {
+  this.data = data;
+  this.requestContext = requestContext;
+
+  this.logger = logger.forRequest(requestContext);
+  this.perf = perf.forRequest(requestContext);
 }
 
-Cache.prototype.prune = function() {
-  logger.debug('pre_prune');
-  const perfBeacon = perf.start('prune');
+CacheAccessor.prototype.prune = function() {
+  this.logger.debug('pre_prune');
+  const perfBeacon = this.perf.start('prune');
 
   let numTotal = 0;
   let numDeleted = 0;
@@ -39,7 +51,7 @@ Cache.prototype.prune = function() {
     }
   });
 
-  logger.debug('post_prune', {
+  this.logger.debug('post_prune', {
     numTotalBefore: numTotal,
     numDeleted
   });
@@ -50,8 +62,8 @@ Cache.prototype.prune = function() {
   });
 };
 
-Cache.prototype.set = function(key, data = {}, minutesOfLife = 30) {
-  logger.debug('set', {
+CacheAccessor.prototype.set = function(key, data = {}, minutesOfLife = 30) {
+  this.logger.debug('set', {
     key,
     data: JSON.stringify(data),
     minutesOfLife
@@ -62,20 +74,20 @@ Cache.prototype.set = function(key, data = {}, minutesOfLife = 30) {
   this.data[key] = new CacheItem(key, data, expiryDate);
 };
 
-Cache.prototype.clear = function(key) {
-  logger.debug('clear', { key });
+CacheAccessor.prototype.clear = function(key) {
+  this.logger.debug('clear', { key });
   this.prune();
   delete this.data[key];
 };
 
-Cache.prototype.get = function(key) {
-  logger.debug('get', { key });
+CacheAccessor.prototype.get = function(key) {
+  this.logger.debug('get', { key });
   this.prune();
   return this.data[key].getData();
 };
 
-Cache.prototype.has = function(key) {
-  logger.debug('has', { key });
+CacheAccessor.prototype.has = function(key) {
+  this.logger.debug('has', { key });
   this.prune();
   return Boolean(this.data[key]);
 };
