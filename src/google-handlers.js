@@ -87,11 +87,11 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
             busDirection
           });
 
-  const googleDb = Db.forRequest(requestContext);
+  const db = Db.forRequest(requestContext);
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   // TODO handle errors
-  googleDb.getLocation().then(location => {
+  db.getLocation().then(location => {
     if (location) {
       // just answer the query because we have a saved location
       commonAss.reportNearestStopResult(location, busRoute, busDirection, response => {
@@ -153,8 +153,8 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
   const deviceLocation = cleanDeviceLocation(assistant.getDeviceLocation());
 
   // save the user's location, but we don't need to wait for that call to succeed
-  const googleDb = Db.forRequest(requestContext);
-  googleDb.saveLocation(deviceLocation);
+  const db = Db.forRequest(requestContext);
+  db.saveLocation(deviceLocation);
 
   const perfBeacon = perf.forRequest(requestContext)
             .start('handleNearestBusTimesByRoute', {

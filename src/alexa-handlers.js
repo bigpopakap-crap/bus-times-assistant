@@ -91,11 +91,11 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
             busDirection
           });
 
-  const alexaDb = Db.forRequest(requestContext);
+  const db = Db.forRequest(requestContext);
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   // TODO handle errors
-  return alexaDb.getLocation().then(location => {
+  return db.getLocation().then(location => {
     return new Promise(resolve => {
       if (location) {
         commonAss.reportNearestStopResult(location, busRoute, busDirection, responseText => {
@@ -124,9 +124,9 @@ function handleDefault(requestContext, request, response) {
          .logIntent(INTENTS.DEFAULT);
   const perfBeacon = perf.forRequest(requestContext).start('handleDefault');
 
-  const alexaDb = Db.forRequest(requestContext);
+  const db = Db.forRequest(requestContext);
 
-  return alexaDb.getLocation().then(location => {
+  return db.getLocation().then(location => {
     const baseResponse = 'Hello there! I can look up bus times for you. For example you can say, "When is the next 12 to downtown?"';
     const noLocationResponse = `${baseResponse}. But first, you'll need to tell me your location by saying "Set my location".`;
 
