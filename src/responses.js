@@ -4,7 +4,11 @@ const EXAMPLE_ADDRESS = '<say-as interpret-as="address">100 Van Ness Avenue, San
 const LOCATION_WARNING = 'This service currently works in the San Francisco Bay Area only, but I am always learning about bus times in new cities!';
 
 function s(str, isSSML = true) {
-  return `<speak>${str}</speak>`;
+  if (isSSML) {
+    return `<speak>${str}</speak>`;
+  } else {
+    return str;
+  }
 }
 
 function pluralPhrase(count, singularLabel, pluralLabel) {
