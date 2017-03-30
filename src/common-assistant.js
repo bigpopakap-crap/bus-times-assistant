@@ -4,24 +4,12 @@
 const Geocoder = require('./geocoder.js');
 const NextbusAdapter = require('./nextbus-adapter.js');
 const Db = require('./db.js');
+const Respond = require('./respond.js');
 const metrics = require('./logger-metrics.js').forComponent('common-assistant');
 
 const { getFeatures } = require('./ai-config-appSource.js');
 const { pluralPhrase } = require('./utils.js');
-const { getLocationWarningSentence } = require('./ai-config-supportedCities.js');
-
-const EXAMPLE_ADDRESS = '100 Van Ness Avenue, San Francisco';
-const GENERIC_ERROR_RESPONSE = 'Sorry, there was an error. Please try again.';
-
-function appendLocationWarning(metrics, responseText, location) {
-  const locationWarning = getLocationWarningSentence(location);
-  if (locationWarning) {
-    metrics.logLocationWarning(location);
-    return `${responseText} ${locationWarning}`;
-  } else {
-    return responseText;
-  }
-}
+const { isSupportedInLocation } = require('./ai-config-supportedCities.js');
 
 function generatePredictionResponse(p) {
   // special case for arriving
@@ -42,76 +30,88 @@ function CommonAssistant(requestContext) {
   this.db = Db.forRequest(requestContext);
   this.geocoder = Geocoder.forRequest(requestContext);
   this.nextbus = NextbusAdapter.forRequest(requestContext);
+  this.respond = Respond.forRequest(requestContext);
   this.metrics = metrics.forRequest(requestContext);
 
   this.features = getFeatures(requestContext);
 }
 
+/* THIS IS PRIVATE */
+CommonAssistant.prototype.maybeAppendLocationWarning = function(responseKey, location) {
+  if (isSupportedInLocation(location)) {
+    return responseKey;
+  } else {
+    this.metrics.logLocationWarning(location);
+    return `${responseKey}.locationWarning`;
+  }
+};
+
 CommonAssistant.prototype.reportMyLocation = function(responseCallback) {
   const { canUseDeviceLocation } = this.features;
 
+  const respond = this.respond;
   this.db.getLocation().then(location => {
     if (location) {
-      responseCallback(`Your location is set to ${location.address}`);
+      const response = respond.saying('getLocation', {
+        address: location.address
+      });
+      responseCallback(response);
     } else {
-      const deviceLocationPrompt = canUseDeviceLocation
-        ? 'ask for bus times to use your device\'s location, or '
-        : '';
-      responseCallback(`You haven't set a location yet. Simply ${deviceLocationPrompt}say "Update my location to ${EXAMPLE_ADDRESS}"`);
+      const response = canUseDeviceLocation
+          ? respond.saying('getLocation.noLocation.deviceLocation')
+          : respond.saying('getLocation.noLocation');
+      responseCallback(response);
     }
   });
 };
 
 CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCallback) {
   if (!address) {
-    responseCallback(`You must specify the address. For example, "Set my location to ${EXAMPLE_ADDRESS}".`);
+    responseCallback(this.respond.saying('updateLocation.missingAddress'));
     return;
   }
 
   const db = this.db;
-  const metrics = this.metrics;
+  const maybeAppendLocationWarning = this.maybeAppendLocationWarning.bind(this);
+  const respond = this.respond;
   this.geocoder.geocode(address).then(
     location => {
       db.saveLocation(location);
 
-      let responseText = `There. Your location has been updated to ${location.address}.`;
-      responseText = appendLocationWarning(metrics, responseText, location);
-      responseCallback(responseText);
+      const responseKey = maybeAppendLocationWarning('updateLocation', location);
+      responseCallback(respond.saying(responseKey, {
+        address: location.address
+      }));
     },
     () => {
-      responseCallback('Hmm. I could not find that address. Try saying the full address again');
+      responseCallback(respond.saying('updateLocation.notFound'));
     }
   );
 };
 
-function noPredictionsResponse(metrics, busRoute, busDirection, location) {
-  return appendLocationWarning(
-    metrics,
-    `No predictions found for ${busDirection} route ${busRoute}.`,
-    location
-  );
-}
-
 CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, busRoute, busDirection, responseCallback) {
   if (busRoute === null || busRoute === '' || typeof busRoute === 'undefined') {
-    responseCallback('You must specify a bus number. For example, "When is the next 12 to downtown?"');
+    responseCallback(this.respond.saying('getBusTimes.missingBusRoute'));
     return;
   } else if (!busDirection) {
-    responseCallback('You must specify a direction. For example, "When is the next 12 to downtown?" or "When is the next inbound 12?"');
+    responseCallback(this.respond.saying('getBusTimes.missingBusDirection'));
     return;
   }
 
-  const metrics = this.metrics;
+  const maybeAppendLocationWarning = this.maybeAppendLocationWarning.bind(this);
+  const respond = this.respond;
   this.nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
     if (err) {
       switch (err) {
         case NextbusAdapter.ERRORS.NOT_FOUND:
-          responseCallback(noPredictionsResponse(metrics, busRoute, busDirection, deviceLocation));
+          responseCallback(respond.saying(
+            maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation)
+          ));
           break;
         default:
-          responseCallback(
-            appendLocationWarning(metrics, GENERIC_ERROR_RESPONSE, deviceLocation)
-          );
+          responseCallback(respond.saying(
+            maybeAppendLocationWarning('error.generic', deviceLocation)
+          ));
           break;
       }
 
@@ -120,7 +120,8 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
 
     const predictions = (result && result.values) || [];
     if (predictions.length <= 0) {
-      responseCallback(noPredictionsResponse(metrics, busRoute, busDirection, deviceLocation));
+      const responseKey = maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation);
+      responseCallback(respond.saying(responseKey));
       return;
     }
 

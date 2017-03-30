@@ -103,21 +103,10 @@ const BAY_AREA_CITIES = [
   'Yountville'
 ];
 
-const BAY_AREA_WARNING_SENTENCE = 'This service currently works in the San Francisco Bay Area only. Check back again soon. I am always learning about bus times in new cities!';
-
 function isSupportedInLocation(location) {
-  return !getLocationWarningSentence(location);
-}
-
-function getLocationWarningSentence(location) {
-  if (BAY_AREA_CITIES.indexOf(location.city) < 0) {
-    return BAY_AREA_WARNING_SENTENCE;
-  } else {
-    return null;
-  }
+  return BAY_AREA_CITIES.indexOf(location.city) >= 0;
 }
 
 module.exports = {
-  isSupportedInLocation,
-  getLocationWarningSentence
+  isSupportedInLocation
 };
