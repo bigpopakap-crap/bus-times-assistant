@@ -23,7 +23,7 @@ function LatencyLogger(componentName, requestContext) {
 }
 
 LatencyLogger.prototype.start = function(event, extraParams = {}) {
-  this.logger.debug('pre_latency', {
+  this.logger.trace('pre_latency', {
     event,
     startParams: JSON.stringify(extraParams)
   });
@@ -44,7 +44,7 @@ function LatencyBeacon(componentName, requestContext, event, extraParams = {}) {
   this.startDate = new Date();
   this.hasLogged = false;
 
-  this.logger.debug('create_beacon', {
+  this.logger.trace('create_beacon', {
     event,
     startParams: JSON.stringify(this.startParams)
   });
@@ -62,7 +62,7 @@ LatencyBeacon.prototype.logEnd = function(error, extraParams = {}) {
     return;
   }
 
-  this.logger.debug('post_latency', {
+  this.logger.trace('post_latency', {
     event: this.event,
     startParams: JSON.stringify(this.startParams),
     error: JSON.stringify(error),

@@ -74,7 +74,7 @@ MetricsLogger.prototype.logEvent = function(eventType, eventName, params = {}) {
 
   mixpanel.track(eventName, mixpanelParams);
 
-  this.logger.debug('mixpanel_event',  prefixObject('mixpanel.', {
+  this.logger.trace('mixpanel_event',  prefixObject('mixpanel.', {
     eventType,
     params: JSON.stringify(mixpanelParams)
   }));
@@ -92,7 +92,7 @@ MetricsLogger.prototype.logUser = function(extraParams = {}) {
   mixpanel.people.set(userId, mixpanelParams);
   mixpanel.people.set_once(userId, '$created', now);
 
-  this.logger.debug('mixpanel_user', prefixObject('mixpanel.', {
+  this.logger.trace('mixpanel_user', prefixObject('mixpanel.', {
     params: JSON.stringify(mixpanelParams)
   }));
 };
