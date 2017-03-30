@@ -7,9 +7,9 @@ function CacheItem(key, data, expiryDate) {
   this.expiryDate = expiryDate;
 }
 
-CacheItem.getKey = function() { return this.key; };
-CacheItem.getData = function() { return this.data; };
-CacheItem.getExpiryDate = function() { return this.expiryDate; };
+CacheItem.prototype.getKey = function() { return this.key; };
+CacheItem.prototype.getData = function() { return this.data; };
+CacheItem.prototype.getExpiryDate = function() { return this.expiryDate; };
 
 function Cache() {
   this.data = {};
@@ -19,7 +19,7 @@ Cache.init = function() {
   return new Cache();
 }
 
-Cache.prune = function() {
+Cache.prototype.prune = function() {
   const now = new Date().getTime();
 
   Object.keys(this.data).forEach(key => {

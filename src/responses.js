@@ -47,7 +47,10 @@ function getBusTimesString({
 }
 
 module.exports = {
-  'welcome':            s('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?"'),
+  'welcome': [
+    s('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?"'),
+    s('Hello! You can ask me for bus times. For example, you can say, "when is the next outbound N?"')
+  ],
   'welcome.noLocation': s('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location by saying "set my location."'),
 
   // TODO make the help responses
