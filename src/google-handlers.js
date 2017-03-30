@@ -6,6 +6,7 @@ const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const CommonAssistant = require('./common-assistant.js');
 
 const Db = require('./db.js');
+const Respond = require('./respond.js');
 
 const THIS_COMPONENT_NAME = 'google-handlers';
 const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
@@ -88,6 +89,7 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
           });
 
   const db = Db.forRequest(requestContext);
+  const respond = Respond.forRequest(requestContext);
   const commonAss = CommonAssistant.forRequest(requestContext);
 
   // TODO handle errors
@@ -112,7 +114,7 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
 
       const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
 
-      const responseText = 'To look up routes near you';
+      const responseText = respond.saying('locationPermission.request.google');
       metrics.forRequest(requestContext).logLocationPermissionRequest();
       metrics.forRequest(requestContext)
              .logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, responseText, {
@@ -147,7 +149,7 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
          .logLocationPermissionResponse(assistant.isPermissionGranted());
 
   if (!assistant.isPermissionGranted()) {
-    assistant.tell('To proceed, I\'ll need your location. If you do not want to grant access, you can update your address by saying "Update my location"');
+    assistant.tell(this.respond.say('locationPermission.denialWarning'));
     return;
   }
   const deviceLocation = cleanDeviceLocation(assistant.getDeviceLocation());

@@ -39,9 +39,11 @@ function getBusTimesString({
 }
 
 module.exports = {
-  'welcome':        'Hi',
+  'welcome':            'Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?"',
+  'welcome.noLocation': 'Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location by saying "set my location"',
 
-  'help':           'You can do stuff',
+  // TODO make the help responses
+  'help':           'Hey! Hope I have been useful to you',
 
   'getLocation':                           'Your location is set to {{address}}.',
   // TODO use an example address as an example command
@@ -56,8 +58,12 @@ module.exports = {
   'getBusTimes':                                getBusTimesString,
   'getBusTimes.missingBusDirection':            'You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"',
   'getBusTimes.missingBusRoute':                'You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"',
+  'getBusTimes.missingLocation':                'You haven\t set your location yet. To do so, simply say "set my location".',
   'getBusTimes.noPredictions':                  'No predictions found for {{busDirection}} route {{busRoute}}.',
   'getBusTimes.noPredictions.locationWarning':  `No predictions found for {{busDirection}} route {{busRoute}}. ${LOCATION_WARNING}`,
+
+  'locationPermission.request.google': 'To look up routes near you',
+  'locationPermission.denialWarning':  'To proceed, I\'ll need your location. If you do not want to grant permission, you can set your address manually by saying "set my location"',
 
   'error.generic':                  'Sorry, there was an unexpected error. Please try again.',
   // TODO should we put the location warning in the generic error case?

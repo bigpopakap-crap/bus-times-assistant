@@ -2,6 +2,11 @@
 const responses = require('./responses.js');
 const logger = require('./logger.js').forComponent('respond');
 
+// Alexa doesn't like ampersands in SSML
+function cleanResponse(response) {
+  return response.replace(/&/g, 'and');
+}
+
 function replaceParams(str, params) {
   const missingParams = [];
 
@@ -56,7 +61,7 @@ Respond.prototype.saying = function(responseKey, params = {}) {
     });
   }
 
-  return result;
+  return cleanResponse(result);
 };
 
 module.exports = {

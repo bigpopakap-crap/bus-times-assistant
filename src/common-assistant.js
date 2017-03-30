@@ -78,7 +78,10 @@ CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCal
 };
 
 CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, busRoute, busDirection, responseCallback) {
-  if (busRoute === null || busRoute === '' || typeof busRoute === 'undefined') {
+  if (!deviceLocation) {
+    responseCallback(this.respond.saying('getBusTimes.missingLocation'));
+    return;
+  } else if (busRoute === null || busRoute === '' || typeof busRoute === 'undefined') {
     responseCallback(this.respond.saying('getBusTimes.missingBusRoute'));
     return;
   } else if (!busDirection) {
@@ -127,6 +130,16 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
         p2IsScheduleBased: p2 && p2.isScheduleBased
       }));
     }
+  });
+};
+
+CommonAssistant.prototype.handleDefault = function(responseCallback) {
+  const respond = this.respond;
+
+  // TODO handle errors
+  return this.db.getLocation().then(location => {
+    const responseKey = location ? 'welcome' : 'welcome.noLocation';
+    responseCallback(respond.saying(responseKey));
   });
 };
 
