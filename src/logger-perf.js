@@ -1,22 +1,23 @@
 /* global require module */
 'use strict';
 
+const RequestContext = require('./request-context.js');
+
 const logger = require('./logger.js').forComponent('logger-perf');
 const beaconLogger = require('./logger.js').forComponent('logger-perf-beacon');
-
 const metricsBase = require('./logger-metrics.js'); // not "for component" yet
 
 const { prefixObject, extendObject } = require('./utils.js');
 
 function forComponent(componentName) {
   return {
-    forRequest(requestContext) {
+    forRequest(requestContext = new RequestContext()) {
       return new LatencyLogger(componentName, requestContext);
     }
   };
 }
 
-function LatencyLogger(componentName, requestContext) {
+function LatencyLogger(componentName, requestContext = new RequestContext()) {
   this.componentName = componentName;
   this.requestContext = requestContext;
   this.logger = logger.forRequest(requestContext);

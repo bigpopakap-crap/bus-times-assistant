@@ -2,6 +2,7 @@
 'use strict';
 
 const Mixpanel = require('mixpanel');
+const RequestContext = require('./request-context.js');
 
 const THIS_COMPONENT_NAME = 'logger-metrics';
 const initLogger = require('./logger.js').forComponent(THIS_COMPONENT_NAME).forRequest();
@@ -39,13 +40,13 @@ function createIntentParams(intent, params = {}) {
 
 function forComponent(componentName) {
   return {
-    forRequest(requestContext) {
+    forRequest(requestContext = new RequestContext()) {
       return new MetricsLogger(componentName, requestContext);
     }
   };
 }
 
-function MetricsLogger(componentName, requestContext) {
+function MetricsLogger(componentName, requestContext = new RequestContext()) {
   this.componentName = componentName;
   this.requestContext = requestContext;
   this.logger = logger.forRequest(requestContext);
