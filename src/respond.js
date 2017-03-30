@@ -40,7 +40,7 @@ Respond.prototype.saying = function(responseKey, params = {}) {
   if (!response) {
     this.logger.error('missing_responseKey', {
       responseKey,
-      responseParams: params
+      responseParams: JSON.stringify(params)
     });
     return responses['keyMissing'];
   }
@@ -50,7 +50,7 @@ Respond.prototype.saying = function(responseKey, params = {}) {
   if (missingParams && missingParams.length > 0) {
     this.logger.warn('missing_responseParams', {
       responseKey,
-      responseParams: params,
+      responseParams: JSON.stringify(params),
       result,
       missingParams
     });
