@@ -1,3 +1,4 @@
+/* global module */
 const BAY_AREA_CITIES = [
   'Alameda',
   'Albany',
@@ -28,7 +29,7 @@ const BAY_AREA_CITIES = [
   'El Cerrito',
   'Emeryville',
   'Fairfax',
-  'FairfieldCounty seat',
+  'Fairfield',
   'Foster City',
   'Fremont',
   'Gilroy',
@@ -43,7 +44,7 @@ const BAY_AREA_CITIES = [
   'Los Altos',
   'Los Altos Hills',
   'Los Gatos',
-  'MartinezCounty seat',
+  'Martinez',
   'Menlo Park',
   'Mill Valley',
   'Millbrae',
@@ -52,10 +53,10 @@ const BAY_AREA_CITIES = [
   'Moraga',
   'Morgan Hill',
   'Mountain View',
-  'NapaCounty seat',
+  'Napa',
   'Newark',
   'Novato',
-  'OaklandCounty seat',
+  'Oakland',
   'Oakley',
   'Orinda',
   'Pacifica',
@@ -67,7 +68,7 @@ const BAY_AREA_CITIES = [
   'Pleasant Hill',
   'Pleasanton',
   'Portola Valley',
-  'Redwood CityCounty seat',
+  'Redwood City',
   'Richmond',
   'Rio Vista',
   'Rohnert Park',
@@ -76,15 +77,15 @@ const BAY_AREA_CITIES = [
   'San Anselmo',
   'San Bruno',
   'San Carlos',
-  'San FranciscoCounty seat',
-  'San JoseCounty seat',
+  'San Francisco',
+  'San Jose',
   'San Leandro',
   'San Mateo',
   'San Pablo',
-  'San RafaelCounty seat',
+  'San Rafael',
   'San Ramon',
   'Santa Clara',
-  'Santa RosaCounty seat',
+  'Santa Rosa',
   'Saratoga',
   'Sausalito',
   'Sebastopol',
@@ -105,13 +106,15 @@ const BAY_AREA_CITIES = [
 const BAY_AREA_WARNING_SENTENCE = 'This service currently works in the San Francisco Bay Area only. Check back again soon. I am always learning about bus times in new cities!';
 
 function isSupportedInLocation(location) {
-  return BAY_AREA_CITIES.indexOf(location.city) >= 0;
+  return !getLocationWarningSentence(location);
 }
 
 function getLocationWarningSentence(location) {
-  return isSupportedInLocation(location)
-            ? null
-            : BAY_AREA_WARNING_SENTENCE
+  if (BAY_AREA_CITIES.indexOf(location.city) < 0) {
+    return BAY_AREA_WARNING_SENTENCE;
+  } else {
+    return null;
+  }
 }
 
 module.exports = {
