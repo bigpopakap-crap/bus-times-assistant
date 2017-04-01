@@ -2,12 +2,18 @@
 const responses = require('./responses.js');
 const logger = require('./logger.js').forComponent('respond');
 
+const { getFeatures } = require('./ai-config-appSource.js');
+
 // This cache is global across all respond objects, so we initialize it here
 const cache = require('./cache.js').init();
 
 // Alexa doesn't like ampersands in SSML
-function cleanResponse(response) {
+function cleanSSMLResponse(response) {
   return response.replace(/&/g, 'and');
+}
+
+function convertToNonSSML(response) {
+  return response.replace(/<(?:.|\n)*?>/gm, '');
 }
 
 function replaceParams(str, params) {
@@ -38,6 +44,8 @@ function Respond(requestContext) {
   this.requestContext = requestContext;
   this.cache = cache.forRequest(requestContext);
   this.logger = logger.forRequest(requestContext);
+
+  this.features = getFeatures(requestContext);
 }
 
 /* THIS SHOULD BE PRIVATE */
@@ -106,7 +114,11 @@ Respond.prototype.s = function(responseKey, params = {}) {
     });
   }
 
-  return cleanResponse(result);
+  if (this.features.canUseSSML) {
+    return cleanSSMLResponse(result);
+  } else {
+    return convertToNonSSML(result);
+  }
 };
 
 module.exports = {
