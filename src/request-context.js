@@ -86,11 +86,10 @@ RequestContext.prototype.toJSON = function() {
 };
 
 RequestContext.prototype.copyTo = function(newObj) {
-  const thisJSON = this.toJSON();
   const newRequestContext = new RequestContext(newObj);
 
   Object.keys(thisJSON).forEach(key => {
-    newRequestContext.set(key, thisJSON[key]);
+    newRequestContext.set(key, this.get(key));
   });
 };
 
