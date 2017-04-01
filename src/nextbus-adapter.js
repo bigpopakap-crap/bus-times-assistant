@@ -97,7 +97,7 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
       return;
     }
 
-    logger.debug('post_nextbus_query', {
+    logger.trace('post_nextbus_query', {
       queryUrl,
       success: true,
       body: JSON.stringify(body)
@@ -105,11 +105,16 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
 
     const result = processNbResponse(body, busRoute, busDirection);
 
-    logger.debug('nextbus_response_processed', {
+    logger.trace('nextbus_response_processed', {
       queryUrl,
       success: true,
       body: JSON.stringify(body),
       result: JSON.stringify(result)
+    });
+
+    logger.debug('nextbus_response_processed', {
+      queryUrl,
+      success: true
     });
 
     if (result) {
