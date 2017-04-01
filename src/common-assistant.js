@@ -40,14 +40,14 @@ CommonAssistant.prototype.reportMyLocation = function(responseCallback) {
   const respond = this.respond;
   this.db.getLocation().then(location => {
     if (location) {
-      const response = respond.saying('getLocation', {
+      const response = respond.s('getLocation', {
         address: location.address
       });
       responseCallback(response);
     } else {
       const response = canUseDeviceLocation
-          ? respond.saying('getLocation.noLocation.deviceLocation')
-          : respond.saying('getLocation.noLocation');
+          ? respond.s('getLocation.noLocation.deviceLocation')
+          : respond.s('getLocation.noLocation');
       responseCallback(response);
     }
   });
@@ -55,7 +55,7 @@ CommonAssistant.prototype.reportMyLocation = function(responseCallback) {
 
 CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCallback) {
   if (!address) {
-    responseCallback(this.respond.saying('updateLocation.missingAddress'));
+    responseCallback(this.respond.s('updateLocation.missingAddress'));
     return;
   }
 
@@ -67,25 +67,25 @@ CommonAssistant.prototype.reportMyLocationUpdate = function(address, responseCal
       db.saveLocation(location);
 
       const responseKey = maybeAppendLocationWarning('updateLocation', location);
-      responseCallback(respond.saying(responseKey, {
+      responseCallback(respond.s(responseKey, {
         address: location.address
       }));
     },
     () => {
-      responseCallback(respond.saying('updateLocation.notFound'));
+      responseCallback(respond.s('updateLocation.notFound'));
     }
   );
 };
 
 CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, busRoute, busDirection, responseCallback) {
   if (!deviceLocation) {
-    responseCallback(this.respond.saying('getBusTimes.missingLocation'));
+    responseCallback(this.respond.s('getBusTimes.missingLocation'));
     return;
   } else if (busRoute === null || busRoute === '' || typeof busRoute === 'undefined') {
-    responseCallback(this.respond.saying('getBusTimes.missingBusRoute'));
+    responseCallback(this.respond.s('getBusTimes.missingBusRoute'));
     return;
   } else if (!busDirection) {
-    responseCallback(this.respond.saying('getBusTimes.missingBusDirection'));
+    responseCallback(this.respond.s('getBusTimes.missingBusDirection'));
     return;
   }
 
@@ -95,13 +95,13 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
     if (err) {
       switch (err) {
         case NextbusAdapter.ERRORS.NOT_FOUND:
-          responseCallback(respond.saying(
+          responseCallback(respond.s(
             maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation),
             { busDirection, busRoute }
           ));
           break;
         default:
-          responseCallback(respond.saying(
+          responseCallback(respond.s(
             maybeAppendLocationWarning('error.generic', deviceLocation)
           ));
           break;
@@ -114,12 +114,12 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
 
     if (predictions.length <= 0) {
       const responseKey = maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation);
-      responseCallback(respond.saying(responseKey));
+      responseCallback(respond.s(responseKey));
     } else {
       const p1 = predictions[0];
       const p2 = predictions[1];
 
-      responseCallback(respond.saying('getBusTimes', {
+      responseCallback(respond.s('getBusTimes', {
         busDirection,
         busRoute,
         busStop: result.busStop,
@@ -139,7 +139,7 @@ CommonAssistant.prototype.handleDefault = function(responseCallback) {
   // TODO handle errors
   return this.db.getLocation().then(location => {
     const responseKey = location ? 'welcome' : 'welcome.noLocation';
-    responseCallback(respond.saying(responseKey));
+    responseCallback(respond.s(responseKey));
   });
 };
 

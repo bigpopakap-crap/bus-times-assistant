@@ -77,7 +77,7 @@ Respond.prototype.rotateResponse = function(responseKey, responses) {
   return responses[index % responses.length];
 };
 
-Respond.prototype.saying = function(responseKey, params = {}) {
+Respond.prototype.s = function(responseKey, params = {}) {
   let response = responses[responseKey];
   if (typeof response === 'function') {
     response = response(params);

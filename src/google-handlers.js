@@ -114,7 +114,7 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
 
       const permission = assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
 
-      const responseText = respond.saying('locationPermission.request.google');
+      const responseText = respond.s('locationPermission.request.google');
       metrics.forRequest(requestContext).logLocationPermissionRequest();
       metrics.forRequest(requestContext)
              .logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, responseText, {
