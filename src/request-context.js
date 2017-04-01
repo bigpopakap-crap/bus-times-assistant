@@ -14,10 +14,10 @@ const PARAMS = {
   REQUEST_ID: 'requestId',
   APP_SOURCE: 'appSource',
   USER_ID: 'userId',
-  HEROKU_SLUG_COMMIT: 'heroku_slugCommit',
-  HEROKU_SLUG_DESC: 'heroku_slugDescription',
-  HEROKU_RELEASE_VERSION: 'heroku_releaseVersion',
-  HEROKU_RELEASE_CREATED_AT: 'heroku_releaseCreatedAt'
+  HEROKU_SLUG_COMMIT: 'heroku.slugCommit',
+  HEROKU_SLUG_DESC: 'heroku.slugDescription',
+  HEROKU_RELEASE_VERSION: 'heroku.releaseVersion',
+  HEROKU_RELEASE_CREATED_AT: 'heroku.releaseCreatedAt'
 };
 
 function RequestContext(obj = {}) {
