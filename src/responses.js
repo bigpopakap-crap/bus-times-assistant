@@ -1,5 +1,4 @@
 /* global module */
-
 const EXAMPLE_ADDRESS = '<say-as interpret-as="address">100 Van Ness Avenue, San Francisco</say-as>';
 const LOCATION_WARNING = 'This service currently works in the San Francisco Bay Area only, but I am always learning about bus times in new cities!';
 
@@ -43,7 +42,7 @@ function getBusTimesString({
                     : (p2IsScheduleBased ? '. After that, the next one is scheduled to arrive' : '. After that, next one will arrive');
   let strP2Minutes = 'in ' + pluralPhrase(p2Minutes, 'minute', 'minutes');
 
-  return s(`${strPreamble} ${strP1Relation} ${strP1Minutes} ${strP2Joiner} ${strP2Minutes}.`);
+  return s(`${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}.`);
 }
 
 module.exports = {
