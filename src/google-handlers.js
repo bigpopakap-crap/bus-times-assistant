@@ -17,6 +17,7 @@ function cleanDeviceLocation(deviceLocation) {
     latitude: deviceLocation.coordinates.latitude,
     longitude: deviceLocation.coordinates.longitude,
     address: deviceLocation.address,
+    city: deviceLocation.city,
     originalAddressInput: deviceLocation.address,
     originalAddressSource: 'google device'
   };
