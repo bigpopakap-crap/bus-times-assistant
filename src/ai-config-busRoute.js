@@ -9,6 +9,7 @@ function busRouteFromInput(input) {
     case 'an':
     case 'and':
     case 'end':
+      // TODO log that we made this conversion
       return 'N';
 
     default:

@@ -27,6 +27,7 @@ const BUS_DIRECTION_INPUT_MAP = {
 };
 
 function busDirectionFromInput(input) {
+  // TODO log that we made this conversion
   return typeof input === 'string'
           ? BUS_DIRECTION_INPUT_MAP[input.toLowerCase()]
           : null;
