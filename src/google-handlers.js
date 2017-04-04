@@ -3,6 +3,7 @@
 
 const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
+const { busRouteFromInput } = require('./ai-config-busRoute.js');
 const CommonAssistant = require('./common-assistant.js');
 
 const Db = require('./db.js');
@@ -72,7 +73,9 @@ function handleUpdateMyLocation(requestContext, assistant) {
  */
 function handleNearestBusTimesByRoute(requestContext, assistant) {
   const startDate = new Date();
-  const busRoute = assistant.getArgument('busRoute');
+  const busRoute = busRouteFromInput(
+    assistant.getArgument('busRoute')
+  );
   const busDirection = busDirectionFromInput(
     assistant.getArgument('busDirection')
   );

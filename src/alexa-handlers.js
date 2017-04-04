@@ -12,6 +12,7 @@ const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME)
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
+const { busRouteFromInput } = require('./ai-config-busRoute.js');
 const CommonAssistant = require('./common-assistant.js');
 
 function handleGetMyLocation(requestContext, request, response) {
@@ -70,7 +71,9 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
   const startDate = new Date();
 
   // TODO it would be nice to log the transformation of params
-  const busRoute = INTENTS.GET_NEAREST_BUS_BY_ROUTE.getAlexaValue('busRoute', request);
+  const busRoute = busRouteFromInput(
+    INTENTS.GET_NEAREST_BUS_BY_ROUTE.getAlexaValue('busRoute', request)
+  );
   const busDirection = busDirectionFromInput(
     INTENTS.GET_NEAREST_BUS_BY_ROUTE.getAlexaValue('busDirection', request)
   );
