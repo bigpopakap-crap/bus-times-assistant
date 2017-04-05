@@ -6,6 +6,13 @@ function busRouteFromInput(input) {
 
   input = input.toLowerCase();
   switch (input) {
+    case 'bus':
+    case 'train':
+    case 'muni':
+    case 'bart':
+    case 'muni bus':
+      return null;
+
     case 'an':
     case 'and':
     case 'end':
