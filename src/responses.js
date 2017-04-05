@@ -23,13 +23,16 @@ function getBusTimesString({
   p1IsScheduleBased,
   hasSecondPrediction,
   p2Minutes,
-  p2IsScheduleBased
+  p2IsScheduleBased,
+  hasThirdPrediction,
+  p3Minutes,
+  p3IsScheduleBased
 }) {
-  let strPreamble = 'The next <w role="ivona:NN">{{busDirection}}</w> <w role="ivona:NN">{{busRoute}}</w> from <w role="ivona:NN">{{busStop}}</w>';
-  let strP1Relation = p1IsScheduleBased
+  const strPreamble = 'The next <w role="ivona:NN">{{busDirection}}</w> <w role="ivona:NN">{{busRoute}}</w> from <w role="ivona:NN">{{busStop}}</w>';
+  const strP1Relation = p1IsScheduleBased
                     ? 'is scheduled to arrive'
                     : (p1Minutes === 0 ? 'is arriving' : 'will arrive');
-  let strP1Minutes = p1Minutes === 0
+  const strP1Minutes = p1Minutes === 0
                     ? 'now'
                     : 'in ' + pluralPhrase(p1Minutes, 'minute', 'minutes');
 
@@ -37,10 +40,15 @@ function getBusTimesString({
     return s(`${strPreamble} ${strP1Relation} ${strP1Minutes}.`);
   }
 
-  let strP2Joiner = (p1IsScheduleBased === p2IsScheduleBased)
-                    ? ', then again'
-                    : (p2IsScheduleBased ? '. After that, the next one is scheduled to arrive' : '. After that, next one will arrive');
-  let strP2Minutes = 'in ' + pluralPhrase(p2Minutes, 'minute', 'minutes');
+  const strP2Joiner = (p1IsScheduleBased === p2IsScheduleBased)
+                    ? ', then again in'
+                    : (p2IsScheduleBased ? '. After that, the next one is scheduled to arrive in' : '. After that, next one will arrive in');
+  let strP2Minutes = pluralPhrase(p2Minutes, 'minute', 'minutes');
+
+  if (hasThirdPrediction && !p1IsScheduleBased && !p2IsScheduleBased && !p3IsScheduleBased) {
+    // we now have ', then again in __ minutes' in our string
+    strP2Minutes = p2Minutes + ' and ' + pluralPhrase(p3Minutes, 'minute', 'minutes');
+  }
 
   return s(`${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}.`);
 }

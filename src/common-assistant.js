@@ -118,6 +118,7 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
     } else {
       const p1 = predictions[0];
       const p2 = predictions[1];
+      const p3 = predictions[2];
 
       responseCallback(respond.s('getBusTimes', {
         busDirection,
@@ -127,7 +128,10 @@ CommonAssistant.prototype.reportNearestStopResult = function(deviceLocation, bus
         p1IsScheduleBased: p1.isScheduleBased,
         hasSecondPrediction: Boolean(p2),
         p2Minutes: p2 && p2.minutes,
-        p2IsScheduleBased: p2 && p2.isScheduleBased
+        p2IsScheduleBased: p2 && p2.isScheduleBased,
+        hasThirdPrediction: Boolean(p3),
+        p3Minutes: p3 && p3.minutes,
+        p3IsScheduleBased: p3 && p3.isScheduleBased
       }));
     }
   });
