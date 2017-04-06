@@ -99,7 +99,7 @@ MetricsLogger.prototype.logUser = function(extraParams = {}) {
 };
 
 MetricsLogger.prototype.logUserLocation = function(location) {
-  this.logUser(prefixObject('location.', location));
+  this.logUser(prefixObject('location.', location.toJSON()));
 };
 
 MetricsLogger.prototype.logIntent = function(intent, params = {}) {
@@ -156,8 +156,8 @@ MetricsLogger.prototype.logLocationWarning = function(location) {
     METRICS_EVENT_TYPE.LOCATION_WARNING,
     METRICS_EVENT_TYPE.LOCATION_WARNING,
     {
-      location: JSON.stringify(location),
-      city: location.city
+      location: JSON.stringify(location.toJSON()),
+      city: location.getCity()
     }
   );
 };

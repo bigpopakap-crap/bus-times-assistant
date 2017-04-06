@@ -1,16 +1,17 @@
 /* global require module */
 const CommonAssistant = require('./common-assistant.js');
 const Respond = require('./respond.js');
+const Location = require('./model-location.js');
 
 function cleanDeviceLocation(deviceLocation) {
-  return {
+  return new Location({
     latitude: deviceLocation.coordinates.latitude,
     longitude: deviceLocation.coordinates.longitude,
     address: deviceLocation.address,
     city: deviceLocation.city,
     originalAddressInput: deviceLocation.address,
     originalAddressSource: 'google device'
-  };
+  });
 }
 
 class GoogleAssistant extends CommonAssistant {

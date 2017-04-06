@@ -10,6 +10,10 @@ function contains(bigStr, smallStr, caseSensitive = false) {
   return bigStr.indexOf(smallStr) >= 0;
 }
 
+function copyObj(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 function prefixObject(prefix, obj) {
   const newObj = {};
 
@@ -34,6 +38,7 @@ function extendObject(...objs) {
 
 module.exports = {
   contains,
+  copyObj,
   prefixObject,
   extendObject
 };

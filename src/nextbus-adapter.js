@@ -74,7 +74,8 @@ function NextbusAdapter(requestContext) {
 }
 
 NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRoute, busDirection, callBackFn) {
-  const { latitude, longitude } = deviceLocation;
+  const latitude = deviceLocation.getLatitude();
+  const longitude = deviceLocation.getLongitude();
 
   const queryUrl = `/locations/${latitude},${longitude}/predictions`;
 

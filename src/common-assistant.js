@@ -49,7 +49,7 @@ class CommonAssistant {
       this.db.getLocation().then(location => {
         if (location) {
           const response = this.respond.s('getLocation', {
-            address: location.address
+            address: location.getAddress()
           });
           resolve(response);
         } else {
@@ -81,7 +81,7 @@ class CommonAssistant {
 
         const responseKey = maybeAppendLocationWarning('updateLocation', location);
         responseCallback(respond.s(responseKey, {
-          address: location.address
+          address: location.getAddress()
         }));
       },
       () => {

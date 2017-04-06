@@ -3,6 +3,7 @@
 
 const Promise = require('promise');
 const Firebase = require('./db-firebase.js');
+const Location = require('./model-location.js');
 
 const metrics = require('./logger-metrics.js').forComponent('db');
 
@@ -19,6 +20,8 @@ Db.prototype.getLocation = function() {
   const metrics = this.metrics;
 
   return this.firebase.getLocation().then(location => {
+    location = location && new Location(location);
+
     return new Promise(resolve => {
       resolve(location);
       metrics.logUserLocation(location);
@@ -36,7 +39,7 @@ Db.prototype.getLocation = function() {
  * }
  */
 Db.prototype.saveLocation = function(location) {
-  this.firebase.saveLocation(location);
+  this.firebase.saveLocation(location.toJSON());
   this.metrics.logUserLocation(location);
 };
 

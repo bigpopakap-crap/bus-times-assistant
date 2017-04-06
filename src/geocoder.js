@@ -8,6 +8,8 @@ const nodeGeocoder = NodeGeocoder({
   provider: 'google'
 });
 
+const Location = require('./model-location.js');
+
 const THIS_COMPONENT_NAME = 'geocoder';
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
@@ -55,19 +57,19 @@ Geocoder.prototype.geocode = function(address) {
       const geo = result[0];
       // TODO format this completely and with localization?
       const formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
-      const location = {
+      const location = new Location({
         latitude: geo.latitude,
         longitude: geo.longitude,
         address: formattedAddress,
         city: geo.city,
         originalAddressInput: address,
         originalAddressSource: THIS_COMPONENT_NAME
-      };
+      });
 
       logger.debug('post_geocoding', {
         address,
         success: true,
-        location: JSON.stringify(location),
+        location: JSON.stringify(location.toJSON()),
         rawLocation: JSON.stringify(geo)
       });
 

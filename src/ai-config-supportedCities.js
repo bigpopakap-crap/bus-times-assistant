@@ -104,7 +104,7 @@ const BAY_AREA_CITIES = [
 ];
 
 function isSupportedInLocation(location) {
-  return BAY_AREA_CITIES.indexOf(location.city) >= 0;
+  return BAY_AREA_CITIES.indexOf(location.getCity()) >= 0;
 }
 
 module.exports = {

@@ -8,20 +8,21 @@ const GoogleAssistant = require('./google-assistant.js');
 
 const Db = require('./db.js');
 const Respond = require('./respond.js');
+const Location = require('./model-location.js');
 
 const THIS_COMPONENT_NAME = 'google-handlers';
 const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 function cleanDeviceLocation(deviceLocation) {
-  return {
+  return new Location({
     latitude: deviceLocation.coordinates.latitude,
     longitude: deviceLocation.coordinates.longitude,
     address: deviceLocation.address,
     city: deviceLocation.city,
     originalAddressInput: deviceLocation.address,
     originalAddressSource: 'google device'
-  };
+  });
 }
 
 function handleGetMyLocation(requestContext, assistant) {

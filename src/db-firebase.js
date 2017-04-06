@@ -108,7 +108,7 @@ Firebase.prototype.saveLocation = function(location) {
       const success = !error;
       const logLevel = success ? logger.LEVEL.DEBUG : logger.LEVEL.ERROR;
 
-      logger.log(logLevel, 'post_get_location', {
+      logger.log(logLevel, 'post_update_location', {
         firebaseKey,
         location: JSON.stringify(location),
         success,
