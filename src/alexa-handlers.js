@@ -16,23 +16,7 @@ const { busRouteFromInput } = require('./ai-config-busRoute.js');
 const AlexaAssistant = require('./alexa-assistant.js');
 
 function handleGetMyLocation(requestContext, request, response) {
-  const startDate = new Date();
-  metrics.forRequest(requestContext).logIntent(INTENTS.GET_MY_LOCATION);
-  const perfBeacon = perf.forRequest(requestContext).start('handleGetMyLocation');
-
-  const commonAss = new AlexaAssistant(response, requestContext);
-
-  // TODO handle errors
-  return new Promise(resolve => {
-    commonAss.reportMyLocation(responseText => {
-      resolve(responseText);
-    });
-  }).then(responseText => {
-    metrics.forRequest(requestContext)
-           .logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, responseText);
-    perfBeacon.logEnd();
-    response.say(responseText);
-  });
+  return new AlexaAssistant(response, requestContext).handleGetMyLocation();
 }
 
 function handleUpdateMyLocation(requestContext, request, response) {

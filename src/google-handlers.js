@@ -25,20 +25,7 @@ function cleanDeviceLocation(deviceLocation) {
 }
 
 function handleGetMyLocation(requestContext, assistant) {
-  const startDate = new Date();
-  metrics.forRequest(requestContext)
-         .logIntent(INTENTS.GET_MY_LOCATION);
-  const perfBeacon = perf.forRequest(requestContext)
-          .start('handleGetMyLocation');
-
-  const commonAss = new GoogleAssistant(assistant, requestContext);
-
-  commonAss.reportMyLocation(response => {
-    metrics.forRequest(requestContext)
-           .logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, response);
-    perfBeacon.logEnd();
-    assistant.tell(response);
-  });
+  new GoogleAssistant(assistant, requestContext).handleGetMyLocation();
 }
 
 function handleUpdateMyLocation(requestContext, assistant) {
