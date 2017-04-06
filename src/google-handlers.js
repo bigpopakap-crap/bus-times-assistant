@@ -4,7 +4,7 @@
 const INTENTS = require('./ai-config-intents.js');
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const { busRouteFromInput } = require('./ai-config-busRoute.js');
-const CommonAssistant = require('./common-assistant.js');
+const AssistantProvider = require('./assistant-provider.js');
 
 const Db = require('./db.js');
 const Respond = require('./respond.js');
@@ -31,7 +31,7 @@ function handleGetMyLocation(requestContext, assistant) {
   const perfBeacon = perf.forRequest(requestContext)
           .start('handleGetMyLocation');
 
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   commonAss.reportMyLocation(response => {
     metrics.forRequest(requestContext)
@@ -54,7 +54,7 @@ function handleUpdateMyLocation(requestContext, assistant) {
             address
           });
 
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   commonAss.reportMyLocationUpdate(address, response => {
     metrics.forRequest(requestContext)
@@ -94,7 +94,7 @@ function handleNearestBusTimesByRoute(requestContext, assistant) {
 
   const db = Db.forRequest(requestContext);
   const respond = Respond.forRequest(requestContext);
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   // TODO handle errors
   db.getLocation().then(location => {
@@ -170,7 +170,7 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
               busDirection
             });
 
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   commonAss.reportNearestStopResult(deviceLocation, busRoute, busDirection, response => {
     metrics.forRequest(requestContext)

@@ -13,14 +13,14 @@ const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const { busRouteFromInput } = require('./ai-config-busRoute.js');
-const CommonAssistant = require('./common-assistant.js');
+const AssistantProvider = require('./assistant-provider.js');
 
 function handleGetMyLocation(requestContext, request, response) {
   const startDate = new Date();
   metrics.forRequest(requestContext).logIntent(INTENTS.GET_MY_LOCATION);
   const perfBeacon = perf.forRequest(requestContext).start('handleGetMyLocation');
 
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -50,7 +50,7 @@ function handleUpdateMyLocation(requestContext, request, response) {
           address
         });
 
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   // TODO handle errors
   return new Promise(resolve => {
@@ -90,7 +90,7 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
           });
 
   const db = Db.forRequest(requestContext);
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   // TODO handle errors
   return db.getLocation().then(location => {
@@ -116,7 +116,7 @@ function handleDefault(requestContext, request, response) {
          .logIntent(INTENTS.DEFAULT);
   const perfBeacon = perf.forRequest(requestContext).start('handleDefault');
 
-  const commonAss = CommonAssistant.forRequest(requestContext);
+  const commonAss = AssistantProvider.forRequest(requestContext);
 
   return commonAss.handleDefault(responseText => {
     metrics.forRequest(requestContext)
