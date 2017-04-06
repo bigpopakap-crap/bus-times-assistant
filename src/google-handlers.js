@@ -30,28 +30,8 @@ function handleGetMyLocation(requestContext, assistant) {
 }
 
 function handleUpdateMyLocation(requestContext, assistant) {
-  const startDate = new Date();
   const address = assistant.getArgument('address');
-
-  metrics.forRequest(requestContext)
-         .logIntent(INTENTS.UPDATE_MY_LOCATION, {
-           address
-         });
-  const perfBeacon = perf.forRequest(requestContext)
-          .start('handleUpdateMyLocation', {
-            address
-          });
-
-  const commonAss = new GoogleAssistant(assistant, requestContext);
-
-  commonAss.reportMyLocationUpdate(address, response => {
-    metrics.forRequest(requestContext)
-           .logIntentResponse(INTENTS.UPDATE_MY_LOCATION, startDate, response, {
-             address
-           });
-    perfBeacon.logEnd();
-    assistant.tell(response);
-  });
+  new GoogleAssistant(assistant, requestContext).handleUpdateMyLocation(address);
 }
 
 /**

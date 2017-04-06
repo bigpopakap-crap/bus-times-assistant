@@ -66,28 +66,42 @@ class CommonAssistant {
     });
   }
 
-  reportMyLocationUpdate(address, responseCallback) {
-    if (!address) {
-      responseCallback(this.respond.s('updateLocation.missingAddress'));
-      return;
-    }
+  handleUpdateMyLocation(address) {
+    const startDate = new Date();
+    this.metrics.logIntent(INTENTS.UPDATE_MY_LOCATION, {
+      address
+    });
+    const perfBeacon = this.perf.start('handleUpdateMyLocation', {
+      address
+    });
 
-    const db = this.db;
-    const maybeAppendLocationWarning = this.maybeAppendLocationWarning.bind(this);
-    const respond = this.respond;
-    this.geocoder.geocode(address).then(
-      location => {
-        db.saveLocation(location);
-
-        const responseKey = maybeAppendLocationWarning('updateLocation', location);
-        responseCallback(respond.s(responseKey, {
-          address: location.getAddress()
-        }));
-      },
-      () => {
-        responseCallback(respond.s('updateLocation.notFound'));
+    // TODO handle errors
+    return new Promise(resolve => {
+      if (!address) {
+        resolve(this.respond.s('updateLocation.missingAddress'));
+        return;
       }
-    );
+
+      this.geocoder.geocode(address).then(
+        location => {
+          this.db.saveLocation(location);
+
+          const responseKey = this.maybeAppendLocationWarning('updateLocation', location);
+          resolve(this.respond.s(responseKey, {
+            address: location.getAddress()
+          }));
+        },
+        () => {
+          resolve(this.respond.s('updateLocation.notFound'));
+        }
+      );
+    }).then(response => {
+      this.metrics.logIntentResponse(INTENTS.UPDATE_MY_LOCATION, startDate, response, {
+        address
+      });
+      perfBeacon.logEnd();
+      this.tell(response);
+    });
   }
 
   reportNearestStopResult(deviceLocation, busRoute, busDirection, responseCallback) {

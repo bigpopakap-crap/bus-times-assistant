@@ -20,34 +20,8 @@ function handleGetMyLocation(requestContext, request, response) {
 }
 
 function handleUpdateMyLocation(requestContext, request, response) {
-  const startDate = new Date();
-
   const address = INTENTS.UPDATE_MY_LOCATION.getAlexaValue('address', request);
-
-  metrics.forRequest(requestContext)
-         .logIntent(INTENTS.UPDATE_MY_LOCATION, {
-           address
-         });
-  const perfBeacon = perf.forRequest(requestContext)
-        .start('handleUpdateMyLocation', {
-          address
-        });
-
-  const commonAss = new AlexaAssistant(response, requestContext);
-
-  // TODO handle errors
-  return new Promise(resolve => {
-    commonAss.reportMyLocationUpdate(address, responseText => {
-      resolve(responseText);
-    });
-  }).then(responseText => {
-    metrics.forRequest(requestContext)
-           .logIntentResponse(INTENTS.UPDATE_MY_LOCATION, startDate, responseText, {
-             address
-           });
-    perfBeacon.logEnd();
-    response.say(responseText);
-  });
+  return new AlexaAssistant(response, requestContext).handleUpdateMyLocation(address);
 }
 
 function handleNearestBusTimesByRoute(requestContext, request, response) {
