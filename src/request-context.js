@@ -2,7 +2,6 @@
 'use strict';
 
 // TODO add a conversation ID?
-// TODO add the deployed SHA?
 // TODO add the original query?
 // TODO add startTime to get the call's duration?
 // TODO add the ability to set isError?

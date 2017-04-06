@@ -1,5 +1,6 @@
 /* global module */
 function busRouteFromInput(input) {
+  // TODO log that we made this conversion
   if (!input) {
     return null;
   }
@@ -16,7 +17,6 @@ function busRouteFromInput(input) {
     case 'an':
     case 'and':
     case 'end':
-      // TODO log that we made this conversion
       return 'N';
 
     default:

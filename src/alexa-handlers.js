@@ -22,7 +22,6 @@ function handleGetMyLocation(requestContext, request, response) {
 function handleUpdateMyLocation(requestContext, request, response) {
   const startDate = new Date();
 
-  // TODO it would be nice to log the transformation of params
   const address = INTENTS.UPDATE_MY_LOCATION.getAlexaValue('address', request);
 
   metrics.forRequest(requestContext)
@@ -54,7 +53,6 @@ function handleUpdateMyLocation(requestContext, request, response) {
 function handleNearestBusTimesByRoute(requestContext, request, response) {
   const startDate = new Date();
 
-  // TODO it would be nice to log the transformation of params
   const busRoute = busRouteFromInput(
     INTENTS.GET_NEAREST_BUS_BY_ROUTE.getAlexaValue('busRoute', request)
   );
