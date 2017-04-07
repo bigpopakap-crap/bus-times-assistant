@@ -1,15 +1,7 @@
 /* global require module */
 'use strict';
 
-const Promise = require('promise');
-
 const INTENTS = require('./ai-config-intents.js');
-
-const Db = require('./db.js');
-
-const THIS_COMPONENT_NAME = 'alexa-handlers';
-const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
-const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const { busRouteFromInput } = require('./ai-config-busRoute.js');
@@ -25,8 +17,6 @@ function handleUpdateMyLocation(requestContext, request, response) {
 }
 
 function handleNearestBusTimesByRoute(requestContext, request, response) {
-  const startDate = new Date();
-
   const busRoute = busRouteFromInput(
     INTENTS.GET_NEAREST_BUS_BY_ROUTE.getAlexaValue('busRoute', request)
   );
@@ -34,36 +24,8 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
     INTENTS.GET_NEAREST_BUS_BY_ROUTE.getAlexaValue('busDirection', request)
   );
 
-  metrics.forRequest(requestContext)
-         .logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
-           busRoute,
-           busDirection
-         });
-  const perfBeacon = perf.forRequest(requestContext)
-          .start('handleNearestBusTimesByRoute', {
-            busRoute,
-            busDirection
-          });
-
-  const db = Db.forRequest(requestContext);
-  const commonAss = new AlexaAssistant(response, requestContext);
-
-  // TODO handle errors
-  return db.getLocation().then(location => {
-    return new Promise(resolve => {
-      commonAss.reportNearestStopResult(location, busRoute, busDirection, responseText => {
-        resolve(responseText);
-      });
-    });
-  }).then(function(responseText) {
-    metrics.forRequest(requestContext)
-           .logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, responseText, {
-             busRoute,
-             busDirection
-           });
-    perfBeacon.logEnd();
-    response.say(responseText);
-  });
+  return new AlexaAssistant(response, requestContext)
+    .handleNearestBusTimesByRoute(busRoute, busDirection);
 }
 
 function handleDefault(requestContext, request, response) {

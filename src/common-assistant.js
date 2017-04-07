@@ -104,7 +104,107 @@ class CommonAssistant {
     });
   }
 
-  reportNearestStopResult(deviceLocation, busRoute, busDirection, responseCallback) {
+  handleNearestBusTimesByRoute(busRoute, busDirection) {
+    const startDate = new Date();
+
+    this.metrics.logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
+      busRoute,
+      busDirection
+    });
+    const perfBeacon = this.perf.start('handleNearestBusTimesByRoute', {
+      isFallbackIntent: false,
+      busRoute,
+      busDirection
+    });
+
+    // TODO handle errors
+    return this.db.getLocation().then(location => {
+      return new Promise(resolve => {
+        if (location) {
+          // yay! the user set their location
+          this.actuallyQueryNextbus(location, busRoute, busDirection, response => {
+            resolve({
+              hadLocation: true,
+              askedForLocationPermission: false,
+              response
+            });
+          });
+        } else if (!this.canUseDeviceLocation()) {
+          // nooooo, now we have to ask them for their location manually
+          resolve({
+            hadLocation: false,
+            askedForLocationPermission: false,
+            response: this.respond.s('getBusTimes.missingLocation')
+          });
+        } else {
+          // noooo, we have to ask them for their location, but we can use the device's location!
+          this.requestDeviceLocationPermission();
+          this.metrics.logLocationPermissionRequest();
+          resolve({
+            hadLocation: false,
+            askedForLocationPermission: true,
+            response: 'LOCATION_PERMISSION_REQUEST'
+          });
+        }
+      });
+    }).then(({ hadLocation, askedForLocationPermission, response }) => {
+      this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, response, {
+        hadLocation,
+        askedForLocationPermission,
+        busRoute,
+        busDirection
+      });
+      perfBeacon.logEnd(null, {
+        askedForLocationPermission
+      });
+      this.tell(response);
+    });
+  }
+
+  handleNearestBusTimesByRoute_fallback(busRoute, busDirection) {
+    const startDate = new Date();
+    const wasPermissionGranted = this.isDeviceLocationPermissionGranted();
+
+    this.metrics.logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, {
+      wasPermissionGranted,
+      busRoute,
+      busDirection
+    });
+    const perfBeacon = this.perf.start('handleNearestBusTimesByRoute', {
+      isFallbackIntent: true,
+      wasPermissionGranted,
+      busRoute,
+      busDirection
+    });
+
+    this.metrics.logLocationPermissionResponse(wasPermissionGranted);
+
+    if (!wasPermissionGranted) {
+      this.tell(this.respond.say('locationPermission.denialWarning'));
+      return;
+    }
+
+    const deviceLocation = this.getDeviceLocation();
+    // save the user's location, but we don't need to wait for that call to succeed
+    this.db.saveLocation(deviceLocation);
+
+    return new Promise(resolve => {
+      this.actuallyQueryNextbus(deviceLocation, busRoute, busDirection, response => {
+        resolve(response);
+      });
+    }).then(response => {
+      this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, startDate, response, {
+        wasPermissionGranted,
+        busRoute,
+        busDirection
+      });
+      perfBeacon.logEnd();
+      this.tell(response);
+    });
+  }
+
+  /* THIS IS PRIVATE */
+  actuallyQueryNextbus(deviceLocation, busRoute, busDirection, responseCallback) {
     if (!deviceLocation) {
       responseCallback(this.respond.s('getBusTimes.missingLocation'));
       return;

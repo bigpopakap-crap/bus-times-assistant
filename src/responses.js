@@ -77,7 +77,7 @@ module.exports = {
   'getBusTimes':                                getBusTimesString,
   'getBusTimes.missingBusDirection':            s('You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"'),
   'getBusTimes.missingBusRoute':                s('You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"'),
-  'getBusTimes.missingLocation':                s('You haven\t set your location yet. To do so, simply say "set my location."'),
+  'getBusTimes.missingLocation':                s('You haven\'t set your location yet. To do so, simply say "set my location."'),
   'getBusTimes.noPredictions':                  s('No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w>.'),
   'getBusTimes.noPredictions.locationWarning':  s(`No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w>. ${LOCATION_WARNING}`),
 

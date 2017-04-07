@@ -1,6 +1,5 @@
 /* global require module */
 const CommonAssistant = require('./common-assistant.js');
-const Respond = require('./respond.js');
 const Location = require('./model-location.js');
 
 function cleanDeviceLocation(deviceLocation) {
@@ -18,7 +17,6 @@ class GoogleAssistant extends CommonAssistant {
   constructor(assistant, requestContext) {
     super(requestContext);
     this.assistant = assistant;
-    this.respond = Respond.forRequest(requestContext);
   }
 
   tell(str) {
@@ -34,7 +32,9 @@ class GoogleAssistant extends CommonAssistant {
   }
 
   requestDeviceLocationPermission() {
-    this.assistant.tell(this.respond.say('locationPermission.denialWarning'));
+    const permission = this.assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
+    const prompt = this.respond.s('locationPermission.request.google');
+    this.assistant.askForPermission(prompt, permission);
   }
 
   isDeviceLocationPermissionGranted() {
