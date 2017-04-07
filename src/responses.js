@@ -70,7 +70,7 @@ module.exports = {
   'getLocation.noLocation.deviceLocation': s('You haven\'t set a location yet. Simply ask for bus times to use your device location, or say "set my location".'),
 
   'updateLocation':                 s('There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>.'),
-  'updateLocation.missingAdress':   s(`You must specify an address. For example, you can say "update my location to ${EXAMPLE_ADDRESS}."`),
+  'updateLocation.missingAddress':  s(`You must specify an address. For example, you can say "update my location to ${EXAMPLE_ADDRESS}."`),
   'updateLocation.locationWarning': s(`There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. ${LOCATION_WARNING}`),
   'updateLocation.notFound':        s('Hmm. I could not find that address. Try saying the full address again, including the city.'),
 
