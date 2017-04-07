@@ -78,8 +78,8 @@ module.exports = {
   'getBusTimes.missingBusDirection':            s('You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"'),
   'getBusTimes.missingBusRoute':                s('You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"'),
   'getBusTimes.missingLocation':                s('You haven\'t set your location yet. To do so, simply say "set my location."'),
-  'getBusTimes.noPredictions':                  s('No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w>.'),
-  'getBusTimes.noPredictions.locationWarning':  s(`No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w>. ${LOCATION_WARNING}`),
+  'getBusTimes.noPredictions':                  s('No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location.'),
+  'getBusTimes.noPredictions.locationWarning':  s(`No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location. ${LOCATION_WARNING}`),
 
   'locationPermission.request.google': s('To look up routes near you', false),
   'locationPermission.denialWarning':  s('To proceed, I\'ll need your location. If you do not want to grant permission, you can set your address manually by saying "set my location."'),
