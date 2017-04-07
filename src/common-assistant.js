@@ -157,7 +157,9 @@ class CommonAssistant {
       perfBeacon.logEnd(null, {
         askedForLocationPermission
       });
-      this.tell(response);
+      if (!askedForLocationPermission) {
+        this.tell(response);
+      }
     });
   }
 
