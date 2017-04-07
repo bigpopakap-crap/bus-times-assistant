@@ -152,9 +152,19 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
   });
 }
 
+function handleDefault(requestContext, assistant) {
+  new GoogleAssistant(assistant, requestContext).handleDefault();
+}
+
+function handleHelp(requestContext, assistant) {
+  new GoogleAssistant(assistant, requestContext).handleHelp();
+}
+
 module.exports = {
   handleGetMyLocation,
   handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
-  handleNearestBusTimesByRoute_fallback
+  handleNearestBusTimesByRoute_fallback,
+  handleDefault,
+  handleHelp
 };

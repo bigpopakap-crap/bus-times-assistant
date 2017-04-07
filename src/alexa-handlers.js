@@ -67,24 +67,17 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
 }
 
 function handleDefault(requestContext, request, response) {
-  const startDate = new Date();
-  metrics.forRequest(requestContext)
-         .logIntent(INTENTS.DEFAULT);
-  const perfBeacon = perf.forRequest(requestContext).start('handleDefault');
+  return new AlexaAssistant(response, requestContext).handleDefault();
+}
 
-  const commonAss = new AlexaAssistant(response, requestContext);
-
-  return commonAss.handleDefault(responseText => {
-    metrics.forRequest(requestContext)
-           .logIntentResponse(INTENTS.DEFAULT, startDate, responseText);
-    perfBeacon.logEnd();
-    response.say(responseText);
-  });
+function handleHelp(requestContext, request, response) {
+  return new AlexaAssistant(response, requestContext).handleHelp();
 }
 
 module.exports = {
   handleGetMyLocation,
   handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
-  handleDefault
+  handleDefault,
+  handleHelp
 };

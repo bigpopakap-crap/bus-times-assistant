@@ -88,11 +88,13 @@ const GET_NEAREST_BUS_BY_ROUTE_FALLBACK = new Intent(
 );
 
 const DEFAULT = new Intent('default_welcome', 'Hello');
+const HELP = new Intent('help_me', 'Help');
 
 module.exports = {
   GET_MY_LOCATION,
   UPDATE_MY_LOCATION,
   GET_NEAREST_BUS_BY_ROUTE,
   GET_NEAREST_BUS_BY_ROUTE_FALLBACK,
-  DEFAULT
+  DEFAULT,
+  HELP
 };

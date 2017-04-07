@@ -164,13 +164,37 @@ class CommonAssistant {
     });
   }
 
-  handleDefault(responseCallback) {
-    const respond = this.respond;
+  handleDefault() {
+    const startDate = new Date();
+    this.metrics.logIntent(INTENTS.DEFAULT);
+    const perfBeacon = this.perf.start('handleDefault');
 
     // TODO handle errors
     return this.db.getLocation().then(location => {
       const responseKey = location ? 'welcome' : 'welcome.noLocation';
-      responseCallback(respond.s(responseKey));
+      const response = this.respond.s(responseKey);
+
+      this.metrics.logIntentResponse(INTENTS.DEFAULT, startDate, response);
+      perfBeacon.logEnd();
+
+      this.tell(response);
+    });
+  }
+
+  handleHelp() {
+    const startDate = new Date();
+    this.metrics.logIntent(INTENTS.HELP);
+    const perfBeacon = this.perf.start('handleHelp');
+
+    // TODO handle errors
+    return this.db.getLocation().then(location => {
+      const responseKey = location ? 'help' : 'help.noLocation';
+      const response = this.respond.s(responseKey);
+
+      this.metrics.logIntentResponse(INTENTS.HELP, startDate, response);
+      perfBeacon.logEnd();
+
+      this.tell(response);
     });
   }
 }

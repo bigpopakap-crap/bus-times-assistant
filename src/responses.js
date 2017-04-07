@@ -61,7 +61,8 @@ module.exports = {
   'welcome.noLocation': s('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location by saying "set my location."'),
 
   // TODO make the help responses
-  'help':           s('Hey! Hope I have been useful to you.'),
+  'help':             s('Hey! Hope I have been useful to you.'),
+  'help.noLocation':  s('Hey! Hope I have been useful to you. You can start by letting me know where you are so I can look up bus times near you. Try saying "set my location."'),
 
   'getLocation':                           s('Your location is set to <say-as interpret-as="address">{{address}}</say-as>.'),
   // TODO use an example address as an example command
