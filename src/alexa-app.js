@@ -16,7 +16,8 @@ const {
   handleGetMyLocation,
   handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
-  handleDefault
+  handleDefault,
+  handleHelp
 } = require('./alexa-handlers.js');
 
 function preRequest(alexaRequest, expressRequest) {
@@ -57,6 +58,7 @@ configureIntent(alexaApp, INTENTS.GET_MY_LOCATION, handleGetMyLocation);
 configureIntent(alexaApp, INTENTS.UPDATE_MY_LOCATION, handleUpdateMyLocation);
 configureIntent(alexaApp, INTENTS.GET_NEAREST_BUS_BY_ROUTE, handleNearestBusTimesByRoute);
 configureIntent(alexaApp, INTENTS.DEFAULT, handleDefault);
+configureIntent(alexaApp, INTENTS.HELP, handleHelp);
 
 alexaApp.express({
   expressApp,
