@@ -271,17 +271,17 @@ class CommonAssistant {
     });
   }
 
-  handleDefault() {
+  handleWelcome() {
     const startDate = new Date();
-    this.metrics.logIntent(INTENTS.DEFAULT);
-    const perfBeacon = this.perf.start('handleDefault');
+    this.metrics.logIntent(INTENTS.WELCOME);
+    const perfBeacon = this.perf.start('handleWelcome');
 
     // TODO handle errors
     return this.db.getLocation().then(location => {
       const responseKey = location ? 'welcome' : 'welcome.noLocation';
       const response = this.respond.t(responseKey);
 
-      this.metrics.logIntentResponse(INTENTS.DEFAULT, startDate, response);
+      this.metrics.logIntentResponse(INTENTS.WELCOME, startDate, response);
       perfBeacon.logEnd();
 
       this.delegate.say(response);
@@ -303,6 +303,19 @@ class CommonAssistant {
 
       this.delegate.say(response);
     });
+  }
+
+  handleCancel() {
+    const startDate = new Date();
+    this.metrics.logIntent(INTENTS.CANCEL);
+    const perfBeacon = this.perf.start('handleCancel');
+
+    const response = this.respond.t('cancel');
+
+    this.metrics.logIntentResponse(INTENTS.CANCEL, startDate, response);
+    perfBeacon.logEnd();
+
+    this.delegate.say(response);
   }
 }
 

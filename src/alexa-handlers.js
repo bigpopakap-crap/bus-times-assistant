@@ -28,18 +28,23 @@ function handleNearestBusTimesByRoute(requestContext, request, response) {
     .handleNearestBusTimesByRoute(busRoute, busDirection);
 }
 
-function handleDefault(requestContext, request, response) {
-  return new AlexaAssistant(response, requestContext).handleDefault();
+function handleWelcome(requestContext, request, response) {
+  return new AlexaAssistant(response, requestContext).handleWelcome();
 }
 
 function handleHelp(requestContext, request, response) {
   return new AlexaAssistant(response, requestContext).handleHelp();
 }
 
+function handleCancel(requestContext, request, response) {
+  return new AlexaAssistant(response, requestContext).handleCancel();
+}
+
 module.exports = {
   handleGetMyLocation,
   handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
-  handleDefault,
-  handleHelp
+  handleWelcome,
+  handleHelp,
+  handleCancel
 };

@@ -16,8 +16,9 @@ const {
   handleGetMyLocation,
   handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
-  handleDefault,
-  handleHelp
+  handleWelcome,
+  handleHelp,
+  handleCancel
 } = require('./alexa-handlers.js');
 
 function preRequest(alexaRequest, expressRequest) {
@@ -29,18 +30,24 @@ function preRequest(alexaRequest, expressRequest) {
 }
 
 function configureIntent(alexaApp, intent, handler) {
-  alexaApp.intent(
-    intent.getName(),
-    intent.getAlexaSlots(),
-    function(request, response) {
-      const requestContext = new RequestContext(request.data);
+  [ intent.getName(), intent.getAlexaName() ].forEach(intentName => {
+    alexaApp.intent(
+      intentName,
+      intent.getAlexaSlots(),
+      function(request, response) {
+        return execHandler(request, response, handler);
+      }
+    );
+  });
+}
 
-      const userId = request.sessionDetails.userId;
-      requestContext.setUserId(userId);
+function execHandler(request, response, handler) {
+  const requestContext = new RequestContext(request.data);
 
-      return handler(requestContext, request, response);
-    }
-  );
+  const userId = request.sessionDetails.userId;
+  requestContext.setUserId(userId);
+
+  return handler(requestContext, request, response);
 }
 
 expressApp.use(function(request, response, next) {
@@ -54,11 +61,20 @@ expressApp.get('/status', function(request, response) {
   response.sendStatus(200);
 });
 
+configureIntent(alexaApp, INTENTS.WELCOME, handleWelcome);
 configureIntent(alexaApp, INTENTS.GET_MY_LOCATION, handleGetMyLocation);
 configureIntent(alexaApp, INTENTS.UPDATE_MY_LOCATION, handleUpdateMyLocation);
 configureIntent(alexaApp, INTENTS.GET_NEAREST_BUS_BY_ROUTE, handleNearestBusTimesByRoute);
-configureIntent(alexaApp, INTENTS.DEFAULT, handleDefault);
 configureIntent(alexaApp, INTENTS.HELP, handleHelp);
+configureIntent(alexaApp, INTENTS.CANCEL, handleCancel);
+
+alexaApp.launch(function(request, response) {
+  return execHandler(request, response, handleWelcome);
+});
+
+alexaApp.sessionEnded(function(request, response) {
+  return execHandler(request, response, handleCancel);
+});
 
 alexaApp.express({
   expressApp,

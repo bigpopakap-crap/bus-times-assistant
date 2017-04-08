@@ -2,13 +2,15 @@
 'use strict';
 
 /* BEGIN INTENT OBJECT ******************************* */
-function Intent(name, humanName, intentParams = []) {
+function Intent(name, alexaName, humanName, intentParams = []) {
   this.name = name;
+  this.alexaName = alexaName;
   this.humanName = humanName;
   this.intentParams = intentParams;
 }
 
 Intent.prototype.getName = function() { return this.name; };
+Intent.prototype.getAlexaName = function() { return this.alexaName; };
 Intent.prototype.getHumanName = function() { return this.humanName; };
 Intent.prototype.getIntentParams = function() { return this.intentParams; };
 
@@ -64,15 +66,21 @@ IntentParam.prototype.getAlexaName = function() { return this.alexaName; };
 IntentParam.prototype.getAlexaType = function() { return this.alexaType; };
 
 /* BEGIN INTENT DEFS ********************************* */
-const GET_MY_LOCATION = new Intent('get_my_location', 'Get my location');
+const GET_MY_LOCATION = new Intent(
+  'get_my_location',
+  'get_my_location',
+  'Get my location'
+);
 
 const UPDATE_MY_LOCATION = new Intent(
+  'update_my_location',
   'update_my_location',
   'Update my location', [
   new IntentParam('address', 'address', 'AMAZON.PostalAddress')
 ]);
 
 const GET_NEAREST_BUS_BY_ROUTE = new Intent(
+  'get_nearest_bus_times_by_route',
   'get_nearest_bus_times_by_route',
   'Get nearest bus times by route', [
   new IntentParam('busRoute', 'busNumber', 'AMAZON.NUMBER'),
@@ -83,18 +91,21 @@ const GET_NEAREST_BUS_BY_ROUTE = new Intent(
 
 const GET_NEAREST_BUS_BY_ROUTE_FALLBACK = new Intent(
   'get_nearest_bus_times_by_route_fallback',
+  null,
   GET_NEAREST_BUS_BY_ROUTE.getHumanName(),
   GET_NEAREST_BUS_BY_ROUTE.getIntentParams()
 );
 
-const DEFAULT = new Intent('default_welcome', 'Hello');
-const HELP = new Intent('help_me', 'Help');
+const WELCOME = new Intent('default_welcome', 'default_welcome', 'Hello');
+const HELP = new Intent('help_me', 'AMAZON.HelpIntent', 'Help');
+const CANCEL = new Intent('cancel', 'AMAZON.StopIntent', 'Cancel');
 
 module.exports = {
   GET_MY_LOCATION,
   UPDATE_MY_LOCATION,
   GET_NEAREST_BUS_BY_ROUTE,
   GET_NEAREST_BUS_BY_ROUTE_FALLBACK,
-  DEFAULT,
-  HELP
+  WELCOME,
+  HELP,
+  CANCEL
 };

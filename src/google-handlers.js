@@ -44,12 +44,16 @@ function handleNearestBusTimesByRoute_fallback(requestContext, assistant) {
     .handleNearestBusTimesByRoute_fallback(busRoute, busDirection);
 }
 
-function handleDefault(requestContext, assistant) {
-  new GoogleAssistant(assistant, requestContext).handleDefault();
+function handleWelcome(requestContext, assistant) {
+  new GoogleAssistant(assistant, requestContext).handleWelcome();
 }
 
 function handleHelp(requestContext, assistant) {
   new GoogleAssistant(assistant, requestContext).handleHelp();
+}
+
+function handleCancel(requestContext, assistant) {
+  new GoogleAssistant(assistant, requestContext).handleCancel();
 }
 
 module.exports = {
@@ -57,6 +61,7 @@ module.exports = {
   handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
   handleNearestBusTimesByRoute_fallback,
-  handleDefault,
-  handleHelp
+  handleWelcome,
+  handleHelp,
+  handleCancel
 };

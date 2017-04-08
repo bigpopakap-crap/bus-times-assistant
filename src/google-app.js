@@ -18,8 +18,9 @@ const {
   handleUpdateMyLocation,
   handleNearestBusTimesByRoute,
   handleNearestBusTimesByRoute_fallback,
-  handleDefault,
-  handleHelp
+  handleWelcome,
+  handleHelp,
+  handleCancel
 } = require('./google-handlers.js');
 
 function configureIntent(request, actionMap, intent, handler) {
@@ -54,12 +55,13 @@ app.post('/', function (request, response) {
   });
 
   const actionMap = new Map();
+  configureIntent(request, actionMap, INTENTS.WELCOME, handleWelcome);
   configureIntent(request, actionMap, INTENTS.GET_MY_LOCATION, handleGetMyLocation);
   configureIntent(request, actionMap, INTENTS.UPDATE_MY_LOCATION, handleUpdateMyLocation);
   configureIntent(request, actionMap, INTENTS.GET_NEAREST_BUS_BY_ROUTE, handleNearestBusTimesByRoute);
   configureIntent(request, actionMap, INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, handleNearestBusTimesByRoute_fallback);
-  configureIntent(request, actionMap, INTENTS.DEFAULT, handleDefault);
   configureIntent(request, actionMap, INTENTS.HELP, handleHelp);
+  configureIntent(request, actionMap, INTENTS.CANCEL, handleCancel);
 
   assistant.handleRequest(actionMap);
 });
