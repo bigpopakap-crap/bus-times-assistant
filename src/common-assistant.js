@@ -6,8 +6,11 @@ const Geocoder = require('./geocoder.js');
 const NextbusAdapter = require('./nextbus-adapter.js');
 const Db = require('./db.js');
 const Respond = require('./respond.js');
-const metrics = require('./logger-metrics.js').forComponent('common-assistant');
-const perf = require('./logger-perf.js').forComponent('common-assistant');
+
+const THIS_COMPONENT_NAME = 'common-assistant';
+const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
+const metrics = require('./logger-metrics.js').forComponent(THIS_COMPONENT_NAME);
+const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
 const INTENTS = require('./ai-config-intents.js');
 const { isSupportedInLocation } = require('./ai-config-supportedCities.js');
@@ -18,6 +21,7 @@ class CommonAssistant {
     * device (either Alexa or Google, etc)
     *
     * It should be a class with the following methods:
+    * - isHealthCheck() -> boolean
     * - say(response)
     * - canUseDeviceLocation() -> boolean
     * - requestDeviceLocationPermission()
@@ -29,6 +33,7 @@ class CommonAssistant {
     this.geocoder = Geocoder.forRequest(requestContext);
     this.nextbus = NextbusAdapter.forRequest(requestContext);
     this.respond = Respond.forRequest(requestContext);
+    this.logger = logger.forRequest(requestContext);
     this.metrics = metrics.forRequest(requestContext);
     this.perf = perf.forRequest(requestContext);
 
@@ -271,7 +276,18 @@ class CommonAssistant {
     });
   }
 
+  /* SHOULD BE PRIVATE */
+  handleHealthCheck() {
+    this.logger.info('handle_health_check');
+    this.delegate.say(this.respond.t('welcome'));
+  }
+
   handleWelcome() {
+    if (this.delegate.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.WELCOME);
     const perfBeacon = this.perf.start('handleWelcome');

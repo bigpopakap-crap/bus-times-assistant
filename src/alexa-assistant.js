@@ -8,6 +8,11 @@ class AlexaDelegate {
     this.logger = logger.forRequest(requestContext);
   }
 
+  isHealthCheck() {
+    // As far as I know now, Amazon doesn't constantly ping the server
+    return false;
+  }
+
   say(response) {
     if (!response) {
       this.logger.error('no_response_given');

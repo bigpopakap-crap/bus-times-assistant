@@ -20,6 +20,10 @@ class GoogleDelegate {
     this.logger = logger.forRequest(requestContext);
   }
 
+  isHealthCheck() {
+    return this.assistant.getArgument('name') === 'is_health_check';
+  }
+
   say(response) {
     if (!response) {
       this.logger.error('no_response_given');
