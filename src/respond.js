@@ -5,35 +5,6 @@ const logger = require('./logger.js').forComponent('respond');
 // This cache is global across all respond objects, so we initialize it here
 const cache = require('./cache.js').init();
 
-// Alexa doesn't like ampersands in SSML
-function cleanSSMLResponse(response) {
-  return response.replace(/&/g, 'and');
-}
-
-function convertToNonSSML(response) {
-  return response.replace(/<(?:.|\n)*?>/gm, '');
-}
-
-function replaceParams(str, params) {
-  const missingParams = [];
-
-  const result = str.replace(/{{([a-z]+)}}/gi, (match, v) => {
-    const replacement = params[v];
-
-    if (replacement) {
-      return replacement;
-    } else {
-      missingParams.push(v);
-      return v;
-    }
-  });
-
-  return {
-    result,
-    missingParams
-  };
-}
-
 function forRequest(requestContext) {
   return new Respond(requestContext);
 }
@@ -82,7 +53,7 @@ Respond.prototype.rotateResponse = function(responseKey, responses) {
   return responses[index % responses.length];
 };
 
-Respond.prototype.s = function(responseKey, params = {}) {
+Respond.prototype.t = function(responseKey, params = {}) {
   let response = responses[responseKey];
   if (typeof response === 'function') {
     response = response(params);
@@ -97,25 +68,21 @@ Respond.prototype.s = function(responseKey, params = {}) {
       responseKey,
       responseParams: JSON.stringify(params)
     });
-    return responses.keyMissing;
+    return responses.keyMissing; // we assume that this is there
   }
 
-  const { result, missingParams } = replaceParams(response, params);
+  response = response.replaceParams(params);
 
-  if (missingParams && missingParams.length > 0) {
+  if (response.hasMissingParams()) {
     this.logger.warn('missing_responseParams', {
       responseKey,
       responseParams: JSON.stringify(params),
-      result,
-      missingParams
+      response: response.getPlainStr(),
+      missingParams: response.getMissingParams()
     });
   }
 
-  if (this.useSSML) {
-    return cleanSSMLResponse(result);
-  } else {
-    return convertToNonSSML(result);
-  }
+  return response;
 };
 
 module.exports = {

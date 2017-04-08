@@ -18,9 +18,7 @@ class CommonAssistant {
     * device (either Alexa or Google, etc)
     *
     * It should be a class with the following methods:
-    * - canUseSSML() -> boolean
-    * - tell(str)
-    * - ask(str)
+    * - say(response)
     * - canUseDeviceLocation() -> boolean
     * - requestDeviceLocationPermission()
     * - isDeviceLocationPermissionGranted() -> boolean
@@ -56,21 +54,21 @@ class CommonAssistant {
     return new Promise(resolve => {
       this.db.getLocation().then(location => {
         if (location) {
-          const response = this.respond.s('getLocation', {
+          const response = this.respond.t('getLocation', {
             address: location.getAddress()
           });
           resolve(response);
         } else {
           const response = this.delegate.canUseDeviceLocation()
-              ? this.respond.s('getLocation.noLocation.deviceLocation')
-              : this.respond.s('getLocation.noLocation');
+              ? this.respond.t('getLocation.noLocation.deviceLocation')
+              : this.respond.t('getLocation.noLocation');
           resolve(response);
         }
       });
     }).then(response => {
       this.metrics.logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, response);
       perfBeacon.logEnd();
-      this.delegate.tell(response);
+      this.delegate.say(response);
     });
   }
 
@@ -86,7 +84,7 @@ class CommonAssistant {
     // TODO handle errors
     return new Promise(resolve => {
       if (!address) {
-        resolve(this.respond.s('updateLocation.missingAddress'));
+        resolve(this.respond.t('updateLocation.missingAddress'));
         return;
       }
 
@@ -95,12 +93,12 @@ class CommonAssistant {
           this.db.saveLocation(location);
 
           const responseKey = this.maybeAppendLocationWarning('updateLocation', location);
-          resolve(this.respond.s(responseKey, {
+          resolve(this.respond.t(responseKey, {
             address: location.getAddress()
           }));
         },
         () => {
-          resolve(this.respond.s('updateLocation.notFound'));
+          resolve(this.respond.t('updateLocation.notFound'));
         }
       );
     }).then(response => {
@@ -108,7 +106,7 @@ class CommonAssistant {
         address
       });
       perfBeacon.logEnd();
-      this.delegate.tell(response);
+      this.delegate.say(response);
     });
   }
 
@@ -142,16 +140,16 @@ class CommonAssistant {
           resolve({
             hadLocation: false,
             askedForLocationPermission: false,
-            response: this.respond.s('getBusTimes.missingLocation')
+            response: this.respond.t('getBusTimes.missingLocation')
           });
         } else {
           // noooo, we have to ask them for their location, but we can use the device's location!
-          this.delegate.requestDeviceLocationPermission();
+          const response = this.delegate.requestDeviceLocationPermission();
           this.metrics.logLocationPermissionRequest();
           resolve({
             hadLocation: false,
             askedForLocationPermission: true,
-            response: 'LOCATION_PERMISSION_REQUEST'
+            response
           });
         }
       });
@@ -166,7 +164,7 @@ class CommonAssistant {
         askedForLocationPermission
       });
       if (!askedForLocationPermission) {
-        this.delegate.tell(response);
+        this.delegate.say(response);
       }
     });
   }
@@ -190,7 +188,7 @@ class CommonAssistant {
     this.metrics.logLocationPermissionResponse(wasPermissionGranted);
 
     if (!wasPermissionGranted) {
-      this.delegate.tell(this.respond.say('locationPermission.denialWarning'));
+      this.delegate.say(this.respond.t('locationPermission.denialWarning'));
       return;
     }
 
@@ -209,20 +207,20 @@ class CommonAssistant {
         busDirection
       });
       perfBeacon.logEnd();
-      this.delegate.tell(response);
+      this.delegate.say(response);
     });
   }
 
   /* THIS IS PRIVATE */
   actuallyQueryNextbus(deviceLocation, busRoute, busDirection, responseCallback) {
     if (!deviceLocation) {
-      responseCallback(this.respond.s('getBusTimes.missingLocation'));
+      responseCallback(this.respond.t('getBusTimes.missingLocation'));
       return;
     } else if (busRoute === null || busRoute === '' || typeof busRoute === 'undefined') {
-      responseCallback(this.respond.s('getBusTimes.missingBusRoute'));
+      responseCallback(this.respond.t('getBusTimes.missingBusRoute'));
       return;
     } else if (!busDirection) {
-      responseCallback(this.respond.s('getBusTimes.missingBusDirection'));
+      responseCallback(this.respond.t('getBusTimes.missingBusDirection'));
       return;
     }
 
@@ -231,13 +229,13 @@ class CommonAssistant {
       if (err) {
         switch (err) {
           case NextbusAdapter.ERRORS.NOT_FOUND:
-            responseCallback(this.respond.s(
+            responseCallback(this.respond.t(
               maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation),
               { busDirection, busRoute }
             ));
             break;
           default:
-            responseCallback(this.respond.s(
+            responseCallback(this.respond.t(
               maybeAppendLocationWarning('error.generic', deviceLocation)
             ));
             break;
@@ -250,13 +248,13 @@ class CommonAssistant {
 
       if (predictions.length <= 0) {
         const responseKey = maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation);
-        responseCallback(this.respond.s(responseKey));
+        responseCallback(this.respond.t(responseKey));
       } else {
         const p1 = predictions[0];
         const p2 = predictions[1];
         const p3 = predictions[2];
 
-        responseCallback(this.respond.s('getBusTimes', {
+        responseCallback(this.respond.t('getBusTimes', {
           busDirection,
           busRoute,
           busStop: result.busStop,
@@ -281,12 +279,12 @@ class CommonAssistant {
     // TODO handle errors
     return this.db.getLocation().then(location => {
       const responseKey = location ? 'welcome' : 'welcome.noLocation';
-      const response = this.respond.s(responseKey);
+      const response = this.respond.t(responseKey);
 
       this.metrics.logIntentResponse(INTENTS.DEFAULT, startDate, response);
       perfBeacon.logEnd();
 
-      this.delegate.tell(response);
+      this.delegate.say(response);
     });
   }
 
@@ -298,12 +296,12 @@ class CommonAssistant {
     // TODO handle errors
     return this.db.getLocation().then(location => {
       const responseKey = location ? 'help' : 'help.noLocation';
-      const response = this.respond.s(responseKey);
+      const response = this.respond.t(responseKey);
 
       this.metrics.logIntentResponse(INTENTS.HELP, startDate, response);
       perfBeacon.logEnd();
 
-      this.delegate.tell(response);
+      this.delegate.say(response);
     });
   }
 }

@@ -1,13 +1,15 @@
-/* global module */
+/* global require module */
+const Response = require('./response.js');
+
 const EXAMPLE_ADDRESS = '<say-as interpret-as="address">100 Van Ness Avenue, San Francisco</say-as>';
 const LOCATION_WARNING = 'This service currently works in the San Francisco Bay Area only, but I am always learning about bus times in new cities!';
 
-function s(str, isSSML = true) {
-  if (isSSML) {
-    return `<speak>${str}</speak>`;
-  } else {
-    return str;
-  }
+//function q(str, isSSML = true) {
+//  return new Response(str, true, isSSML);
+//}
+
+function a(str, isSSML = true) {
+  return new Response(str, false, isSSML);
 }
 
 function pluralPhrase(count, singularLabel, pluralLabel) {
@@ -37,7 +39,7 @@ function getBusTimesString({
                     : 'in ' + pluralPhrase(p1Minutes, 'minute', 'minutes');
 
   if (!hasSecondPrediction) {
-    return s(`${strPreamble} ${strP1Relation} ${strP1Minutes}.`);
+    return a(`${strPreamble} ${strP1Relation} ${strP1Minutes}.`);
   }
 
   const strP2Joiner = (p1IsScheduleBased === p2IsScheduleBased)
@@ -50,43 +52,43 @@ function getBusTimesString({
     strP2Minutes = p2Minutes + ' and ' + pluralPhrase(p3Minutes, 'minute', 'minutes');
   }
 
-  return s(`${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}.`);
+  return a(`${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}.`);
 }
 
 module.exports = {
   'welcome': [
-    s('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?"'),
-    s('Hello! You can ask me for bus times. For example, you can say, "when is the next outbound N?"')
+    a('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?"'),
+    a('Hello! You can ask me for bus times. For example, you can say, "when is the next outbound N?"')
   ],
-  'welcome.noLocation': s('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location by saying "set my location."'),
+  'welcome.noLocation': a('Hello there! I can look up bus times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location by saying "set my location."'),
 
   // TODO make the help responses
-  'help':             s('Hey! Hope I have been useful to you.'),
-  'help.noLocation':  s('Hey! Hope I have been useful to you. You can start by letting me know where you are so I can look up bus times near you. Try saying "set my location."'),
+  'help':             a('Hey! Hope I have been useful to you.'),
+  'help.noLocation':  a('Hey! Hope I have been useful to you. You can start by letting me know where you are so I can look up bus times near you. Try saying "set my location."'),
 
-  'getLocation':                           s('Your location is set to <say-as interpret-as="address">{{address}}</say-as>.'),
+  'getLocation':                           a('Your location is set to <say-as interpret-as="address">{{address}}</say-as>.'),
   // TODO use an example address as an example command
-  'getLocation.noLocation':                s('You haven\'t set a location yet. You can ask me to set a location by saying "set my location".'),
-  'getLocation.noLocation.deviceLocation': s('You haven\'t set a location yet. Simply ask for bus times to use your device location, or say "set my location".'),
+  'getLocation.noLocation':                a('You haven\'t set a location yet. You can ask me to set a location by saying "set my location".'),
+  'getLocation.noLocation.deviceLocation': a('You haven\'t set a location yet. Simply ask for bus times to use your device location, or say "set my location".'),
 
-  'updateLocation':                 s('There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>.'),
-  'updateLocation.missingAddress':  s(`You must specify an address. For example, you can say "update my location to ${EXAMPLE_ADDRESS}."`),
-  'updateLocation.locationWarning': s(`There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. ${LOCATION_WARNING}`),
-  'updateLocation.notFound':        s('Hmm. I could not find that address. Try saying the full address again, including the city.'),
+  'updateLocation':                 a('There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>.'),
+  'updateLocation.missingAddress':  a(`You must specify an address. For example, you can say "update my location to ${EXAMPLE_ADDRESS}."`),
+  'updateLocation.locationWarning': a(`There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. ${LOCATION_WARNING}`),
+  'updateLocation.notFound':        a('Hmm. I could not find that address. Try saying the full address again, including the city.'),
 
   'getBusTimes':                                getBusTimesString,
-  'getBusTimes.missingBusDirection':            s('You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"'),
-  'getBusTimes.missingBusRoute':                s('You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"'),
-  'getBusTimes.missingLocation':                s('You haven\'t set your location yet. To do so, simply say "set my location."'),
-  'getBusTimes.noPredictions':                  s('No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location.'),
-  'getBusTimes.noPredictions.locationWarning':  s(`No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location. ${LOCATION_WARNING}`),
+  'getBusTimes.missingBusDirection':            a('You must specify a direction. For example, "when is the next 12 to downtown?" or "when is the next inbound 12?"'),
+  'getBusTimes.missingBusRoute':                a('You must specify a bus route. For example, "when is the next inbound J?" or "when is the next 14 to downtown?"'),
+  'getBusTimes.missingLocation':                a('You haven\'t set your location yet. To do so, simply say "set my location."'),
+  'getBusTimes.noPredictions':                  a('No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location.'),
+  'getBusTimes.noPredictions.locationWarning':  a(`No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location. ${LOCATION_WARNING}`),
 
-  'locationPermission.request.google': s('To look up routes near you', false),
-  'locationPermission.denialWarning':  s('To proceed, I\'ll need your location. If you do not want to grant permission, you can set your address manually by saying "set my location."'),
+  'locationPermission.request.google': a('To look up routes near you', false),
+  'locationPermission.denialWarning':  a('To proceed, I\'ll need your location. If you do not want to grant permission, you can set your address manually by saying "set my location."'),
 
-  'error.generic':                  s('Sorry, there was an unexpected error. Please try again.'),
+  'error.generic':                  a('Sorry, there was an unexpected error. Please try again.'),
   // TODO should we put the location warning in the generic error case?
-  'error.generic.locationWarning':  s('Sorry, there was an unexpected error. Please try again.'),
+  'error.generic.locationWarning':  a('Sorry, there was an unexpected error. Please try again.'),
 
-  'keyMissing':     s('I am at a loss for words. Something went wrong. Please try again in a few seconds.')
+  'keyMissing':     a('I am at a loss for words. Something went wrong. Please try again in a few seconds.')
 };

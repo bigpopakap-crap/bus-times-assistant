@@ -20,18 +20,22 @@ class GoogleDelegate {
     this.logger = logger.forRequest(requestContext);
   }
 
-  canUseSSML() {
-    return false;
-  }
+  say(response) {
+    if (!response) {
+      this.logger.error('no_response_given');
+      return;
+    }
 
-  tell(str) {
-    this.logger.trace('tell', { str });
-    this.assistant.tell(str);
-  }
+    this.logger.trace('respond', {
+      isPrompt: response.isPrompt(),
+      response: response.getPlainStr()
+    });
 
-  ask(str) {
-    this.logger.trace('ask', { str });
-    this.assistant.ask(str);
+    if (response.isPrompt()) {
+      this.assistant.ask(response.getPlainStr());
+    } else {
+      this.assistant.tell(response.getPlainStr());
+    }
   }
 
   canUseDeviceLocation() {
@@ -40,9 +44,13 @@ class GoogleDelegate {
 
   requestDeviceLocationPermission() {
     this.logger.trace('request_device_location_permission');
+
     const permission = this.assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
-    const prompt = this.respond.s('locationPermission.request.google');
-    this.assistant.askForPermission(prompt, permission);
+    const prompt = this.respond.t('locationPermission.request.google');
+
+    this.assistant.askForPermission(prompt.getPlainStr(), permission);
+
+    return prompt;
   }
 
   isDeviceLocationPermissionGranted() {

@@ -8,18 +8,23 @@ class AlexaDelegate {
     this.logger = logger.forRequest(requestContext);
   }
 
-  canUseSSML() {
-    return true;
-  }
+  say(response) {
+    if (!response) {
+      this.logger.error('no_response_given');
+      return;
+    }
 
-  tell(str) {
-    this.logger.trace('tell', { str });
-    this.response.say(str);
-  }
+    this.logger.trace('respond', {
+      isPrompt: response.isPrompt(),
+      response: response.getPlainStr(),
+      responseSSML: response.getSSML()
+    });
 
-  ask(str) {
-    this.logger.trace('ask', { str });
-    this.response.reprompt(str);
+    if (response.isPrompt()) {
+      this.response.reprompt(response.getSSML());
+    } else {
+      this.response.say(response.getSSML());
+    }
   }
 
   canUseDeviceLocation() {
