@@ -2,8 +2,6 @@
 const responses = require('./responses.js');
 const logger = require('./logger.js').forComponent('respond');
 
-const { getFeatures } = require('./ai-config-appSource.js');
-
 // This cache is global across all respond objects, so we initialize it here
 const cache = require('./cache.js').init();
 
@@ -40,12 +38,11 @@ function forRequest(requestContext) {
   return new Respond(requestContext);
 }
 
-function Respond(requestContext) {
+function Respond(requestContext, useSSML = false) {
   this.requestContext = requestContext;
   this.cache = cache.forRequest(requestContext);
   this.logger = logger.forRequest(requestContext);
-
-  this.features = getFeatures(requestContext);
+  this.useSSML = useSSML;
 }
 
 /* THIS SHOULD BE PRIVATE */
@@ -114,7 +111,7 @@ Respond.prototype.s = function(responseKey, params = {}) {
     });
   }
 
-  if (this.features.canUseSSML) {
+  if (this.useSSML) {
     return cleanSSMLResponse(result);
   } else {
     return convertToNonSSML(result);

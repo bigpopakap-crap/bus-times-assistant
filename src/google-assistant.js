@@ -19,6 +19,10 @@ class GoogleAssistant extends CommonAssistant {
     this.assistant = assistant;
   }
 
+  canUseSSML() {
+    return false;
+  }
+
   tell(str) {
     this.assistant.tell(str);
   }

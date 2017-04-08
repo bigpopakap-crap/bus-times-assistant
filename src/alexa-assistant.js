@@ -7,6 +7,10 @@ class AlexaAssistant extends CommonAssistant {
     this.response = response;
   }
 
+  canUseSSML() {
+    return true;
+  }
+
   tell(str) {
     this.response.say(str);
   }

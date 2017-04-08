@@ -10,7 +10,6 @@ const metrics = require('./logger-metrics.js').forComponent('common-assistant');
 const perf = require('./logger-perf.js').forComponent('common-assistant');
 
 const INTENTS = require('./ai-config-intents.js');
-const { getFeatures } = require('./ai-config-appSource.js');
 const { isSupportedInLocation } = require('./ai-config-supportedCities.js');
 
 class CommonAssistant {
@@ -23,8 +22,6 @@ class CommonAssistant {
     this.respond = Respond.forRequest(requestContext);
     this.metrics = metrics.forRequest(requestContext);
     this.perf = perf.forRequest(requestContext);
-
-    this.features = getFeatures(requestContext);
   }
 
   /* THIS IS PRIVATE */
@@ -42,8 +39,6 @@ class CommonAssistant {
     this.metrics.logIntent(INTENTS.GET_MY_LOCATION);
     const perfBeacon = this.perf.start('handleGetMyLocation');
 
-    const { canUseDeviceLocation } = this.features;
-
     // TODO handle errors
     return new Promise(resolve => {
       this.db.getLocation().then(location => {
@@ -53,7 +48,7 @@ class CommonAssistant {
           });
           resolve(response);
         } else {
-          const response = canUseDeviceLocation
+          const response = this.canUseDeviceLocation()
               ? this.respond.s('getLocation.noLocation.deviceLocation')
               : this.respond.s('getLocation.noLocation');
           resolve(response);
