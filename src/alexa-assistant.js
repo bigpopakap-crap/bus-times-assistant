@@ -21,10 +21,10 @@ class AlexaDelegate {
     });
 
     if (response.isPrompt()) {
-      this.response.reprompt(response.getSSML());
-    } else {
-      this.response.say(response.getSSML());
+      this.response.shouldEndSession(false);
     }
+
+    this.response.say(response.getSSML());
   }
 
   canUseDeviceLocation() {
