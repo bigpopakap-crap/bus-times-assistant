@@ -1,7 +1,10 @@
 /* global require module */
 const THIS_COMPONENT_NAME = 'cache';
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
-const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
+
+// if pruning the caches takes more than half a second,
+// then we have a problem
+const CACHE_PRUNE_TIME_LIMIT_MILLIS = 500;
 
 function CacheItem(key, data, expiryDate) {
   this.key = key;
@@ -30,12 +33,11 @@ function CacheAccessor(data, requestContext) {
   this.requestContext = requestContext;
 
   this.logger = logger.forRequest(requestContext);
-  this.perf = perf.forRequest(requestContext);
 }
 
 CacheAccessor.prototype.prune = function() {
-  this.logger.debug('pre_prune');
-  const perfBeacon = this.perf.start('prune');
+  const startDate = new Date();
+  this.logger.trace('pre_prune');
 
   let numTotal = 0;
   let numDeleted = 0;
@@ -51,19 +53,20 @@ CacheAccessor.prototype.prune = function() {
     }
   });
 
-  this.logger.debug('post_prune', {
-    numTotalBefore: numTotal,
-    numDeleted
-  });
+  const endDate = new Date();
+  let logLevel = this.logger.LEVEL.TRACE;
+  if (endDate.getTime() - startDate.getTime() > CACHE_PRUNE_TIME_LIMIT_MILLIS) {
+    logLevel = this.logger.LEVEL.WARN;
+  }
 
-  perfBeacon.logEnd(null, {
+  this.logger.log(logLevel, 'post_prune', {
     numTotalBefore: numTotal,
     numDeleted
   });
 };
 
 CacheAccessor.prototype.set = function(key, data = {}, minutesOfLife = 30) {
-  this.logger.debug('set', {
+  this.logger.trace('set', {
     key,
     data: JSON.stringify(data),
     minutesOfLife
@@ -75,19 +78,19 @@ CacheAccessor.prototype.set = function(key, data = {}, minutesOfLife = 30) {
 };
 
 CacheAccessor.prototype.clear = function(key) {
-  this.logger.debug('clear', { key });
+  this.logger.trace('clear', { key });
   this.prune();
   delete this.data[key];
 };
 
 CacheAccessor.prototype.get = function(key) {
-  this.logger.debug('get', { key });
+  this.logger.trace('get', { key });
   this.prune();
   return this.data[key].getData();
 };
 
 CacheAccessor.prototype.has = function(key) {
-  this.logger.debug('has', { key });
+  this.logger.trace('has', { key });
   this.prune();
   return Boolean(this.data[key]);
 };
