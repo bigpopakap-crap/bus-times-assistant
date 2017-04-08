@@ -26,7 +26,7 @@ class GoogleDelegate {
       return;
     }
 
-    this.logger.trace('respond', {
+    this.logger.debug('respond', {
       isPrompt: response.isPrompt(),
       response: response.getPlainStr()
     });
