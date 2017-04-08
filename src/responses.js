@@ -80,6 +80,10 @@ module.exports = {
     a('No problem! Come back any time!')
   ],
 
+  'cancel.thankYou': [
+    a('You\'re welcome! See you later')
+  ],
+
   /* GET MY LOCATION ******************************************************/
   'getLocation': [
     a('Your location is set to <say-as interpret-as="address">{{address}}</say-as>.')

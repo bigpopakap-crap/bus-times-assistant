@@ -98,6 +98,7 @@ const GET_NEAREST_BUS_BY_ROUTE_FALLBACK = new Intent(
 
 const WELCOME = new Intent('default_welcome', 'default_welcome', 'Hello');
 const HELP = new Intent('help_me', 'AMAZON.HelpIntent', 'Help');
+const THANK_YOU = new Intent('thank_you', 'thank_you', 'Cancel');
 const CANCEL = new Intent('cancel', 'AMAZON.StopIntent', 'Cancel');
 
 module.exports = {
@@ -107,5 +108,6 @@ module.exports = {
   GET_NEAREST_BUS_BY_ROUTE_FALLBACK,
   WELCOME,
   HELP,
+  THANK_YOU,
   CANCEL
 };

@@ -52,6 +52,10 @@ function handleHelp(requestContext, assistant) {
   new GoogleAssistant(assistant, requestContext).handleHelp();
 }
 
+function handleThankYou(requestContext, assistant) {
+  new GoogleAssistant(assistant, requestContext).handleCancel(true);
+}
+
 function handleCancel(requestContext, assistant) {
   new GoogleAssistant(assistant, requestContext).handleCancel();
 }
@@ -63,5 +67,6 @@ module.exports = {
   handleNearestBusTimesByRoute_fallback,
   handleWelcome,
   handleHelp,
+  handleThankYou,
   handleCancel
 };

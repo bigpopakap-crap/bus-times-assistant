@@ -20,6 +20,7 @@ const {
   handleNearestBusTimesByRoute_fallback,
   handleWelcome,
   handleHelp,
+  handleThankYou,
   handleCancel
 } = require('./google-handlers.js');
 
@@ -61,6 +62,7 @@ app.post('/', function (request, response) {
   configureIntent(request, actionMap, INTENTS.GET_NEAREST_BUS_BY_ROUTE, handleNearestBusTimesByRoute);
   configureIntent(request, actionMap, INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, handleNearestBusTimesByRoute_fallback);
   configureIntent(request, actionMap, INTENTS.HELP, handleHelp);
+  configureIntent(request, actionMap, INTENTS.THANK_YOU, handleThankYou);
   configureIntent(request, actionMap, INTENTS.CANCEL, handleCancel);
 
   assistant.handleRequest(actionMap);

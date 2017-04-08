@@ -36,6 +36,10 @@ function handleHelp(requestContext, request, response) {
   return new AlexaAssistant(response, requestContext).handleHelp();
 }
 
+function handleThankYou(requestContext, request, response) {
+  return new AlexaAssistant(response, requestContext).handleCancel(true);
+}
+
 function handleCancel(requestContext, request, response) {
   return new AlexaAssistant(response, requestContext).handleCancel();
 }
@@ -46,5 +50,6 @@ module.exports = {
   handleNearestBusTimesByRoute,
   handleWelcome,
   handleHelp,
+  handleThankYou,
   handleCancel
 };

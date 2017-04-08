@@ -34,7 +34,8 @@ try {
 function createIntentParams(intent, params = {}) {
   return extendObject(params, {
     userAction: intent.getHumanName(),
-    intentName: intent.getName()
+    intentName: intent.getName(),
+    intentAlexaName: intent.getAlexaName()
   });
 }
 

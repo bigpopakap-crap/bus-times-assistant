@@ -305,12 +305,12 @@ class CommonAssistant {
     });
   }
 
-  handleCancel() {
+  handleCancel(isThankYou = false) {
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.CANCEL);
     const perfBeacon = this.perf.start('handleCancel');
 
-    const response = this.respond.t('cancel');
+    const response = this.respond.t(isThankYou ? 'cancel.thankYou' : 'cancel');
 
     this.metrics.logIntentResponse(INTENTS.CANCEL, startDate, response);
     perfBeacon.logEnd();

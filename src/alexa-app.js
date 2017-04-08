@@ -18,6 +18,7 @@ const {
   handleNearestBusTimesByRoute,
   handleWelcome,
   handleHelp,
+  handleThankYou,
   handleCancel
 } = require('./alexa-handlers.js');
 
@@ -66,6 +67,7 @@ configureIntent(alexaApp, INTENTS.GET_MY_LOCATION, handleGetMyLocation);
 configureIntent(alexaApp, INTENTS.UPDATE_MY_LOCATION, handleUpdateMyLocation);
 configureIntent(alexaApp, INTENTS.GET_NEAREST_BUS_BY_ROUTE, handleNearestBusTimesByRoute);
 configureIntent(alexaApp, INTENTS.HELP, handleHelp);
+configureIntent(alexaApp, INTENTS.THANK_YOU, handleThankYou);
 configureIntent(alexaApp, INTENTS.CANCEL, handleCancel);
 
 alexaApp.launch(function(request, response) {
