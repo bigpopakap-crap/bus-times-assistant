@@ -13,15 +13,28 @@ const INTENTS = require('./ai-config-intents.js');
 const { isSupportedInLocation } = require('./ai-config-supportedCities.js');
 
 class CommonAssistant {
-  constructor(requestContext) {
-    this.requestContext = requestContext;
-
+  /**
+    * The delegate is the thing that actually knows how to interact with the
+    * device (either Alexa or Google, etc)
+    *
+    * It should be a class with the following methods:
+    * - canUseSSML() -> boolean
+    * - tell(str)
+    * - ask(str)
+    * - canUseDeviceLocation() -> boolean
+    * - requestDeviceLocationPermission()
+    * - isDeviceLocationPermissionGranted() -> boolean
+    * - getDeviceLocation() -> Location object
+    */
+  constructor(requestContext, delegate) {
     this.db = Db.forRequest(requestContext);
     this.geocoder = Geocoder.forRequest(requestContext);
     this.nextbus = NextbusAdapter.forRequest(requestContext);
     this.respond = Respond.forRequest(requestContext);
     this.metrics = metrics.forRequest(requestContext);
     this.perf = perf.forRequest(requestContext);
+
+    this.delegate = delegate;
   }
 
   /* THIS IS PRIVATE */
@@ -48,7 +61,7 @@ class CommonAssistant {
           });
           resolve(response);
         } else {
-          const response = this.canUseDeviceLocation()
+          const response = this.delegate.canUseDeviceLocation()
               ? this.respond.s('getLocation.noLocation.deviceLocation')
               : this.respond.s('getLocation.noLocation');
           resolve(response);
@@ -57,7 +70,7 @@ class CommonAssistant {
     }).then(response => {
       this.metrics.logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, response);
       perfBeacon.logEnd();
-      this.tell(response);
+      this.delegate.tell(response);
     });
   }
 
@@ -95,7 +108,7 @@ class CommonAssistant {
         address
       });
       perfBeacon.logEnd();
-      this.tell(response);
+      this.delegate.tell(response);
     });
   }
 
@@ -124,7 +137,7 @@ class CommonAssistant {
               response
             });
           });
-        } else if (!this.canUseDeviceLocation()) {
+        } else if (!this.delegate.canUseDeviceLocation()) {
           // nooooo, now we have to ask them for their location manually
           resolve({
             hadLocation: false,
@@ -133,7 +146,7 @@ class CommonAssistant {
           });
         } else {
           // noooo, we have to ask them for their location, but we can use the device's location!
-          this.requestDeviceLocationPermission();
+          this.delegate.requestDeviceLocationPermission();
           this.metrics.logLocationPermissionRequest();
           resolve({
             hadLocation: false,
@@ -153,14 +166,14 @@ class CommonAssistant {
         askedForLocationPermission
       });
       if (!askedForLocationPermission) {
-        this.tell(response);
+        this.delegate.tell(response);
       }
     });
   }
 
   handleNearestBusTimesByRoute_fallback(busRoute, busDirection) {
     const startDate = new Date();
-    const wasPermissionGranted = this.isDeviceLocationPermissionGranted();
+    const wasPermissionGranted = this.delegate.isDeviceLocationPermissionGranted();
 
     this.metrics.logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, {
       wasPermissionGranted,
@@ -177,11 +190,11 @@ class CommonAssistant {
     this.metrics.logLocationPermissionResponse(wasPermissionGranted);
 
     if (!wasPermissionGranted) {
-      this.tell(this.respond.say('locationPermission.denialWarning'));
+      this.delegate.tell(this.respond.say('locationPermission.denialWarning'));
       return;
     }
 
-    const deviceLocation = this.getDeviceLocation();
+    const deviceLocation = this.delegate.getDeviceLocation();
     // save the user's location, but we don't need to wait for that call to succeed
     this.db.saveLocation(deviceLocation);
 
@@ -196,7 +209,7 @@ class CommonAssistant {
         busDirection
       });
       perfBeacon.logEnd();
-      this.tell(response);
+      this.delegate.tell(response);
     });
   }
 
@@ -214,18 +227,17 @@ class CommonAssistant {
     }
 
     const maybeAppendLocationWarning = this.maybeAppendLocationWarning.bind(this);
-    const respond = this.respond;
-    this.nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, function(err, result) {
+    this.nextbus.getNearestStopResult(deviceLocation, busRoute, busDirection, (err, result) => {
       if (err) {
         switch (err) {
           case NextbusAdapter.ERRORS.NOT_FOUND:
-            responseCallback(respond.s(
+            responseCallback(this.respond.s(
               maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation),
               { busDirection, busRoute }
             ));
             break;
           default:
-            responseCallback(respond.s(
+            responseCallback(this.respond.s(
               maybeAppendLocationWarning('error.generic', deviceLocation)
             ));
             break;
@@ -238,13 +250,13 @@ class CommonAssistant {
 
       if (predictions.length <= 0) {
         const responseKey = maybeAppendLocationWarning('getBusTimes.noPredictions', deviceLocation);
-        responseCallback(respond.s(responseKey));
+        responseCallback(this.respond.s(responseKey));
       } else {
         const p1 = predictions[0];
         const p2 = predictions[1];
         const p3 = predictions[2];
 
-        responseCallback(respond.s('getBusTimes', {
+        responseCallback(this.respond.s('getBusTimes', {
           busDirection,
           busRoute,
           busStop: result.busStop,
@@ -274,7 +286,7 @@ class CommonAssistant {
       this.metrics.logIntentResponse(INTENTS.DEFAULT, startDate, response);
       perfBeacon.logEnd();
 
-      this.tell(response);
+      this.delegate.tell(response);
     });
   }
 
@@ -291,7 +303,7 @@ class CommonAssistant {
       this.metrics.logIntentResponse(INTENTS.HELP, startDate, response);
       perfBeacon.logEnd();
 
-      this.tell(response);
+      this.delegate.tell(response);
     });
   }
 }

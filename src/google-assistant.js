@@ -1,6 +1,7 @@
 /* global require module */
 const CommonAssistant = require('./common-assistant.js');
 const Location = require('./model-location.js');
+const logger = require('./logger.js').forComponent('google-delegate');
 
 function cleanDeviceLocation(deviceLocation) {
   return new Location({
@@ -13,10 +14,10 @@ function cleanDeviceLocation(deviceLocation) {
   });
 }
 
-class GoogleAssistant extends CommonAssistant {
+class GoogleDelegate {
   constructor(assistant, requestContext) {
-    super(requestContext);
     this.assistant = assistant;
+    this.logger = logger.forRequest(requestContext);
   }
 
   canUseSSML() {
@@ -24,10 +25,12 @@ class GoogleAssistant extends CommonAssistant {
   }
 
   tell(str) {
+    this.logger.trace('tell', { str });
     this.assistant.tell(str);
   }
 
   ask(str) {
+    this.logger.trace('ask', { str });
     this.assistant.ask(str);
   }
 
@@ -36,6 +39,7 @@ class GoogleAssistant extends CommonAssistant {
   }
 
   requestDeviceLocationPermission() {
+    this.logger.trace('request_device_location_permission');
     const permission = this.assistant.SupportedPermissions.DEVICE_PRECISE_LOCATION;
     const prompt = this.respond.s('locationPermission.request.google');
     this.assistant.askForPermission(prompt, permission);
@@ -46,7 +50,15 @@ class GoogleAssistant extends CommonAssistant {
   }
 
   getDeviceLocation() {
-    return cleanDeviceLocation(this.assistant.getDeviceLocation());
+    const location = cleanDeviceLocation(this.assistant.getDeviceLocation());
+    this.logger.trace('get_device_location', { location: JSON.stringify(location.toJSON()) });
+    return location;
+  }
+}
+
+class GoogleAssistant extends CommonAssistant {
+  constructor(assistant, requestContext) {
+    super(requestContext, new GoogleDelegate(assistant, requestContext));
   }
 }
 

@@ -1,10 +1,11 @@
 /* global require module */
 const CommonAssistant = require('./common-assistant.js');
+const logger = require('./logger.js').forComponent('alexa-delegate');
 
-class AlexaAssistant extends CommonAssistant {
+class AlexaDelegate {
   constructor(response, requestContext) {
-    super(requestContext);
     this.response = response;
+    this.logger = logger.forRequest(requestContext);
   }
 
   canUseSSML() {
@@ -12,10 +13,12 @@ class AlexaAssistant extends CommonAssistant {
   }
 
   tell(str) {
+    this.logger.trace('tell', { str });
     this.response.say(str);
   }
 
   ask(str) {
+    this.logger.trace('ask', { str });
     this.response.reprompt(str);
   }
 
@@ -24,18 +27,24 @@ class AlexaAssistant extends CommonAssistant {
   }
 
   requestDeviceLocationPermission() {
+    this.logger.warn('should_never_call_requestDeviceLocationPermission');
     // do nothing
-    // TODO log that we accidentally called this
   }
 
   isDeviceLocationPermissionGranted() {
-    // TODO log that we accidentally called this
+    this.logger.warn('should_never_call_isDeviceLocationPermissionGranted');
     return false;
   }
 
   getDeviceLocation() {
-    // TODO log that we accidentally called this
+    this.logger.warn('should_never_call_getDeviceLocation');
     return null;
+  }
+}
+
+class AlexaAssistant extends CommonAssistant {
+  constructor(response, requestContext) {
+    super(requestContext, new AlexaDelegate(response, requestContext));
   }
 }
 
