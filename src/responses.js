@@ -106,7 +106,7 @@ module.exports = {
   /* UPDATE MY LOCATION *****************************************************/
   'updateLocation': [
     // TODO this should probably not close the session and allow the user to ask for bus times
-    a('There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>.')
+    a('There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. You can now ask for MUNI times! For example, you can say "when is the next inbound J?".')
   ],
 
   'updateLocation.locationWarning': [
