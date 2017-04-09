@@ -111,7 +111,6 @@ module.exports = {
   ],
 
   'updateLocation.missingAddress': [
-    q('I need to know your address. Try it again, including your address.'),
     q(`What address would you like to use? For example, "set my location to ${EXAMPLE_ADDRESS}."`),
     q(`Try saying the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
   ],
