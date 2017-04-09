@@ -36,10 +36,15 @@ function getMissingParams(str) {
 
 class Response {
   constructor(str, isPrompt, isSSML) {
+    this.key = 'KEY_IS_UNSET';
     this.str = str;
     this._isPrompt = isPrompt;
     this.isSSML = isSSML;
   }
+
+  // THIS IS pretty janky, but it's here mostly for logging
+  setKey(key) { this.key = key; return this; }
+  getKey() { return this.key; }
 
   isPrompt() {
     return this._isPrompt;
@@ -68,7 +73,8 @@ class Response {
 
   replaceParams(params) {
     const { result } = replaceParams(this.str, params);
-    return new Response(result, this.isPrompt(), this.isSSML);
+    return new Response(result, this.isPrompt(), this.isSSML)
+                        .setKey(this.getKey());
   }
 }
 

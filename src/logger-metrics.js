@@ -124,6 +124,7 @@ MetricsLogger.prototype.logIntentResponse = function(intent, startDate, response
     extendObject(
       createIntentParams(intent, params),
       prefixObject('stats.', {
+        responseKey: response.getKey(),
         response: response.getPlainStr(),
         durationMillis
       })

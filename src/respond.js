@@ -82,7 +82,7 @@ Respond.prototype.t = function(responseKey, params = {}) {
     });
   }
 
-  return response;
+  return response.setKey(responseKey);
 };
 
 module.exports = {
