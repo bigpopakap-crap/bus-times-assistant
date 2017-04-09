@@ -63,17 +63,20 @@ module.exports = {
   ],
 
   'welcome.noLocation': [
-    q('Hello there! I can look up MUNI times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location by saying "set my location."')
+    q('Hello there! I can look up MUNI times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location. Try saying "set my location."'),
+    q('Hey there! I can look up MUNI times for you. But first, I\'ll need to know your address. Try saying "set my location". If you need more help, say "help me".')
   ],
 
   /* HELP *****************************************************************/
   'help': [
     q('Try saying "when is the next inbound 14?"'),
-    q('You can ask about MUNI times near your location. For example, you can say "when is the next outbound N?"')
+    q('You can ask about MUNI times near your location. For example, you can say "when is the next outbound N?"'),
+    q('Make sure to include the MUNI route and direction. For example, "when is the next inbound 12?"')
   ],
 
   'help.noLocation': [
-    q('You can ask me about MUNI times near you. But first, you\'ll need to tell me your location by saying "set my location."')
+    q('You haven\'t told me your address yet. Try saying "set my location."'),
+    q('Looks like you haven\'t told me your address. I\'ll need that in order to look up MUNI times for you. Try saying "set my location."')
   ],
 
   /* CANCEL *****************************************************************/
@@ -111,8 +114,9 @@ module.exports = {
   ],
 
   'updateLocation.missingAddress': [
-    q(`What address would you like to use? For example, "set my location to ${EXAMPLE_ADDRESS}."`),
-    q(`Try saying the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
+    q(`I\'ll need to know the address. You can say something like, "set my location to ${EXAMPLE_ADDRESS}."`),
+    q(`Try saying the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`),
+    q(`Hmm. I don\'t understand. I need to know your address. Try saying the full address including the city. For example, you can say, "set my location to ${EXAMPLE_ADDRESS}."`)
   ],
 
   'updateLocation.notFound': [
