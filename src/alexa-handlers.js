@@ -5,6 +5,7 @@ const INTENTS = require('./ai-config-intents.js');
 
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const { busRouteFromInput } = require('./ai-config-busRoute.js');
+const { addressFromInput } = require('./ai-config-address.js');
 const AlexaAssistant = require('./alexa-assistant.js');
 
 function handleGetMyLocation(requestContext, request, response) {
@@ -12,7 +13,9 @@ function handleGetMyLocation(requestContext, request, response) {
 }
 
 function handleUpdateMyLocation(requestContext, request, response) {
-  const address = INTENTS.UPDATE_MY_LOCATION.getAlexaValue('address', request);
+  const address = addressFromInput(
+    INTENTS.UPDATE_MY_LOCATION.getAlexaValue('address', request)
+  );
   return new AlexaAssistant(response, requestContext).handleUpdateMyLocation(address);
 }
 
