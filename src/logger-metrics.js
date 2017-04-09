@@ -126,6 +126,7 @@ MetricsLogger.prototype.logIntentResponse = function(intent, startDate, response
       prefixObject('stats.', {
         responseKey: response.getKey(),
         response: response.getPlainStr(),
+        responseIsPrompt: response.isPrompt(),
         durationMillis
       })
     )
