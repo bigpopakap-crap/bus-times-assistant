@@ -2,7 +2,7 @@
 const Response = require('./response.js');
 
 const EXAMPLE_ADDRESS = '<say-as interpret-as="address">100 Van Ness Avenue, San Francisco</say-as>';
-const LOCATION_WARNING = 'This service currently works in the San Francisco Bay Area only, but I am always learning about transit times in new cities!';
+const LOCATION_WARNING = 'This service is being tested out in your city. We\'re always working to improve, so please let us know if you have any problems!';
 
 function q(str, isSSML = true) {
   return new Response(str, true, isSSML);
@@ -58,25 +58,25 @@ function getBusTimesString({
 module.exports = {
   /* WELCOME **************************************************************/
   'welcome': [
-    q('Hey there! You can ask me for MUNI times. For example, you can say, "when is the next outbound N?"'),
-    q('Hello there! I can look up MUNI times near you. Try saying, "when is the next 12 to downtown?" or ask about any other MUNI line.')
+    q('Hey there! You can ask me for transit times. For example, you can say, "when is the next outbound N?"'),
+    q('Hello there! I can look up transit times near you. Try saying, "when is the next 12 to downtown?" or ask about any other transit line.')
   ],
 
   'welcome.noLocation': [
-    q('Hello there! I can look up MUNI times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location. Try saying "set my location."'),
-    q('Hey there! I can look up MUNI times for you. But first, I\'ll need to know your address. Try saying "set my location". If you need more help, say "help me".')
+    q('Hello there! I can look up transit times for you. For example, you can say, "when is the next 12 to downtown?". But first, you\'ll need to tell me your location. Try saying "set my location."'),
+    q('Hey there! I can look up transit times for you. But first, I\'ll need to know your address. Try saying "set my location". If you need more help, say "help me".')
   ],
 
   /* HELP *****************************************************************/
   'help': [
     q('Try saying "when is the next inbound 14?"'),
-    q('You can ask about MUNI times near your location. For example, you can say "when is the next outbound N?"'),
-    q('Make sure to include the MUNI route and direction. For example, "when is the next inbound 12?"')
+    q('You can ask about transit times near your location. For example, you can say "when is the next outbound N?"'),
+    q('Make sure to include the transit route and direction. For example, "when is the next inbound 12?"')
   ],
 
   'help.noLocation': [
     q('You haven\'t told me your address yet. Try saying "set my location."'),
-    q('Looks like you haven\'t told me your address. I\'ll need that in order to look up MUNI times for you. Try saying "set my location."')
+    q('Looks like you haven\'t told me your address. I\'ll need that in order to look up transit times for you. Try saying "set my location."')
   ],
 
   /* CANCEL *****************************************************************/
@@ -100,17 +100,17 @@ module.exports = {
   ],
 
   'getLocation.noLocation.deviceLocation': [
-    q('You haven\'t set a location yet. Simply ask for MUNI times to use your device location, or say "set my location".')
+    q('You haven\'t set a location yet. Simply ask for transit times to use your device location, or say "set my location".')
   ],
 
   /* UPDATE MY LOCATION *****************************************************/
   'updateLocation': [
     // TODO this should probably not close the session and allow the user to ask for bus times
-    q('There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. You can now ask for MUNI times! For example, you can say "when is the next inbound J?".')
+    q('There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. You can now ask for transit times! For example, you can say "when is the next inbound J?".')
   ],
 
   'updateLocation.locationWarning': [
-    a(`There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. ${LOCATION_WARNING}`)
+    q(`There. Your location is now set to <say-as interpret-as="address">{{address}}</say-as>. ${LOCATION_WARNING}`)
   ],
 
   'updateLocation.missingAddress': [

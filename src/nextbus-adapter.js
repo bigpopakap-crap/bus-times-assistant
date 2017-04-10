@@ -9,7 +9,6 @@ const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 const request = require('request-json');
 
 const nbClient = request.createClient(process.env.RESTBUS_BASE_URL);
-const AGENCY = 'sf-muni';
 
 const NEXTBUS_ERRORS = {
   NOT_FOUND: 'NOT_FOUND',
@@ -37,9 +36,8 @@ function cleanResult(result) {
 function processNbResponse(body, busRoute, busDirection) {
   let results = body || [];
 
-  // filter for the right agency and bus route
-  results = results.filter(r => r.agency.id === AGENCY)
-                   .filter(r => r.route.id === `${busRoute}`);
+  // filter for the right bus route
+  results = results.filter(r => r.route.id === `${busRoute}`);
 
   // now filter by direction, and remove those without stops in the right direction
   results = results.map(r => {
