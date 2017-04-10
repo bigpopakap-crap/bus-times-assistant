@@ -102,8 +102,22 @@ class CommonAssistant {
             address: location.getAddress()
           }));
         },
-        () => {
-          resolve(this.respond.t('updateLocation.notFound'));
+        (err, { city } = {}) => {
+          switch (err) {
+            case this.geocoder.ERRORS.NO_STREET_ADDRESS:
+              if (city) {
+                resolve(this.respond.t('updateLocation.notSpecific.withCity', {
+                  city
+                }));
+              } else {
+                resolve(this.respond.t('updateLocation.notSpecific'));
+              }
+              break;
+
+            default:
+              resolve(this.respond.t('updateLocation.notFound'));
+              break;
+          }
         }
       );
     }).then(response => {

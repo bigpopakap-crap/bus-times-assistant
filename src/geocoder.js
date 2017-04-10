@@ -14,6 +14,10 @@ const THIS_COMPONENT_NAME = 'geocoder';
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 const perf = require('./logger-perf.js').forComponent(THIS_COMPONENT_NAME);
 
+const ERRORS = {
+  NO_STREET_ADDRESS: 'NO_STREET_ADDRESS'
+};
+
 function forRequest(requestContext) {
   return new Geocoder(requestContext);
 }
@@ -22,6 +26,9 @@ function Geocoder(requestContext) {
   this.logger = logger.forRequest(requestContext);
   this.perf = perf.forRequest(requestContext);
 }
+
+Geocoder.ERRORS = ERRORS;
+Geocoder.prototype.ERRORS = ERRORS;
 
 Geocoder.prototype.geocode = function(address) {
   const logger = this.logger;
@@ -43,7 +50,7 @@ Geocoder.prototype.geocode = function(address) {
       }
 
       if (err) {
-        logger.error('post_geocoding', {
+        logger.warn('post_geocoding', {
           address,
           success: false,
           error: JSON.stringify(err)
@@ -55,6 +62,22 @@ Geocoder.prototype.geocode = function(address) {
       }
 
       const geo = result[0];
+
+      // make sure we have a street address
+      if (!geo.streetNumber || !geo.streetName || !geo.city) {
+        logger.warn('post_geocoding', {
+          address,
+          success: false,
+          rawLocation: JSON.stringify(geo)
+        });
+
+        perfBeacon.logEnd(); // don't call this an error in mixpanel
+        reject(ERRORS.NO_STREET_ADDRESS, {
+          city: geo.city
+        });
+        return;
+      }
+
       // TODO format this completely and with localization?
       const formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
       const location = new Location({

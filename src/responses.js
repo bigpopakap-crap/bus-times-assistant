@@ -121,7 +121,17 @@ module.exports = {
 
   'updateLocation.notFound': [
     q('Hmm. I could not find that address. Try again, and make sure to use full address including the city.'),
-    q(`Hmm. I could not find that address. Try it with the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
+    q(`Hmm. I could not find that address. Try it again with the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
+  ],
+
+  'updateLocation.notSpecific': [
+    q('I\'ll need to know your exact street address. Try again, and make sure to use the number, street, and city.'),
+    q(`You'll need to be more specific. Try it again with the street number, street name, and city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
+  ],
+
+  'updateLocation.notSpecific.withCity': [
+    q('You said you are in {{city}}. I\'ll also need to know your exact street address. Try again, and make sure to use the number, street, and city.'),
+    q(`You said you are in {{city}}. You'll need to be more specific. Try it again with the street number, street name, and city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
   ],
 
   /* GET BUS TIMES *********************************************************/
