@@ -65,7 +65,7 @@ Geocoder.prototype.geocode = function(address) {
 
       // make sure we have a street address
       let formattedAddress = null;
-      if (geo.formattedAddress) {
+      if (geo.city && geo.formattedAddress) {
         formattedAddress = geo.formattedAddress;
       } else if (!geo.streetNumber || !geo.streetName || !geo.city) {
         logger.warn('post_geocoding', {
