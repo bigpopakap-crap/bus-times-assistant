@@ -64,7 +64,10 @@ Geocoder.prototype.geocode = function(address) {
       const geo = result[0];
 
       // make sure we have a street address
-      if (!geo.streetNumber || !geo.streetName || !geo.city) {
+      let formattedAddress = null;
+      if (geo.formattedAddress) {
+        formattedAddress = geo.formattedAddress;
+      } else if (!geo.streetNumber || !geo.streetName || !geo.city) {
         logger.warn('post_geocoding', {
           address,
           success: false,
@@ -76,10 +79,11 @@ Geocoder.prototype.geocode = function(address) {
           city: geo.city
         });
         return;
+      } else {
+        // TODO format this completely and with localization?
+        formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
       }
 
-      // TODO format this completely and with localization?
-      const formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
       const location = new Location({
         latitude: geo.latitude,
         longitude: geo.longitude,
