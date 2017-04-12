@@ -29,6 +29,8 @@ class CommonAssistant {
     * - getDeviceLocation() -> Location object
     */
   constructor(requestContext, delegate) {
+    this.requestContext = requestContext;
+    
     this.db = Db.forRequest(requestContext);
     this.geocoder = Geocoder.forRequest(requestContext);
     this.nextbus = NextbusAdapter.forRequest(requestContext);
@@ -294,6 +296,9 @@ class CommonAssistant {
   handleHealthCheck() {
     this.logger.info('handle_health_check');
     this.delegate.say(this.respond.t('welcome'));
+
+    const appSource = this.requestContext.getAppSource();
+    this.nextbus.ping(`${appSource}_health_check`);
   }
 
   handleWelcome() {
