@@ -21,7 +21,12 @@ class GoogleDelegate {
   }
 
   isHealthCheck() {
-    return this.assistant.getArgument('name') === 'is_health_check';
+    try {
+      return this.assistant.getArgument('name') === 'is_health_check';
+    } catch (ex) {
+      // we have to do a try/catch because there's some dumb bug in the actions-on-google code
+      return false;
+    }
   }
 
   say(response) {
