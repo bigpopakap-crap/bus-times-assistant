@@ -71,6 +71,11 @@ function NextbusAdapter(requestContext) {
   this.perf = perf.forRequest(requestContext);
 }
 
+NextbusAdapter.prototype.ping = function(type = 'generic_ping') {
+  // just send a request, don't actually wait for a response. Nobody cares
+  nbClient.get(`/ping?type=${type}`);
+};
+
 NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRoute, busDirection, callBackFn) {
   const latitude = deviceLocation.getLatitude();
   const longitude = deviceLocation.getLongitude();
