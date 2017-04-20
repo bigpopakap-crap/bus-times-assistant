@@ -121,7 +121,9 @@ NextbusAdapter.prototype.getNearestStopResult = function(deviceLocation, busRout
       success: true
     });
 
-    perfBeacon.logEnd();
+    perfBeacon.logEnd(null, {
+      foundResults: Boolean(result)
+    });
     if (result) {
       callBackFn(null, result);
     } else {
