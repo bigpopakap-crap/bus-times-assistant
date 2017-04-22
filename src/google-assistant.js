@@ -2,6 +2,7 @@
 const CommonAssistant = require('./common-assistant.js');
 const Location = require('./model-location.js');
 const logger = require('./logger.js').forComponent('google-delegate');
+const Respond = require('./respond.js');
 
 function cleanDeviceLocation(deviceLocation) {
   return new Location({
@@ -18,6 +19,7 @@ class GoogleDelegate {
   constructor(assistant, requestContext) {
     this.assistant = assistant;
     this.logger = logger.forRequest(requestContext);
+    this.respond = Respond.forRequest(requestContext);
   }
 
   isHealthCheck() {
