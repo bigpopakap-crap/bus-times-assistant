@@ -109,15 +109,20 @@ class CommonAssistant {
             case this.geocoder.ERRORS.NO_STREET_ADDRESS:
               if (city) {
                 resolve(this.respond.t('updateLocation.notSpecific.withCity', {
+                  address,
                   city
                 }));
               } else {
-                resolve(this.respond.t('updateLocation.notSpecific'));
+                resolve(this.respond.t('updateLocation.notSpecific', {
+                  address
+                }));
               }
               break;
 
             default:
-              resolve(this.respond.t('updateLocation.notFound'));
+              resolve(this.respond.t('updateLocation.notFound', {
+                address
+              }));
               break;
           }
         }
