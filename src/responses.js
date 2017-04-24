@@ -2,7 +2,7 @@
 const Response = require('./response.js');
 
 const EXAMPLE_ADDRESS = '<say-as interpret-as="address">100 Van Ness Avenue, San Francisco</say-as>';
-const LOCATION_WARNING = 'This service is being tested out in your city. We\'re always working to improve, so please let us know if you have any problems!';
+const LOCATION_WARNING = 'I am just starting to learn about transit times in your city. I am always working to improve, so please let me know if you have any problems!';
 
 function q(str, isSSML = true) {
   return new Response(str, true, isSSML);
@@ -121,7 +121,9 @@ module.exports = {
 
   'updateLocation.notFound': [
     q('Hmm. I could not find that address. Try again, and make sure to use full address including the city.'),
-    q(`Hmm. I could not find that address. Try it again with the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
+    q(`Hmm. I could not find "<say-as interpret-as="address">{{address}}</say-as>". Try it again with the full address including the city.`),
+    q(`I couldn't find "<say-as interpret-as="address">{{address}}</say-as>". Try saying the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`),
+    q(`I think you said "<say-as interpret-as="address">{{address}}</say-as>". I could not locate that address. Try saying the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
   ],
 
   'updateLocation.notSpecific': [
