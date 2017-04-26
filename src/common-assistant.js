@@ -1,4 +1,4 @@
-/* global require module */
+/* global require module process */
 'use strict';
 
 const Promise = require('promise');
@@ -303,7 +303,9 @@ class CommonAssistant {
     this.delegate.say(this.respond.t('welcome'));
 
     const appSource = this.requestContext.getAppSource();
-    this.nextbus.ping(`${appSource}_health_check`);
+    if (process.env.SHOULD_PING_RESTBUS_SERVER === 'true') {
+      this.nextbus.ping(`${appSource}_health_check`);
+    }
   }
 
   handleWelcome() {
