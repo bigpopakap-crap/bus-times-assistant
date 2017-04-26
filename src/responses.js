@@ -39,7 +39,7 @@ function getBusTimesString({
                     : 'in ' + pluralPhrase(p1Minutes, 'minute', 'minutes');
 
   if (!hasSecondPrediction) {
-    return a(`${strPreamble} ${strP1Relation} ${strP1Minutes}.`);
+    return q(`${strPreamble} ${strP1Relation} ${strP1Minutes}.`);
   }
 
   const strP2Joiner = (p1IsScheduleBased === p2IsScheduleBased)
@@ -52,7 +52,7 @@ function getBusTimesString({
     strP2Minutes = p2Minutes + ' and ' + pluralPhrase(p3Minutes, 'minute', 'minutes');
   }
 
-  return a(`${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}.`);
+  return q(`${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}.`);
 }
 
 module.exports = {
@@ -92,7 +92,7 @@ module.exports = {
 
   /* GET MY LOCATION ******************************************************/
   'getLocation': [
-    a('Your location is set to <say-as interpret-as="address">{{address}}</say-as>.')
+    q('Your location is set to <say-as interpret-as="address">{{address}}</say-as>.')
   ],
 
   'getLocation.noLocation': [
@@ -121,7 +121,7 @@ module.exports = {
 
   'updateLocation.notFound': [
     q('Hmm. I could not find that address. Try again, and make sure to use full address including the city.'),
-    q(`Hmm. I could not find "<say-as interpret-as="address">{{address}}</say-as>". Try it again with the full address including the city.`),
+    q('Hmm. I could not find "<say-as interpret-as="address">{{address}}</say-as>". Try it again with the full address including the city.'),
     q(`I couldn't find "<say-as interpret-as="address">{{address}}</say-as>". Try saying the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`),
     q(`I think you said "<say-as interpret-as="address">{{address}}</say-as>". I could not locate that address. Try saying the full address including the city. For example, "set my location to ${EXAMPLE_ADDRESS}."`)
   ],
@@ -155,11 +155,11 @@ module.exports = {
   ],
 
   'getBusTimes.noPredictions': [
-    a('No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location.')
+    q('No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location. You can try again soon, or try asking about a different transit route.')
   ],
 
   'getBusTimes.noPredictions.locationWarning': [
-    a(`No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location. ${LOCATION_WARNING}`)
+    q(`No predictions found for <w role="ivona:NN">{{busDirection}}</w> route <w role="ivona:NN">{{busRoute}}</w> within 1.5 miles of your location. ${LOCATION_WARNING} Perhaps you'd like to try asking again, or asking about a different transit route?`)
   ],
 
   /* LOCATION PERMISSION REQUEST ************************************************/
