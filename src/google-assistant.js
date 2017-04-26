@@ -24,7 +24,8 @@ class GoogleDelegate {
 
   isHealthCheck() {
     try {
-      return this.assistant.getArgument('name') === 'is_health_check';
+      return this.assistant.getArgument('name') === 'is_health_check'
+          || Boolean(this.assistant.getArgument('is_health_check'));
     } catch (ex) {
       // we have to do a try/catch because there's some dumb bug in the actions-on-google code
       return false;
