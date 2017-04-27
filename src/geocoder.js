@@ -44,9 +44,13 @@ Geocoder.prototype.geocode = function(address) {
     nodeGeocoder.geocode(address, function(err, result) {
       // simulate some errors if the result is not good
       if (!result) {
-        err = 'result undefined';
+        err = 'results list is undefined';
       } else if (result.length < 1) {
-        err = 'result empty';
+        err = 'results list is empty';
+      } else if (!result[0]) {
+        err = 'first result is undefined';
+      } else if (!result[0].longitude || !result[0].latitude) {
+        err = 'first result has not lat/lon';
       }
 
       if (err) {
@@ -65,9 +69,13 @@ Geocoder.prototype.geocode = function(address) {
 
       // make sure we have a street address
       let formattedAddress = null;
-      if (geo.city && geo.formattedAddress) {
+      if (geo.formattedAddress) {
+        geo.city = geo.city || 'NOT_SET'; // it's ok to set this, since we never read it out to the user
         formattedAddress = geo.formattedAddress;
-      } else if (!geo.streetNumber || !geo.streetName || !geo.city) {
+      } else if (geo.streetNumber && geo.streetName && geo.city) {
+        // TODO format this completely and with localization?
+        formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
+      } else {
         logger.warn('post_geocoding', {
           address,
           success: false,
@@ -79,9 +87,6 @@ Geocoder.prototype.geocode = function(address) {
           city: geo.city
         });
         return;
-      } else {
-        // TODO format this completely and with localization?
-        formattedAddress = `${geo.streetNumber} ${geo.streetName}, ${geo.city}`;
       }
 
       const location = new Location({
