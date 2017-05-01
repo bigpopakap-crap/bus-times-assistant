@@ -13,6 +13,8 @@ app.use(bodyParser.json({ type: 'application/json' }));
 const ApiAiAssistant = require('actions-on-google').ApiAiAssistant;
 const INTENTS = require('./ai-config-intents.js');
 
+const dashbot = require('dashbot')(process.env.DASHBOT_API_KEY).google;
+
 const {
   handleGetMyLocation,
   handleUpdateMyLocation,
@@ -50,10 +52,8 @@ app.get('/status', function(request, response) {
 });
 
 app.post('/', function (request, response) {
-  const assistant = new ApiAiAssistant({
-    request,
-    response
-  });
+  const assistant = new ApiAiAssistant({ request, response });
+  dashbot.configHandler(assistant);
 
   const actionMap = new Map();
   configureIntent(request, actionMap, INTENTS.WELCOME, handleWelcome);
