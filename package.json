@@ -8,6 +8,7 @@
     "actions-on-google": "1.0.9",
     "alexa-app": "4.0.0",
     "body-parser": "1.17.1",
+    "dashbot": "0.8.6",
     "express": "4.15.2",
     "firebase-admin": "4.2.1",
     "logfmt": "1.2.0",
