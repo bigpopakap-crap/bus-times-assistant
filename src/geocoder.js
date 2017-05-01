@@ -30,18 +30,23 @@ function Geocoder(requestContext) {
 Geocoder.ERRORS = ERRORS;
 Geocoder.prototype.ERRORS = ERRORS;
 
-Geocoder.prototype.geocode = function(address) {
+Geocoder.prototype.geocode = function({ address, coords }) {
+  const { latitude, longitude } = coords || {};
   const logger = this.logger;
 
   logger.debug('pre_geocoding', {
-    address
+    address,
+    latitude,
+    longitude
   });
   const perfBeacon = this.perf.start('geocode', {
-    address
+    address,
+    latitude,
+    longitude
   });
 
   return new Promise((resolve, reject) => {
-    nodeGeocoder.geocode(address, function(err, result) {
+    function handleResponse(err, result) {
       // simulate some errors if the result is not good
       if (!result) {
         err = 'results list is undefined';
@@ -56,6 +61,8 @@ Geocoder.prototype.geocode = function(address) {
       if (err) {
         logger.warn('post_geocoding', {
           address,
+          latitude,
+          longitude,
           success: false,
           error: JSON.stringify(err)
         });
@@ -78,6 +85,8 @@ Geocoder.prototype.geocode = function(address) {
       } else {
         logger.warn('post_geocoding', {
           address,
+          latitude,
+          longitude,
           success: false,
           rawLocation: JSON.stringify(geo)
         });
@@ -95,11 +104,15 @@ Geocoder.prototype.geocode = function(address) {
         address: formattedAddress,
         city: geo.city,
         originalAddressInput: address,
+        originalLatitudeInput: latitude,
+        originalLongitudeInput: longitude,
         originalAddressSource: THIS_COMPONENT_NAME
       });
 
       logger.debug('post_geocoding', {
         address,
+        latitude,
+        longitude,
         success: true,
         location: JSON.stringify(location.toJSON()),
         rawLocation: JSON.stringify(geo)
@@ -107,7 +120,16 @@ Geocoder.prototype.geocode = function(address) {
 
       perfBeacon.logEnd();
       resolve(location);
-    });
+    }
+
+    if (address) {
+      nodeGeocoder.geocode(address, handleResponse);
+    } else {
+      nodeGeocoder.reverse({
+        lat: latitude,
+        lon: longitude
+      }, handleResponse);
+    }
   });
 };
 

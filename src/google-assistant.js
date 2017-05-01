@@ -1,25 +1,15 @@
 /* global require module */
+const Geocoder = require('./geocoder.js');
 const CommonAssistant = require('./common-assistant.js');
-const Location = require('./model-location.js');
 const logger = require('./logger.js').forComponent('google-delegate');
 const Respond = require('./respond.js');
-
-function cleanDeviceLocation(deviceLocation) {
-  return new Location({
-    latitude: deviceLocation.coordinates.latitude,
-    longitude: deviceLocation.coordinates.longitude,
-    address: deviceLocation.address,
-    city: deviceLocation.city,
-    originalAddressInput: deviceLocation.address,
-    originalAddressSource: 'google device'
-  });
-}
 
 class GoogleDelegate {
   constructor(assistant, requestContext) {
     this.assistant = assistant;
     this.logger = logger.forRequest(requestContext);
     this.respond = Respond.forRequest(requestContext);
+    this.geocoder = Geocoder.forRequest(requestContext);
   }
 
   isHealthCheck() {
@@ -70,9 +60,12 @@ class GoogleDelegate {
   }
 
   getDeviceLocation() {
-    const location = cleanDeviceLocation(this.assistant.getDeviceLocation());
-    this.logger.trace('get_device_location', { location: JSON.stringify(location.toJSON()) });
-    return location;
+    const location = this.assistant.getDeviceLocation();
+    this.logger.trace('get_device_location', { location: JSON.stringify(location) });
+
+    return location ? this.geocoder.geocode({
+      coords: location.coordinates
+    }) : Promise.resolve(null);
   }
 }
 

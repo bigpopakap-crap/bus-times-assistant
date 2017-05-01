@@ -26,7 +26,7 @@ class CommonAssistant {
     * - canUseDeviceLocation() -> boolean
     * - requestDeviceLocationPermission()
     * - isDeviceLocationPermissionGranted() -> boolean
-    * - getDeviceLocation() -> Location object
+    * - getDeviceLocation() -> Promise that returns a Location object
     */
   constructor(requestContext, delegate) {
     this.requestContext = requestContext;
@@ -95,7 +95,7 @@ class CommonAssistant {
         return;
       }
 
-      this.geocoder.geocode(address).then(
+      this.geocoder.geocode({ address }).then(
         location => {
           this.db.saveLocation(location);
 
@@ -218,13 +218,14 @@ class CommonAssistant {
       return;
     }
 
-    const deviceLocation = this.delegate.getDeviceLocation();
-    // save the user's location, but we don't need to wait for that call to succeed
-    this.db.saveLocation(deviceLocation);
+    return this.delegate.getDeviceLocation().then(deviceLocation => {
+      // save the user's location, but we don't need to wait for that call to succeed
+      this.db.saveLocation(deviceLocation);
 
-    return new Promise(resolve => {
-      this.actuallyQueryNextbus(deviceLocation, busRoute, busDirection, response => {
-        resolve(response);
+      return new Promise(resolve => {
+        this.actuallyQueryNextbus(deviceLocation, busRoute, busDirection, response => {
+          resolve(response);
+        });
       });
     }).then(response => {
       this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, startDate, response, {

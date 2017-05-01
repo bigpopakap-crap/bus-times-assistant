@@ -1,4 +1,5 @@
 /* global require module */
+const Promise = require('promise');
 const CommonAssistant = require('./common-assistant.js');
 const logger = require('./logger.js').forComponent('alexa-delegate');
 
@@ -48,7 +49,7 @@ class AlexaDelegate {
 
   getDeviceLocation() {
     this.logger.warn('should_never_call_getDeviceLocation');
-    return null;
+    return Promise.resolve(null);
   }
 }
 
