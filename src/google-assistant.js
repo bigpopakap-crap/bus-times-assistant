@@ -3,6 +3,19 @@ const Geocoder = require('./geocoder.js');
 const CommonAssistant = require('./common-assistant.js');
 const logger = require('./logger.js').forComponent('google-delegate');
 const Respond = require('./respond.js');
+const Location = require('./model-location.js');
+
+// TODO use responses for these default strings
+function cleanDeviceLocation(deviceLocation) {
+  return new Location({
+    latitude: deviceLocation.coordinates.latitude,
+    longitude: deviceLocation.coordinates.longitude,
+    address: deviceLocation.address || 'the address set on your Google Home app',
+    city: deviceLocation.city || 'the city set on your Google Home app',
+    originalAddressInput: deviceLocation.address,
+    originalAddressSource: 'google device'
+  });
+}
 
 class GoogleDelegate {
   constructor(assistant, requestContext) {
@@ -63,9 +76,25 @@ class GoogleDelegate {
     const location = this.assistant.getDeviceLocation();
     this.logger.trace('get_device_location', { location: JSON.stringify(location) });
 
-    return location ? this.geocoder.geocode({
-      coords: location.coordinates
-    }) : Promise.resolve(null);
+    if (!location) {
+      this.logger.error('get_device_location', {
+        message: 'location from device is undefined'
+      });
+      return Promise.resolve(null);
+    } else if (!location.coordinates) {
+      this.logger.error('get_device_location', {
+        message: 'location from device does not have coordinates'
+      });
+      return Promise.resolve(null);
+    } else {
+      return this.geocoder.geocode({
+        coords: location.coordinates
+      }).then(location => {
+        return Promise.resolve(location);
+      }, () => {
+        return Promise.resolve(cleanDeviceLocation(location));
+      });
+    }
   }
 }
 
