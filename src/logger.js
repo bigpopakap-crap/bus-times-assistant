@@ -3,7 +3,7 @@
 
 const logfmt = require('logfmt');
 const RequestContext = require('./request-context.js');
-const { prefixObject, extendObject } = require('./utils.js');
+const { prefixObject, extendObject } = require('./mrkapil/utils');
 
 const LEVEL = {
   // no value 0 because then it's falsy, and that makes edge cases

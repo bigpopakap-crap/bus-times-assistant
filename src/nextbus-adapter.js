@@ -1,7 +1,7 @@
 /* global process require module */
 'use strict';
 
-const { contains } = require('./utils.js');
+const { contains } = require('./mrkapil/utils');
 
 const THIS_COMPONENT_NAME = 'nextbus-adapter';
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);

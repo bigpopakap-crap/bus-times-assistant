@@ -8,7 +8,7 @@ const THIS_COMPONENT_NAME = 'logger-metrics';
 const initLogger = require('./logger.js').forComponent(THIS_COMPONENT_NAME).forRequest();
 const logger = require('./logger.js').forComponent(THIS_COMPONENT_NAME);
 
-const { prefixObject, extendObject } = require('./utils.js');
+const { prefixObject, extendObject } = require('./mrkapil/utils');
 const {
   METRICS_EVENT_TYPE,
   LOCATION_PERMISSION_PHASE
