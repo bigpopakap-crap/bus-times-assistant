@@ -56,6 +56,9 @@ function getBusTimesString({
 }
 
 module.exports = {
+  /* HEALTH CHECK **********************************************************/
+  'healthCheck': a('Hey there! Looks like you\'re checking whether I am responsive. This is me responding!'),
+
   /* WELCOME **************************************************************/
   'welcome': [
     q('Hey there! You can ask me for transit times. For example, you can say, "when is the next outbound N?"'),

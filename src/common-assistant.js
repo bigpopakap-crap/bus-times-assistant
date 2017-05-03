@@ -52,7 +52,89 @@ class CommonAssistant {
     }
   }
 
+  isHealthCheck() {
+    return this.delegate.isHealthCheck();
+  }
+
+  /* SHOULD BE PRIVATE */
+  handleHealthCheck() {
+    this.logger.info('handle_health_check');
+    this.delegate.say(this.respond.t('healthCheck'));
+
+    const appSource = this.requestContext.getAppSource();
+    if (process.env.SHOULD_PING_RESTBUS_SERVER === 'true') {
+      this.nextbus.ping(`${appSource}_health_check`);
+    }
+  }
+
+  handleWelcome() {
+    if (this.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
+    const startDate = new Date();
+    this.metrics.logIntent(INTENTS.WELCOME);
+    const perfBeacon = this.perf.start('handleWelcome');
+
+    // TODO handle errors
+    return this.db.getLocation().then(location => {
+      const responseKey = location ? 'welcome' : 'welcome.noLocation';
+      const response = this.respond.t(responseKey);
+
+      this.metrics.logIntentResponse(INTENTS.WELCOME, startDate, response);
+      perfBeacon.logEnd();
+
+      this.delegate.say(response);
+    });
+  }
+
+  handleHelp() {
+    if (this.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
+    const startDate = new Date();
+    this.metrics.logIntent(INTENTS.HELP);
+    const perfBeacon = this.perf.start('handleHelp');
+
+    // TODO handle errors
+    return this.db.getLocation().then(location => {
+      const responseKey = location ? 'help' : 'help.noLocation';
+      const response = this.respond.t(responseKey);
+
+      this.metrics.logIntentResponse(INTENTS.HELP, startDate, response);
+      perfBeacon.logEnd();
+
+      this.delegate.say(response);
+    });
+  }
+
+  handleCancel(isThankYou = false) {
+    if (this.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
+    const startDate = new Date();
+    this.metrics.logIntent(INTENTS.CANCEL);
+    const perfBeacon = this.perf.start('handleCancel');
+
+    const response = this.respond.t(isThankYou ? 'cancel.thankYou' : 'cancel');
+
+    this.metrics.logIntentResponse(INTENTS.CANCEL, startDate, response);
+    perfBeacon.logEnd();
+
+    this.delegate.say(response);
+  }
+
   handleGetMyLocation() {
+    if (this.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.GET_MY_LOCATION);
     const perfBeacon = this.perf.start('handleGetMyLocation');
@@ -80,6 +162,11 @@ class CommonAssistant {
   }
 
   handleUpdateMyLocation(address) {
+    if (this.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.UPDATE_MY_LOCATION, {
       address
@@ -137,6 +224,11 @@ class CommonAssistant {
   }
 
   handleNearestBusTimesByRoute(busRoute, busDirection) {
+    if (this.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
     const startDate = new Date();
 
     this.metrics.logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
@@ -196,6 +288,11 @@ class CommonAssistant {
   }
 
   handleNearestBusTimesByRoute_fallback(busRoute, busDirection) {
+    if (this.isHealthCheck()) {
+      this.handleHealthCheck();
+      return;
+    }
+
     const startDate = new Date();
     const wasPermissionGranted = this.delegate.isDeviceLocationPermissionGranted();
 
@@ -296,73 +393,6 @@ class CommonAssistant {
         }));
       }
     });
-  }
-
-  isHealthCheck() {
-    return this.delegate.isHealthCheck();
-  }
-
-  /* SHOULD BE PRIVATE */
-  handleHealthCheck() {
-    this.logger.info('handle_health_check');
-    this.delegate.say(this.respond.t('welcome'));
-
-    const appSource = this.requestContext.getAppSource();
-    if (process.env.SHOULD_PING_RESTBUS_SERVER === 'true') {
-      this.nextbus.ping(`${appSource}_health_check`);
-    }
-  }
-
-  handleWelcome() {
-    if (this.isHealthCheck()) {
-      this.handleHealthCheck();
-      return;
-    }
-
-    const startDate = new Date();
-    this.metrics.logIntent(INTENTS.WELCOME);
-    const perfBeacon = this.perf.start('handleWelcome');
-
-    // TODO handle errors
-    return this.db.getLocation().then(location => {
-      const responseKey = location ? 'welcome' : 'welcome.noLocation';
-      const response = this.respond.t(responseKey);
-
-      this.metrics.logIntentResponse(INTENTS.WELCOME, startDate, response);
-      perfBeacon.logEnd();
-
-      this.delegate.say(response);
-    });
-  }
-
-  handleHelp() {
-    const startDate = new Date();
-    this.metrics.logIntent(INTENTS.HELP);
-    const perfBeacon = this.perf.start('handleHelp');
-
-    // TODO handle errors
-    return this.db.getLocation().then(location => {
-      const responseKey = location ? 'help' : 'help.noLocation';
-      const response = this.respond.t(responseKey);
-
-      this.metrics.logIntentResponse(INTENTS.HELP, startDate, response);
-      perfBeacon.logEnd();
-
-      this.delegate.say(response);
-    });
-  }
-
-  handleCancel(isThankYou = false) {
-    const startDate = new Date();
-    this.metrics.logIntent(INTENTS.CANCEL);
-    const perfBeacon = this.perf.start('handleCancel');
-
-    const response = this.respond.t(isThankYou ? 'cancel.thankYou' : 'cancel');
-
-    this.metrics.logIntentResponse(INTENTS.CANCEL, startDate, response);
-    perfBeacon.logEnd();
-
-    this.delegate.say(response);
   }
 }
 
