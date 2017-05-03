@@ -1,4 +1,4 @@
-/* global require module */
+/* global require module process */
 'use strict';
 
 const express = require('express');
@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 
 const { APP_SOURCE } = require('./ai-config-appSource.js');
 const RequestContext = require('./request-context.js');
+const GoogleAssistant = require('./google-assistant.js');
 
 const app = express();
 app.use(bodyParser.json({ type: 'application/json' }));
@@ -27,22 +28,22 @@ const {
 } = require('./google-handlers.js');
 
 function configureIntent(request, actionMap, intent, handler) {
-  actionMap.set(
-    intent.getName(),
-    function(assistant) {
-      const requestContext = new RequestContext(request);
-
-      const userId = assistant.getUser().userId;
-      requestContext.setUserId(userId);
-
-      handler(requestContext, assistant);
-    }
-  );
+  actionMap.set(intent.getName(), assistant => {
+    const requestContext = new RequestContext(request);
+    handler(requestContext, assistant);
+  });
 }
 
 app.use(function(request, response, next) {
+  // set appSource
   const requestContext = new RequestContext(request);
   requestContext.setAppSource(APP_SOURCE.GOOGLE);
+
+  // set userId
+  const assistant = new ApiAiAssistant({ request, response });
+  const userId = assistant.getUser().userId;
+  requestContext.setUserId(userId);
+
   next();
 });
 
@@ -52,8 +53,13 @@ app.get('/status', function(request, response) {
 });
 
 app.post('/', function (request, response) {
+  const requestContext = new RequestContext(request);
   const assistant = new ApiAiAssistant({ request, response });
-  dashbot.configHandler(assistant);
+  const googleAss = new GoogleAssistant(assistant, requestContext);
+
+  if (!googleAss.isHealthCheck()) {
+    dashbot.configHandler(assistant);
+  }
 
   const actionMap = new Map();
   configureIntent(request, actionMap, INTENTS.WELCOME, handleWelcome);

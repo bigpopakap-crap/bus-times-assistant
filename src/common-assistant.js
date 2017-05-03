@@ -298,6 +298,10 @@ class CommonAssistant {
     });
   }
 
+  isHealthCheck() {
+    return this.delegate.isHealthCheck();
+  }
+
   /* SHOULD BE PRIVATE */
   handleHealthCheck() {
     this.logger.info('handle_health_check');
@@ -310,7 +314,7 @@ class CommonAssistant {
   }
 
   handleWelcome() {
-    if (this.delegate.isHealthCheck()) {
+    if (this.isHealthCheck()) {
       this.handleHealthCheck();
       return;
     }
