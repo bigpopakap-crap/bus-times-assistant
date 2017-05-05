@@ -1,4 +1,4 @@
-/* global require module */
+/* global require process module */
 'use strict';
 
 const express = require('express');
@@ -12,6 +12,8 @@ const alexaApp = new alexa.app('');
 
 const INTENTS = require('./ai-config-intents.js');
 
+const dashbot = require('dashbot')(process.env.DASHBOT_API_KEY).alexa;
+
 const {
   handleGetMyLocation,
   handleUpdateMyLocation,
@@ -22,12 +24,28 @@ const {
   handleCancel
 } = require('./alexa-handlers.js');
 
+expressApp.use(function(request, response, next) {
+  const requestContext = new RequestContext(request);
+  requestContext.setAppSource(APP_SOURCE.ALEXA);
+  next();
+});
+
 function preRequest(alexaRequest, expressRequest) {
-  // here we need to copy over the request context
+  // we don't need to check whether this is just a health check
+  // ping because Alexa doesn't do that. If it ever does, then
+  // we will need to update this (and the postRequest)
+  dashbot.logIncoming(expressRequest.body);
+
+  // copy over the request context
   // so that we can pass it through to alexa
   const requestContext = new RequestContext(expressRequest);
   requestContext.copyTo(alexaRequest);
+
   return alexaRequest;
+}
+
+function postRequest(appResponse, expressRequest) {
+  dashbot.logOutgoing(expressRequest.body, appResponse);
 }
 
 function configureIntent(alexaApp, intent, handler) {
@@ -50,12 +68,6 @@ function execHandler(request, response, handler) {
 
   return handler(requestContext, request, response);
 }
-
-expressApp.use(function(request, response, next) {
-  const requestContext = new RequestContext(request);
-  requestContext.setAppSource(APP_SOURCE.ALEXA);
-  next();
-});
 
 // base URL for checking status
 expressApp.get('/status', function(request, response) {
@@ -80,7 +92,8 @@ alexaApp.sessionEnded(function(request, response) {
 
 alexaApp.express({
   expressApp,
-  preRequest
+  preRequest,
+  postRequest
 });
 
 // TODO add a log when the expressApp starts
