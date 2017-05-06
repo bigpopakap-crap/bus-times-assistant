@@ -18,5 +18,8 @@
     "promise": "7.1.1",
     "request-json": "0.6.1",
     "sprintf-js": "1.0.3"
+  },
+  "scripts": {
+    "postinstall": "npm install mrkapil"
   }
 }
