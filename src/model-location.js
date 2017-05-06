@@ -1,5 +1,5 @@
 /* global require module */
-const Model = require('./model.js');
+const { Model } = require('mrkapil/db');
 const logger = require('./logger.js').forComponent('model-location').forRequest();
 
 class Location extends Model {
