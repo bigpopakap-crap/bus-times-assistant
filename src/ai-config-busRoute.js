@@ -12,16 +12,22 @@ function busRouteFromInput(input) {
     case 'muni':
     case 'bart':
     case 'muni bus':
-      return null;
+      input = '';
+      break;
 
     case 'an':
     case 'and':
     case 'end':
-      return 'N';
-
-    default:
-      return input;
+      input = 'N';
+      break;
   }
+
+  ['bus', 'route', 'number', 'train', 'bart', 'muni', 'the'].forEach(badPart => {
+    //replace them with empty strings
+    input = input.split(badPart).join('');
+  });
+
+  return input ? input.trim() : null;
 }
 
 module.exports = {
