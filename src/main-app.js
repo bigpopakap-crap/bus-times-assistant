@@ -6,10 +6,14 @@ process.env.DEBUG = process.env.DEBUG || 'actions-on-google:*';
 process.env.PORT = process.env.PORT || 8080;
 
 const express = require('express');
-const googleApp = require('./google-app.js');
+
+const apiAiApp = require('./api-ai-app.js');
 const alexaApp = require('./alexa-app.js');
+
 const { RequestContext } = require('mrkapil/logging');
+
 const initLogger = require('./logger.js').forComponent('main-app').forRequest();
+const logger = require('./logger.js').forComponent('main-app');
 
 if (initLogger.isDebugging()) {
   require('promise/lib/rejection-tracking').enable(
@@ -23,6 +27,12 @@ app.set('port', process.env.PORT);
 app.use(function(request, response, next) {
   const requestContext = new RequestContext(request);
   requestContext.setRequestId(request.headers['x-request-id']);
+
+  logger.forRequest(requestContext).trace('request_received', {
+    headers: JSON.stringify(request.headers)
+    // Unfortunately we can't use bodyParser, because it breaks supapps for some reason
+  });
+
   next();
 });
 
@@ -31,7 +41,7 @@ app.get('/status', function(request, response) {
   response.sendStatus(200);
 });
 
-app.use('/api-ai', googleApp);
+app.use('/api-ai', apiAiApp);
 app.use('/alexa', alexaApp);
 
 // Start the server

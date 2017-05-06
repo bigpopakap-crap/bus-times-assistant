@@ -3,7 +3,8 @@
 
 const APP_SOURCE = {
   GOOGLE: 'google',
-  ALEXA: 'alexa'
+  ALEXA: 'alexa',
+  FACEBOOK: 'facebook'
 };
 
 module.exports = {

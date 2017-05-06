@@ -73,6 +73,7 @@ class CommonAssistant {
       return;
     }
 
+    this.logger.info('handle_welcome');
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.WELCOME);
     const perfBeacon = this.perf.start('handleWelcome');
@@ -95,6 +96,7 @@ class CommonAssistant {
       return;
     }
 
+    this.logger.info('handle_help');
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.HELP);
     const perfBeacon = this.perf.start('handleHelp');
@@ -117,6 +119,7 @@ class CommonAssistant {
       return;
     }
 
+    this.logger.info('handle_cancel');
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.CANCEL);
     const perfBeacon = this.perf.start('handleCancel');
@@ -135,6 +138,7 @@ class CommonAssistant {
       return;
     }
 
+    this.logger.info('handle_get_my_location');
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.GET_MY_LOCATION);
     const perfBeacon = this.perf.start('handleGetMyLocation');
@@ -167,6 +171,7 @@ class CommonAssistant {
       return;
     }
 
+    this.logger.info('handle_update_my_location');
     const startDate = new Date();
     this.metrics.logIntent(INTENTS.UPDATE_MY_LOCATION, {
       address
@@ -229,6 +234,7 @@ class CommonAssistant {
       return;
     }
 
+    this.logger.info('handle_nearest_bus_times_by_route');
     const startDate = new Date();
 
     this.metrics.logIntent(INTENTS.GET_NEAREST_BUS_BY_ROUTE, {
@@ -293,6 +299,7 @@ class CommonAssistant {
       return;
     }
 
+    this.logger.info('handle_nearest_bus_times_by_route_fallback');
     const startDate = new Date();
     const wasPermissionGranted = this.delegate.isDeviceLocationPermissionGranted();
 
