@@ -1,5 +1,5 @@
 {
-  "name": "google-assistant-bus-times",
+  "name": "bus-times-assistant",
   "description": "Bus Times AI for Google Assistant and Alexa in Node.js",
   "version": "0.0.1",
   "private": true,
