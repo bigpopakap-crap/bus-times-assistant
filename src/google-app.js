@@ -34,6 +34,20 @@ function configureIntent(request, actionMap, intent, handler) {
   });
 }
 
+// TODO this needs to be put in a non-Google file
+app.use(function(request, response, next) {
+  try {
+    if (request.body.originalRequest.source === 'facebook') {
+      response.redirect(307, '/facebook');
+    } else {
+      next();
+    }
+  } catch (ex) {
+    // do nothing. Maybe log this?
+    next();
+  }
+});
+
 app.use(function(request, response, next) {
   // set appSource
   const requestContext = new RequestContext(request);
