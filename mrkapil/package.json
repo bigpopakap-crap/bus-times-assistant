@@ -1,7 +1,7 @@
 {
   "name": "mrkapil",
   "description": "Node.js framework for developing assistants on Google, Alexa and other platforms",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "author": "Kapil Easwar",
   "dependencies": {

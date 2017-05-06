@@ -8,7 +8,7 @@ process.env.PORT = process.env.PORT || 8080;
 const express = require('express');
 const googleApp = require('./google-app.js');
 const alexaApp = require('./alexa-app.js');
-const RequestContext = require('./request-context.js');
+const { RequestContext } = require('mrkapil/logging');
 const initLogger = require('./logger.js').forComponent('main-app').forRequest();
 
 if (initLogger.isDebugging()) {

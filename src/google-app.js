@@ -5,7 +5,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const { APP_SOURCE } = require('./ai-config-appSource.js');
-const RequestContext = require('./request-context.js');
+const { RequestContext } = require('mrkapil/logging');
 const GoogleAssistant = require('./google-assistant.js');
 
 const app = express();

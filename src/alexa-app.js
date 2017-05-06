@@ -5,7 +5,7 @@ const express = require('express');
 const alexa = require('alexa-app');
 
 const { APP_SOURCE } = require('./ai-config-appSource.js');
-const RequestContext = require('./request-context.js');
+const { RequestContext } = require('mrkapil/logging');
 
 const expressApp = express();
 const alexaApp = new alexa.app('');

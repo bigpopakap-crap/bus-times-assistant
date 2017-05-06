@@ -1,13 +1,14 @@
 /* global process module */
 'use strict';
 
+// TODO add device type?
 // TODO add a conversation ID?
 // TODO add the original query?
 // TODO add startTime to get the call's duration?
 // TODO add the ability to set isError?
 // TODO add the intent name (if applicable)
 
-const SCOPE = '$busTimesAssistant$';
+const SCOPE = '$__mrkapil_assistant_contexts__$';
 
 const PARAMS = {
   REQUEST_ID: 'requestId',
@@ -34,10 +35,10 @@ function RequestContext(obj = {}) {
   };
 
   // default the parameters that we can
-  this.setHerokuSlugCommit(process.env.HEROKU_SLUG_COMMIT);
-  this.setHerokuSlugDesc(process.env.HEROKU_SLUG_DESCRIPTION);
-  this.setHerokuReleaseVersion(process.env.HEROKU_RELEASE_VERSION);
-  this.setHerokuReleaseCreatedAt(process.env.HEROKU_RELEASE_CREATED_AT);
+  this.set(PARAMS.HEROKU_SLUG_COMMIT, process.env.HEROKU_SLUG_COMMIT);
+  this.set(PARAMS.HEROKU_SLUG_DESC, process.env.HEROKU_SLUG_DESCRIPTION);
+  this.set(PARAMS.HEROKU_RELEASE_VERSION, process.env.HEROKU_RELEASE_VERSION);
+  this.set(PARAMS.HEROKU_RELEASE_CREATED_AT, process.env.HEROKU_RELEASE_CREATED_AT);
 }
 
 RequestContext.prototype.setRequestId = function(requestId) {
@@ -62,22 +63,6 @@ RequestContext.prototype.setUserId = function(userId) {
 
 RequestContext.prototype.getUserId = function() {
   return this.get(PARAMS.USER_ID);
-};
-
-RequestContext.prototype.setHerokuSlugCommit = function(herokSlugCommit) {
-  this.set(PARAMS.HEROKU_SLUG_COMMIT, herokSlugCommit);
-};
-
-RequestContext.prototype.setHerokuSlugDesc = function(herokuSlugDesc) {
-  this.set(PARAMS.HEROKU_SLUG_DESC, herokuSlugDesc);
-};
-
-RequestContext.prototype.setHerokuReleaseVersion = function(herokuReleaseVersion) {
-  this.set(PARAMS.HEROKU_RELEASE_VERSION, herokuReleaseVersion);
-};
-
-RequestContext.prototype.setHerokuReleaseCreatedAt = function(herokuReleaseCreatedAt) {
-  this.set(PARAMS.HEROKU_RELEASE_CREATED_AT, herokuReleaseCreatedAt);
 };
 
 RequestContext.prototype.toJSON = function() {

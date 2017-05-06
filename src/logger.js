@@ -2,7 +2,7 @@
 'use strict';
 
 const logfmt = require('logfmt');
-const RequestContext = require('./request-context.js');
+const { RequestContext } = require('mrkapil/logging');
 const { prefixObject, extendObject } = require('mrkapil/utils');
 
 const LEVEL = {

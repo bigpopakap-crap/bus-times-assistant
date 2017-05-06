@@ -1,7 +1,7 @@
 /* global require module */
 'use strict';
 
-const RequestContext = require('./request-context.js');
+const { RequestContext } = require('mrkapil/logging');
 
 const logger = require('./logger.js').forComponent('logger-perf');
 const beaconLogger = require('./logger.js').forComponent('logger-perf-beacon');

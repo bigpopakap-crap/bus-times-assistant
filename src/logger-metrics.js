@@ -2,7 +2,7 @@
 'use strict';
 
 const Mixpanel = require('mixpanel');
-const RequestContext = require('./request-context.js');
+const { RequestContext } = require('mrkapil/logging');
 
 const THIS_COMPONENT_NAME = 'logger-metrics';
 const initLogger = require('./logger.js').forComponent(THIS_COMPONENT_NAME).forRequest();
