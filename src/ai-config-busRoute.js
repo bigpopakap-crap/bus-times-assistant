@@ -1,4 +1,17 @@
 /* global module */
+const BUSDESCRIPTOR = [
+  'bus',
+  'train',
+  'muni',
+  'bart',
+  'muni bus',
+  'bart train',
+  'subway',
+  'subway train',
+  'line',
+  'route'
+];
+
 function busRouteFromInput(input) {
   // TODO log that we made this conversion
   if (!input) {
@@ -7,14 +20,6 @@ function busRouteFromInput(input) {
 
   input = input.toLowerCase();
   switch (input) {
-    case 'bus':
-    case 'train':
-    case 'muni':
-    case 'bart':
-    case 'muni bus':
-      input = '';
-      break;
-
     case 'an':
     case 'and':
     case 'end':
@@ -22,7 +27,7 @@ function busRouteFromInput(input) {
       break;
   }
 
-  ['bus', 'route', 'number', 'train', 'bart', 'muni', 'the'].forEach(badPart => {
+  BUSDESCRIPTOR.forEach(badPart => {
     //replace them with empty strings
     input = input.split(badPart).join('');
   });
