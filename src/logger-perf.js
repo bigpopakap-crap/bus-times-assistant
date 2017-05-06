@@ -7,7 +7,7 @@ const logger = require('./logger.js').forComponent('logger-perf');
 const beaconLogger = require('./logger.js').forComponent('logger-perf-beacon');
 const metricsBase = require('./logger-metrics.js'); // not "for component" yet
 
-const { prefixObject, extendObject } = require('./mrkapil/utils');
+const { prefixObject, extendObject } = require('mrkapil/utils');
 
 function forComponent(componentName) {
   return {

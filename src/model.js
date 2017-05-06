@@ -1,5 +1,5 @@
 /* global require module */
-const { copyObj } = require('./mrkapil/utils');
+const { copyObj } = require('mrkapil/utils');
 
 class Model {
   constructor(dataJson) {

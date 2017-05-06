@@ -5,6 +5,7 @@
   "private": true,
   "author": "Kapil Easwar",
   "dependencies": {
+    "mrkapil": "file:./mrkapil",
     "actions-on-google": "1.0.9",
     "alexa-app": "4.0.0",
     "body-parser": "1.17.1",
