@@ -30,29 +30,36 @@ function getBusTimesString({
   p3Minutes,
   p3IsScheduleBased
 }) {
-  const strPreamble = 'The next <w role="ivona:NN">{{busDirection}}</w> <w role="ivona:NN">{{busRoute}}</w> from <w role="ivona:NN">{{busStop}}</w>';
-  const strP1Relation = p1IsScheduleBased
-                    ? 'is scheduled to arrive'
-                    : (p1Minutes === 0 ? 'is arriving' : 'will arrive');
-  const strP1Minutes = p1Minutes === 0
-                    ? 'now'
-                    : 'in ' + pluralPhrase(p1Minutes, 'minute', 'minutes');
+  const responseText = (function() {
+    const strPreamble = 'The next <w role="ivona:NN">{{busDirection}}</w> <w role="ivona:NN">{{busRoute}}</w> from <w role="ivona:NN">{{busStop}}</w>';
+    const strP1Relation = p1IsScheduleBased
+                      ? 'is scheduled to arrive'
+                      : (p1Minutes === 0 ? 'is arriving' : 'will arrive');
+    const strP1Minutes = p1Minutes === 0
+                      ? 'now'
+                      : 'in ' + pluralPhrase(p1Minutes, 'minute', 'minutes');
 
-  if (!hasSecondPrediction) {
-    return q(`${strPreamble} ${strP1Relation} ${strP1Minutes}.`);
-  }
+    if (!hasSecondPrediction) {
+      return `${strPreamble} ${strP1Relation} ${strP1Minutes}`;
+    }
 
-  const strP2Joiner = (p1IsScheduleBased === p2IsScheduleBased)
-                    ? ', then again in'
-                    : (p2IsScheduleBased ? '. After that, the next one is scheduled to arrive in' : '. After that, next one will arrive in');
-  let strP2Minutes = pluralPhrase(p2Minutes, 'minute', 'minutes');
+    const strP2Joiner = (p1IsScheduleBased === p2IsScheduleBased)
+                      ? ', then again in'
+                      : (p2IsScheduleBased ? '. After that, the next one is scheduled to arrive in' : '. After that, next one will arrive in');
+    let strP2Minutes = pluralPhrase(p2Minutes, 'minute', 'minutes');
 
-  if (hasThirdPrediction && !p1IsScheduleBased && !p2IsScheduleBased && !p3IsScheduleBased) {
-    // we now have ', then again in __ minutes' in our string
-    strP2Minutes = p2Minutes + ' and ' + pluralPhrase(p3Minutes, 'minute', 'minutes');
-  }
+    if (hasThirdPrediction && !p1IsScheduleBased && !p2IsScheduleBased && !p3IsScheduleBased) {
+      // we now have ', then again in __ minutes' in our string
+      strP2Minutes = p2Minutes + ' and ' + pluralPhrase(p3Minutes, 'minute', 'minutes');
+    }
 
-  return q(`${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}.`);
+    return `${strPreamble} ${strP1Relation} ${strP1Minutes}${strP2Joiner} ${strP2Minutes}`;
+  })();
+
+  return [
+    q(`${responseText}. Can I help you with anything else?`),
+    q(`${responseText}. Is there anything else I can help you with?`)
+  ];
 }
 
 module.exports = {
