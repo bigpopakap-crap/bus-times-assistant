@@ -31,7 +31,7 @@ app.get('/status', function(request, response) {
   response.sendStatus(200);
 });
 
-app.use('/google', googleApp);
+app.use('/api-ai', googleApp);
 app.use('/alexa', alexaApp);
 
 // Start the server
