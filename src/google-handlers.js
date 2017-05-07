@@ -4,6 +4,7 @@
 const { busDirectionFromInput } = require('./ai-config-busDirection.js');
 const { busRouteFromInput } = require('./ai-config-busRoute.js');
 const { addressFromInput } = require('./ai-config-address.js');
+
 const GoogleAssistant = require('./google-assistant.js');
 
 function handleGetMyLocation(requestContext, assistant) {

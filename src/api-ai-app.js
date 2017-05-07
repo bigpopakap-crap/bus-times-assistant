@@ -22,8 +22,8 @@ function pipeMiddleware(path, request, response) {
   app.runMiddleware(path, {
     method: 'post',
     headers: request.headers,
-    query: request.query,
     cookies: request.cookies,
+    query: request.query,
     body: request.body
   }, (code, data) => {
     response.status(code).send(data);
