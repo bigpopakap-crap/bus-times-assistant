@@ -5,20 +5,19 @@
   "private": true,
   "author": "Kapil Easwar",
   "dependencies": {
-    "actions-on-google": "1.0.9",
-    "alexa-app": "4.0.0",
-    "body-parser": "1.17.1",
-    "dashbot": "0.8.6",
-    "express": "4.15.2",
-    "firebase-admin": "4.2.1",
-    "logfmt": "1.2.0",
-    "mixpanel": "0.7.0",
+    "actions-on-google": "^1.0.9",
+    "alexa-app": "^4.0.0",
+    "body-parser": "^1.17.1",
+    "dashbot": "^0.8.6",
+    "express": "^4.15.2",
+    "firebase-admin": "^4.2.1",
+    "logfmt": "^1.2.0",
+    "mixpanel": "^0.7.0",
     "mrkapil": "file:./mrkapil",
-    "node-geocoder": "3.16.0",
-    "promise": "7.1.1",
-    "request-json": "0.6.1",
-    "run-middleware": "0.6.6",
-    "sprintf-js": "1.0.3"
+    "node-geocoder": "^3.16.0",
+    "promise": "^7.1.1",
+    "request-json": "^0.6.1",
+    "run-middleware": "^0.6.6"
   },
   "scripts": {
     "postinstall": "npm install mrkapil"
