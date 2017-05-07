@@ -10,18 +10,28 @@ const { APP_SOURCE } = require('./ai-config-appSource.js');
 const { RequestContext } = require('mrkapil/logging');
 const INTENTS = require('./ai-config-intents.js');
 
+const initLogger = require('./logger.js').forComponent('facebook-app').forRequest();
+
 const dashbot = require('dashbot')(process.env.DASHBOT_API_KEY).google;
 
 const app = express();
 app.use(bodyParser.json({ type: 'application/json' }));
 
-const fbAssistant = MessengerPlatform.create({
-  pageID: process.env.FB_MESSENGER_PAGE_ID,
-  appID: process.env.FB_MESSENGER_APP_ID,
-  appSecret: process.env.FB_MESSENGER_APP_SECRET,
-  validationToken: process.env.FB_MESSENGER_API_AI_VERIFY_TOKEN,
-  pageToken: process.env.FB_MESSENGER_PAGE_ACCESS_TOKEN
-}, require('http').Server(app));
+let fbAssistant = null;
+try {
+  fbAssistant = MessengerPlatform.create({
+    pageID: process.env.FB_MESSENGER_PAGE_ID,
+    appID: process.env.FB_MESSENGER_APP_ID,
+    appSecret: process.env.FB_MESSENGER_APP_SECRET,
+    validationToken: process.env.FB_MESSENGER_API_AI_VERIFY_TOKEN,
+    pageToken: process.env.FB_MESSENGER_PAGE_ACCESS_TOKEN
+  }, require('http').Server(app));
+} catch (ex) {
+  initLogger.error('facebook_init', {
+    success: false,
+    error: ex
+  });
+}
 
 const {
   handleGetMyLocation,
@@ -45,17 +55,19 @@ app.use(function(request, response, next) {
   next();
 });
 
-app.use(fbAssistant.webhook('/'));
+if (fbAssistant) {
+  app.use(fbAssistant.webhook('/'));
 
-fbAssistant.on(MessengerPlatform.Events.MESSAGE, (userId, message) => {
-  // TODO add userId to request context
+  fbAssistant.on(MessengerPlatform.Events.MESSAGE, (userId, message) => {
+    // TODO add userId to request context
 
-  // TODO log to dashbot
+    // TODO log to dashbot
 
-  // TODO actually handle the request
-  console.log(userId);
-  console.log(message);
-});
+    // TODO actually handle the request
+    console.log(userId);
+    console.log(message);
+  });
+}
 
 // TODO add a log when the app starts
 
