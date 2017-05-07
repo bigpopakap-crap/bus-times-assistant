@@ -7,7 +7,8 @@ process.env.PORT = process.env.PORT || 8080;
 
 const express = require('express');
 
-const apiAiApp = require('./api-ai-app.js');
+const googleApp = require('./google-app.js');
+const facebookApp = require('./facebook-app.js');
 const alexaApp = require('./alexa-app.js');
 
 const { RequestContext } = require('mrkapil/logging');
@@ -41,7 +42,8 @@ app.get('/status', function(request, response) {
   response.sendStatus(200);
 });
 
-app.use('/api-ai', apiAiApp);
+app.use('/google', googleApp);
+app.use('/facebook', facebookApp);
 app.use('/alexa', alexaApp);
 
 // Start the server

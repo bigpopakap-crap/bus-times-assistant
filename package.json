@@ -18,8 +18,7 @@
     "mrkapil": "file:./mrkapil",
     "node-geocoder": "^3.16.0",
     "promise": "^7.1.1",
-    "request-json": "^0.6.1",
-    "run-middleware": "^0.6.6"
+    "request-json": "^0.6.1"
   },
   "scripts": {
     "postinstall": "npm install mrkapil"
