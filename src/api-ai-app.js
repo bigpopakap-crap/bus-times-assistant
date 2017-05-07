@@ -9,12 +9,26 @@ const { APP_SOURCE } = require('./ai-config-appSource.js');
 const initLogger = require('./logger.js').forComponent('api-ai-app');
 
 const googleApp = require('./google-app.js');
+const facebookApp = require('./facebook-app.js');
 
 const app = express();
 app.use(bodyParser.json({ type: 'application/json' }));
 require('run-middleware')(app);
 
 app.use('/google', googleApp);
+app.use('/facebook', facebookApp);
+
+function pipeMiddleware(path, request, response) {
+  app.runMiddleware(path, {
+    method: 'post',
+    headers: request.headers,
+    query: request.query,
+    cookies: request.cookies,
+    body: request.body
+  }, (code, data) => {
+    response.status(code).send(data);
+  });
+}
 
 // TODO log as we redirect to platform-specific apps
 app.post('/', function(request, response) {
@@ -35,13 +49,7 @@ app.post('/', function(request, response) {
         to: APP_SOURCE.GOOGLE
       });
 
-      app.runMiddleware('/google', {
-        method: 'post',
-        query: request.query,
-        body: request.body
-      }, (code, data) => {
-        response.send(code, data);
-      });
+      pipeMiddleware('/google', request, response);
       break;
 
     case APP_SOURCE.FACEBOOK:
@@ -49,7 +57,8 @@ app.post('/', function(request, response) {
         success: true,
         to: APP_SOURCE.FACEBOOK
       });
-      // TODO add a facebook handler
+
+      pipeMiddleware('/facebook', request, response);
       break;
 
     default:
