@@ -1,5 +1,7 @@
-/* global module */
-const BUSDESCRIPTOR = [
+/* global require module */
+const { BUS_DIRECTION_INPUTS } = require('./ai-config-busDirection.js');
+
+const BLACKLIST = [].concat(BUS_DIRECTION_INPUTS, [
   'bus',
   'train',
   'muni',
@@ -9,8 +11,10 @@ const BUSDESCRIPTOR = [
   'subway',
   'subway train',
   'line',
-  'route'
-];
+  'route',
+  'next',
+  // 'or' is specifically not in here
+]);
 
 function busRouteFromInput(input) {
   // TODO log that we made this conversion
@@ -27,7 +31,7 @@ function busRouteFromInput(input) {
       break;
   }
 
-  BUSDESCRIPTOR.forEach(badPart => {
+  BLACKLIST.forEach(badPart => {
     //replace them with empty strings
     input = input.split(badPart).join('');
   });

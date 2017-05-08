@@ -25,6 +25,8 @@ const BUS_DIRECTION_INPUT_MAP = {
   'going out of downtown': BUS_DIRECTION.OUTBOUND
 };
 
+const BUS_DIRECTION_INPUTS = Object.keys(BUS_DIRECTION_INPUT_MAP);
+
 function busDirectionFromInput(input) {
   // TODO log that we made this conversion
   return typeof input === 'string'
@@ -33,5 +35,6 @@ function busDirectionFromInput(input) {
 }
 
 module.exports = {
+  BUS_DIRECTION_INPUTS,
   busDirectionFromInput
 };
