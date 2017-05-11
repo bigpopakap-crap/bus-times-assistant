@@ -35,18 +35,8 @@ class GoogleDelegate {
     }
   }
 
-  say(response) {
-    if (!response) {
-      this.logger.error('no_response_given');
-      return;
-    }
-
-    this.logger.debug('respond', {
-      isPrompt: response.isPrompt(),
-      response: response.getPlainStr()
-    });
-
-    if (response.isPrompt()) {
+  say(response, isPrompt) {
+    if (isPrompt) {
       this.assistant.ask(response.getPlainStr());
     } else {
       this.assistant.tell(response.getPlainStr());

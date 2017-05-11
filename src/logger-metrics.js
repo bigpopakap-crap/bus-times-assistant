@@ -113,7 +113,7 @@ MetricsLogger.prototype.logIntent = function(intent, params = {}) {
   );
 };
 
-MetricsLogger.prototype.logIntentResponse = function(intent, startDate, response, params = {}) {
+MetricsLogger.prototype.logIntentResponse = function(intent, startDate, response, isPrompt, params = {}) {
   const eventType = METRICS_EVENT_TYPE.INTENT_RESPONSE;
 
   const durationMillis = new Date().getTime() - startDate.getTime();
@@ -126,7 +126,7 @@ MetricsLogger.prototype.logIntentResponse = function(intent, startDate, response
       prefixObject('stats.', {
         responseKey: response.getKey(),
         response: response.getPlainStr(),
-        responseIsPrompt: response.isPrompt(),
+        responseIsPrompt: isPrompt,
         durationMillis
       })
     )

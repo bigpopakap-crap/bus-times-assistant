@@ -12,18 +12,8 @@ class FacebookDelegate {
     return false; // I don't *think* Facebook pings you?
   }
 
-  say(response) {
-    if (!response) {
-      this.logger.error('no_response_given');
-      return;
-    }
-
-    this.logger.debug('respond', {
-      isPrompt: response.isPrompt(),
-      response: response.getPlainStr()
-    });
-
-    if (response.isPrompt()) {
+  say(response, isPrompt) {
+    if (isPrompt) {
       // TODO
     } else {
       // TODO

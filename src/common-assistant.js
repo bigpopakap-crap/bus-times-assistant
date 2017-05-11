@@ -22,7 +22,7 @@ class CommonAssistant {
     *
     * It should be a class with the following methods:
     * - isHealthCheck() -> boolean
-    * - say(response)
+    * - say(response, isPrompt)
     * - canUseDeviceLocation() -> boolean
     * - requestDeviceLocationPermission()
     * - isDeviceLocationPermissionGranted() -> boolean
@@ -56,10 +56,25 @@ class CommonAssistant {
     return this.delegate.isHealthCheck();
   }
 
+  say(response, isPrompt = false) {
+    if (!response) {
+      this.logger.error('no_response_given');
+      return;
+    }
+
+    this.logger.debug('respond', {
+      isPrompt,
+      response: response.getPlainStr(),
+      responseSSML: response.getSSML()
+    });
+
+    this.delegate.say(response, isPrompt);
+  }
+
   /* SHOULD BE PRIVATE */
   handleHealthCheck() {
     this.logger.info('handle_health_check');
-    this.delegate.say(this.respond.t('healthCheck'));
+    this.say(this.respond.t('healthCheck'), false);
 
     const appSource = this.requestContext.getAppSource();
     if (process.env.SHOULD_PING_RESTBUS_SERVER === 'true') {
@@ -82,11 +97,12 @@ class CommonAssistant {
     return this.db.getLocation().then(location => {
       const responseKey = location ? 'welcome' : 'welcome.noLocation';
       const response = this.respond.t(responseKey);
+      const isPrompt = true;
 
-      this.metrics.logIntentResponse(INTENTS.WELCOME, startDate, response);
+      this.metrics.logIntentResponse(INTENTS.WELCOME, startDate, response, isPrompt);
       perfBeacon.logEnd();
 
-      this.delegate.say(response);
+      this.say(response, isPrompt);
     });
   }
 
@@ -105,11 +121,12 @@ class CommonAssistant {
     return this.db.getLocation().then(location => {
       const responseKey = location ? 'help' : 'help.noLocation';
       const response = this.respond.t(responseKey);
+      const isPrompt = true;
 
-      this.metrics.logIntentResponse(INTENTS.HELP, startDate, response);
+      this.metrics.logIntentResponse(INTENTS.HELP, startDate, response, isPrompt);
       perfBeacon.logEnd();
 
-      this.delegate.say(response);
+      this.say(response, isPrompt);
     });
   }
 
@@ -125,11 +142,12 @@ class CommonAssistant {
     const perfBeacon = this.perf.start('handleCancel');
 
     const response = this.respond.t(isThankYou ? 'cancel.thankYou' : 'cancel');
+    const isPrompt = false;
 
-    this.metrics.logIntentResponse(INTENTS.CANCEL, startDate, response);
+    this.metrics.logIntentResponse(INTENTS.CANCEL, startDate, response, isPrompt);
     perfBeacon.logEnd();
 
-    this.delegate.say(response);
+    this.say(response, isPrompt);
   }
 
   handleGetMyLocation() {
@@ -143,25 +161,31 @@ class CommonAssistant {
     this.metrics.logIntent(INTENTS.GET_MY_LOCATION);
     const perfBeacon = this.perf.start('handleGetMyLocation');
 
-    // TODO handle errors
+    // TODO handle errors. On error, the response should be isPrompt=false
     return new Promise(resolve => {
       this.db.getLocation().then(location => {
         if (location) {
           const response = this.respond.t('getLocation', {
             address: location.getAddress()
           });
-          resolve(response);
+          resolve({
+            response,
+            isPrompt: false
+          });
         } else {
           const response = this.delegate.canUseDeviceLocation()
               ? this.respond.t('getLocation.noLocation.deviceLocation')
               : this.respond.t('getLocation.noLocation');
-          resolve(response);
+          resolve({
+            response,
+            isPrompt: true
+          });
         }
       });
-    }).then(response => {
-      this.metrics.logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, response);
+    }).then(({ response, isPrompt}) => {
+      this.metrics.logIntentResponse(INTENTS.GET_MY_LOCATION, startDate, response, isPrompt);
       perfBeacon.logEnd();
-      this.delegate.say(response);
+      this.say(response, isPrompt);
     });
   }
 
@@ -180,10 +204,13 @@ class CommonAssistant {
       address
     });
 
-    // TODO handle errors
+    // TODO handle errors. On error, the response should be isPrompt=false
     return new Promise(resolve => {
       if (!address) {
-        resolve(this.respond.t('updateLocation.missingAddress'));
+        resolve({
+          isPrompt: true,
+          response: this.respond.t('updateLocation.missingAddress')
+        });
         return;
       }
 
@@ -192,39 +219,54 @@ class CommonAssistant {
           this.db.saveLocation(location);
 
           const responseKey = this.maybeAppendLocationWarning('updateLocation', location);
-          resolve(this.respond.t(responseKey, {
-            address: location.getAddress()
-          }));
+          // TODO differentiate between when we prompt them to ask
+          // for bus times vs. when we are just telling them their address.
+          // If prompting, set isPrompt=true, otherwise set to false
+          resolve({
+            isPrompt: true,
+            response: this.respond.t(responseKey, {
+              address: location.getAddress()
+            })
+          });
         },
         (err, { city } = {}) => {
           switch (err) {
             case this.geocoder.ERRORS.NO_STREET_ADDRESS:
               if (city) {
-                resolve(this.respond.t('updateLocation.notSpecific.withCity', {
-                  address,
-                  city
-                }));
+                resolve({
+                  isPrompt: true,
+                  response: this.respond.t('updateLocation.notSpecific.withCity', {
+                    address,
+                    city
+                  })
+                });
               } else {
-                resolve(this.respond.t('updateLocation.notSpecific', {
-                  address
-                }));
+                resolve({
+                  isPrompt: true,
+                  response: this.respond.t('updateLocation.notSpecific', {
+                    address
+                  })
+                });
               }
               break;
 
             default:
-              resolve(this.respond.t('updateLocation.notFound', {
-                address
-              }));
+              resolve({
+                isPrompt: true,
+                response: this.respond.t('updateLocation.notFound', {
+                  address
+                })
+              });
               break;
           }
         }
       );
-    }).then(response => {
-      this.metrics.logIntentResponse(INTENTS.UPDATE_MY_LOCATION, startDate, response, {
+    }).then(({ isPrompt, response }) => {
+      this.metrics.logIntentResponse(INTENTS.UPDATE_MY_LOCATION, startDate, response, isPrompt, {
         address
       });
       perfBeacon.logEnd();
-      this.delegate.say(response);
+      this.say(response, isPrompt);
     });
   }
 
@@ -256,7 +298,8 @@ class CommonAssistant {
             resolve({
               hadLocation: true,
               askedForLocationPermission: false,
-              response
+              response,
+              isPrompt: false
             });
           });
         } else if (!this.delegate.canUseDeviceLocation()) {
@@ -264,7 +307,8 @@ class CommonAssistant {
           resolve({
             hadLocation: false,
             askedForLocationPermission: false,
-            response: this.respond.t('getBusTimes.missingLocation')
+            response: this.respond.t('getBusTimes.missingLocation'),
+            isPrompt: true
           });
         } else {
           // noooo, we have to ask them for their location, but we can use the device's location!
@@ -273,12 +317,13 @@ class CommonAssistant {
           resolve({
             hadLocation: false,
             askedForLocationPermission: true,
-            response
+            response,
+            isPrompt: true
           });
         }
       });
-    }).then(({ hadLocation, askedForLocationPermission, response }) => {
-      this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, response, {
+    }).then(({ hadLocation, askedForLocationPermission, response, isPrompt }) => {
+      this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE, startDate, response, isPrompt, {
         hadLocation,
         askedForLocationPermission,
         busRoute,
@@ -288,7 +333,7 @@ class CommonAssistant {
         askedForLocationPermission
       });
       if (!askedForLocationPermission) {
-        this.delegate.say(response);
+        this.say(response, isPrompt);
       }
     });
   }
@@ -318,7 +363,16 @@ class CommonAssistant {
     this.metrics.logLocationPermissionResponse(wasPermissionGranted);
 
     if (!wasPermissionGranted) {
-      this.delegate.say(this.respond.t('locationPermission.denialWarning'));
+      const response = this.respond.t('locationPermission.denialWarning');
+      const isPrompt = true;
+
+      this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, startDate, response, isPrompt, {
+        wasPermissionGranted,
+        busRoute,
+        busDirection
+      });
+
+      this.say(response, isPrompt);
       return;
     }
 
@@ -332,13 +386,14 @@ class CommonAssistant {
         });
       });
     }).then(response => {
-      this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, startDate, response, {
+      const isPrompt = false;
+      this.metrics.logIntentResponse(INTENTS.GET_NEAREST_BUS_BY_ROUTE_FALLBACK, startDate, response, isPrompt, {
         wasPermissionGranted,
         busRoute,
         busDirection
       });
       perfBeacon.logEnd();
-      this.delegate.say(response);
+      this.say(response, isPrompt);
     });
   }
 

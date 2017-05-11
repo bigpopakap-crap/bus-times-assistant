@@ -14,19 +14,8 @@ class AlexaDelegate {
     return false;
   }
 
-  say(response) {
-    if (!response) {
-      this.logger.error('no_response_given');
-      return;
-    }
-
-    this.logger.debug('respond', {
-      isPrompt: response.isPrompt(),
-      response: response.getPlainStr(),
-      responseSSML: response.getSSML()
-    });
-
-    if (response.isPrompt()) {
+  say(response, isPrompt) {
+    if (isPrompt) {
       this.response.shouldEndSession(false);
     }
 
